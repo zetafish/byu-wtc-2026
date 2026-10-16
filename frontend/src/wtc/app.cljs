@@ -250,7 +250,7 @@
        [:div.empty (if (seq candidates)
                      "Everyone here is out. Tick \"Show eliminated\" to see them."
                      "Select a country or star a runner")]
-       [:div.table-wrap
+       [:div.table-wrap.full
         [:table
          [:thead [:tr [:th] [:th "Runner"] [:th "Country"] [:th.num "Laps"]
                   [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
