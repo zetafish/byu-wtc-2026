@@ -78,7 +78,16 @@
         (is (= "success" (:status r)) m)
         (is (every? #(and (map? (:metric %)) (vector? (:values %))) (get-in r [:data :result])) m)))
     (is (= [1 1033] (first (get-in (metrics/query d "runners_started" {}) [:data :result 0 :values]))))
-    (is (= "error" (:status (metrics/query d "nope" {}))))))
+    (is (= "error" (:status (metrics/query d "nope" {}))))
+    (testing "gap to leader: the leader is at 0, everyone else at or below"
+      (let [gaps (get-in (metrics/query d "team_score_gap" {}) [:data :result])
+            last-ys (map (comp second peek :values) gaps)]
+        (is (= 0 (apply max last-ys)))
+        (is (every? #(<= % 0) (mapcat #(map second (:values %)) gaps)))))
+    (testing "a country's gap doesn't depend on which countries are compared"
+      (let [gap #(-> (metrics/query d "team_score_gap" {:countries %}) (get-in [:data :result])
+                     (->> (filter (fn [s] (= "NED" (get-in s [:metric :country]))))) first :values)]
+        (is (= (gap #{"NED"}) (gap #{"NED" "BEL"})))))))
 
 (deftest roster-enrichment
   (let [info (roster/runner-info)

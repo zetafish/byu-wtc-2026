@@ -198,6 +198,15 @@ button.ghost {
   font: 600 13px var(--body); color: var(--text-muted); background: var(--page);
   border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; cursor: pointer;
 }
+.head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.segmented button {
+  font: 600 13px var(--body); color: var(--text-muted); background: var(--page);
+  border: 0; padding: 3px 10px; cursor: pointer;
+}
+.segmented button + button { border-left: 1px solid var(--line); }
+.segmented button[aria-pressed="true"] { color: var(--text-primary); background: var(--selected); }
+.segmented button:hover { color: var(--text-primary); }
 button.ghost:hover { color: var(--text-primary); border-color: var(--axis); }
 input:focus-visible, button:focus-visible, tr:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 

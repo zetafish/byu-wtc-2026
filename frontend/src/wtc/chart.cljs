@@ -32,8 +32,11 @@
   (let [ys (if stacked?
              (vals (apply merge-with + (map #(into {} (:values %)) series)))
              (mapcat #(map second (:values %)) series))
-        hi (max 1 (reduce max 0 ys))
-        lo (if y-zero? 0 (reduce min hi ys))
+        y-max (if (seq ys) (reduce max ys) 0)
+        y-min (if (seq ys) (reduce min ys) 0)
+        ;; y-zero? keeps 0 inside the axis, from below (counts) or above (gaps)
+        lo (if y-zero? (min 0 y-min) y-min)
+        hi (let [h (if y-zero? (max 0 y-max) y-max)] (if (<= h lo) (+ lo 1) h))
         ts (ticks lo hi 4 false true)]
     {:ticks ts :domain [(first ts) (max (last ts) hi)]}))
 

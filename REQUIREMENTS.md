@@ -123,7 +123,9 @@ With two runners left (A and B):
 - **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared countries stay visible. After the finish, everything is shown. [decided]
 - The table always shows every row, without an inner scroll. [decided]
 - **Charts** work like Grafana: the backend serves visualisations as standard JSON in a Prometheus-like shape. The frontend draws them generically, so adding a chart is cheap. [brief] The charts are:
-  - **comparison:** runners starting each lap, and team score per lap, one line per compared country;
+  - **comparison:** runners starting each lap, and team score per lap, one line per compared country. Team score has two views:
+    - **"Gap to leader"** (the default): laps behind the leading country of all countries at each lap, so the leader is at 0. A cumulative total makes the top countries' lines overlap, and this shows the differences. [decided]
+    - **"Total"**: the cumulative team score.
   - **all countries:** runners out per lap, split into "did not finish" and "no result", and a histogram of countries by runners still in. [brief]
 - Every chart can switch to a table view.
 

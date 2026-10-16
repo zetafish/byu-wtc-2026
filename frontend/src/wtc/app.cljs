@@ -18,7 +18,8 @@
                      :show-out-runners? false ; list eliminated runners too
                      :view :countries ; menu view, mirrors the URL hash
                      :seat nil        ; seat ranking: nil = all seats overview
-                     :results {}      ; panel id -> query result
+                     :results {}      ; [panel id, metric] -> query result
+                     :variant {}      ; panel id -> index into the panel's :variants
                      :open nil}))      ; runner id with the detail chart open
 
 ;; --- persistence of viewer preferences (best effort) ---
@@ -34,7 +35,8 @@
                                                              :show-out (:show-out? @db)
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
-                                                             :starred-only (:starred-only? @db)})))
+                                                             :starred-only (:starred-only? @db)
+                                                             :variant (:variant @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -52,16 +54,23 @@
 
 (declare fetch-runner-times!)
 
+(defn- effective
+  "A panel with its chosen variant's keys merged in."
+  [{:keys [id variants] :as p}]
+  (if (seq variants)
+    (merge p (nth variants (get-in @db [:variant id] 0) (first variants)))
+    p))
+
 (defonce ^:private fetch-seq (atom 0))
 
 (defn- fetch-panels! []
   ;; quick clicks fire overlapping requests; only the latest round may land
   (let [n (swap! fetch-seq inc)
         latest? #(= n @fetch-seq)]
-    (doseq [{:keys [id metric per-country?]} panels/panels]
+    (doseq [{:keys [id metric per-country?]} (map effective panels/panels)]
       (-> (get-json "/api/query" (cond-> {:metric metric}
                                    per-country? (assoc :by "country" :countries (selected-codes))))
-          (.then #(when (latest?) (swap! db assoc-in [:results id] (get-in % [:data :result]))))
+          (.then #(when (latest?) (swap! db assoc-in [:results [id metric]] (get-in % [:data :result]))))
           (.catch #(js/console.warn %))))
     (fetch-runner-times! latest?)))
 
@@ -218,9 +227,12 @@
 
 (defn- panel [_]
   (let [table? (r/atom false)]
-    (fn [{:keys [id title subtitle kind] :as p}]
-      (let [results (:results @db)
-            series (to-series p (get results id))
+    (fn [p0]
+      (let [{:keys [id title subtitle kind variants] :as p} (effective p0)
+            chosen (get-in @db [:variant id] 0)
+            results (:results @db)
+            rkey [id (:metric p)]
+            series (to-series p (get results rkey))
             opts {:series series :x-label (:x-label p) :y-label (:y-label p)
                   :fmt-y (y-formats (:y-format p)) :y-zero? (:y-zero? p true)
                   ;; the Compare chips above the charts are their shared legend
@@ -228,11 +240,22 @@
         [:section.card
          [:div.card-head
           [:div [:h2 title] (when subtitle [:p.sub subtitle])]
-          [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]]
+          [:div.head-actions
+           (when (seq variants)
+             [:div.segmented {:role "group" :aria-label (str title " view")}
+              (for [[i {:keys [label]}] (map-indexed vector variants)]
+                ^{:key label}
+                [:button {:aria-pressed (= i chosen)
+                          :on-click #(when-not (= i chosen)
+                                       (swap! db assoc-in [:variant id] i)
+                                       (save-prefs!)
+                                       (fetch-panels!))}
+                 label])])
+           [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]]]
          (cond
            (and (:per-country? p) (empty? (:selected @db)))
            [chart/placeholder (str "Tick countries in the table below to compare them here (up to " max-selected ")")]
-           (not (contains? results id)) [chart/placeholder ""]
+           (not (contains? results rkey)) [chart/placeholder ""]
            @table? [chart/data-table opts]
            (= kind :line) [chart/line-chart opts]
            :else [chart/bar-chart opts])]))))
@@ -578,8 +601,9 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred show-out show-out-runners runner-filter starred-only]} (load-prefs)]
+  (when-let [{:keys [selected starred show-out show-out-runners runner-filter starred-only variant]} (load-prefs)]
     (swap! db assoc
+           :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
            :starred (set starred)
            :runner-filter (set runner-filter)

@@ -105,6 +105,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 - **`wtc.metrics`:** visualisation queries, in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The current entries:
   - `runners_started`
   - `team_score`
+  - `team_score_gap`: team score minus the leader's at each lap; the leader is taken over all countries, so a line doesn't move when others are compared
   - `attrition`
   - `lap_time_seconds`
   - `countries_by_active_runners`
@@ -142,7 +143,10 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 - **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here.** The panel keys:
   - `:id`, `:title`, `:subtitle`, `:metric`, `:kind` (`:line` or `:bar`), `:x-label`, `:y-label`;
   - either `:per-country? true` (one series per selected country, queried with `by=country`) or `:series-label :k` (one series per value of label `:k`, with `:series-order` and `:series-names`);
-  - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`.
+  - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`;
+  - optionally `:variants [{:label :metric :subtitle :y-label} …]`: switchable views of one panel, shown as a segmented control. The chosen variant's keys override the panel's, the first is the default, and the choice is remembered per browser. Results are cached per `[panel-id metric]`, so switching back is instant.
+
+  `:y-zero?` (default true) keeps 0 on the y-axis, from below for counts or from above for negative values like gaps.
 
   A new formatter goes in `y-formats` in `wtc.app`. All charts render above the countries table, with the `:per-country?` charts first. Those stay empty until countries are ticked in the table.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.

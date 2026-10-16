@@ -9,6 +9,9 @@
     :series-label :k     one series per value of metric label :k, ordered by
                          :series-order, named by :series-names
   and optionally
+    :variants [{:label … :metric … :subtitle … :y-label …} …]
+                         switchable views of one panel; the chosen variant's
+                         keys override the panel's, the first is the default
     :y-format :mmss      seconds shown as m:ss
     :y-zero? false       y-axis doesn't have to start at 0 (line charts)")
 
@@ -21,11 +24,14 @@
     :x-label "lap" :y-label "runners"}
    {:id :score
     :title "Team score"
-    :subtitle "Total laps by all runners of a country, which decides the ranking"
-    :metric "team_score"
     :per-country? true
     :kind :line
-    :x-label "lap" :y-label "laps"}
+    :x-label "lap"
+    ;; the total hides small differences between the top countries; the gap shows them
+    :variants [{:label "Gap to leader" :metric "team_score_gap" :y-label "laps behind"
+                :subtitle "Laps behind the leading country (of all countries)"}
+               {:label "Total" :metric "team_score" :y-label "laps"
+                :subtitle "Total laps by all runners of a country"}]}
    {:id :attrition
     :title "Runners out per lap"
     :subtitle "All countries"

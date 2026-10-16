@@ -32,6 +32,20 @@
            (fn [rs] (mapv (fn [n] [n (reduce + (map #(min (:laps %) n) rs))])
                           (range 1 (inc (:settled-lap derived)))))))
 
+(defn- team-score-gap
+  "Team score minus the leader's team score at each lap, the leader being
+  the best of *all* countries (so a country's line doesn't move when others
+  are compared). The leader is at 0; it makes small differences visible
+  that a cumulative total hides."
+  [derived params]
+  (let [lead (->> (team-score derived {})
+                  (map #(into {} (:values %)))
+                  (apply merge-with max {}))]
+    (for [s (team-score derived params)]
+      (-> s
+          (assoc-in [:metric :__name__] "team_score_gap")
+          (update :values (fn [vs] (mapv (fn [[n y]] [n (- y (lead n 0))]) vs)))))))
+
 (defn- attrition [derived params]
   (let [rs (filter #(= :out (:status %)) (select derived params))]
     (for [[reason rrs] (sort-by key (group-by :reason rs))
@@ -59,6 +73,7 @@
 (def registry
   {"runners_started" {:doc "Runners starting lap n. by=country" :x "lap" :fn runners-started}
    "team_score" {:doc "Cumulative laps per country (team score) after lap n" :x "lap" :fn team-score}
+   "team_score_gap" {:doc "Team score minus the leading country's team score after lap n (leader = 0)" :x "lap" :fn team-score-gap}
    "attrition" {:doc "Runners out during/after lap n, per reason. by=country" :x "lap" :fn attrition}
    "lap_time_seconds" {:doc "Lap times per runner; filter with runners= or countries=" :x "lap" :fn lap-time}
    "countries_by_active_runners" {:doc "Histogram: number of countries with k runners starting lap= (default current)" :x "active_runners" :fn countries-by-active}})
