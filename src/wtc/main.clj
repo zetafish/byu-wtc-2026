@@ -1,0 +1,60 @@
+(ns wtc.main
+  (:gen-class)
+  (:require [clojure.edn :as edn]
+            [clojure.tools.logging :as log]
+            [org.httpkit.server :as http-kit]
+            [wtc.http :as http]
+            [wtc.ingest :as ingest]
+            [wtc.source :as source]
+            [wtc.source.mock]
+            [wtc.store :as store]
+            [wtc.store.postgres :as pg])
+  (:import (java.time Instant)
+           (java.util.concurrent ExecutorService)))
+
+(defn- env
+  ([k] (env k nil))
+  ([k default] (let [v (System/getenv k)] (if (seq v) v default))))
+
+(defn config
+  "Everything comes from env vars. SOURCES is an EDN vector of source
+  configs, see `wtc.source`."
+  []
+  {:port (parse-long (env "PORT" "8080"))
+   :database-url (env "DATABASE_URL")
+   :race-start (Instant/parse (env "RACE_START" "2026-10-17T12:00:00Z"))
+   :grace-s (parse-long (env "GRACE_SECONDS" "900"))
+   :poll-seconds (parse-long (env "POLL_SECONDS" "60"))
+   :fetch {:timeout-ms (parse-long (env "FETCH_TIMEOUT_MS" "20000"))
+           :attempts 3
+           :backoff-ms 2000}
+   :clock {:start (some-> (env "CLOCK_START") Instant/parse)
+           :speed (parse-double (env "CLOCK_SPEED" "1"))}
+   :sources (edn/read-string (env "SOURCES" "[{:id :mock :type :mock :priority 0}]"))})
+
+(defn start [cfg]
+  (let [store (if-let [url (:database-url cfg)]
+                (pg/postgres-store url)
+                (do (log/warn "DATABASE_URL not set, using in-memory store")
+                    (store/memory-store)))
+        datasets (store/load-datasets store)
+        sys {:config cfg
+             :store store
+             :clock (ingest/make-clock (:clock cfg))
+             :sources (mapv #(assoc % :impl (source/create %)) (:sources cfg))
+             :state (atom {:datasets datasets :persisted datasets})}
+        _ (ingest/refresh! sys)
+        scheduler (ingest/start-scheduler sys)
+        stop-http (http-kit/run-server (http/app (:state sys)) {:port (:port cfg)})]
+    (log/infof "listening on %d, sources %s" (:port cfg) (mapv :id (:sources sys)))
+    (assoc sys :scheduler scheduler :stop-http stop-http)))
+
+(defn stop [{:keys [^ExecutorService scheduler stop-http store]}]
+  (when stop-http (stop-http :timeout 1000))
+  (when scheduler (.shutdownNow scheduler))
+  (when store (store/close! store)))
+
+(defn -main [& _]
+  (let [sys (start (config))]
+    (.addShutdownHook (Runtime/getRuntime) (Thread. #(stop sys)))
+    @(promise)))

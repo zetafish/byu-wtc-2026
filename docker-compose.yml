@@ -1,0 +1,35 @@
+# Local stack: Postgres (stand-in for Neon) + the backend container.
+# Clock/source settings come from the shell, e.g. `make up DEMO=1`.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: wtc
+      POSTGRES_PASSWORD: wtc
+      POSTGRES_DB: wtc
+    ports:
+      - "55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wtc -d wtc"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT:-8090}:8080"
+    environment:
+      DATABASE_URL: postgres://wtc:wtc@db:5432/wtc
+      POLL_SECONDS: ${POLL_SECONDS:-60}
+      CLOCK_START: ${CLOCK_START:-}
+      CLOCK_SPEED: ${CLOCK_SPEED:-1}
+      SOURCES: ${SOURCES:-}
+
+volumes:
+  pgdata:
