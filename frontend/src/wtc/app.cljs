@@ -12,6 +12,7 @@
                      :starred #{}
                      :show-out? false ; list eliminated countries too
                      :show-out-runners? false ; list eliminated runners too
+                     :seat nil        ; seat ranking: nil = all seats overview
                      :results {}      ; panel id -> query result
                      :open nil}))      ; runner id with the detail chart open
 
@@ -276,12 +277,108 @@
               [:td [chart/sparkline times]]]
              (when (= open id) [runner-detail runner])])]]])]))
 
+;; --- seat ranking ---
+;; Every runner has a seat (1-15, their roster rank in the team). All runners
+;; with the same seat compete across countries; each seat's winner is invited
+;; to the Individual Big's Backyard Ultra.
+
+(def seats (range 1 16))
+
+(defn- running? [r] (= "running" (:status r)))
+
+(defn- seat-key [r] [(:laps r) (if (running? r) 1 0)])
+
+(defn- seat-ranking
+  "Runners of seat n, best first, with :pos. Equal laps share a position,
+  except that a runner still going is ahead of one who is out."
+  [runners n]
+  (let [rs (filter #(= n (:rank %)) runners)
+        better? (fn [a b] (pos? (compare (seat-key a) (seat-key b))))]
+    (->> rs
+         (map (fn [r] (assoc r :pos (inc (count (filter #(better? % r) rs))))))
+         (sort-by (juxt :pos :name)))))
+
+(defn- seat-summary [runners n]
+  (let [ranked (seat-ranking runners n)
+        in (filter running? ranked)
+        leaders (filter #(= 1 (:pos %)) ranked)]
+    {:seat n
+     :leaders leaders
+     :total (count ranked)
+     :running (count in)
+     :state (cond
+              (>= (count in) 2) :open
+              (= 1 (count in)) :last-in
+              (= 1 (count leaders)) :winner
+              :else :tie)}))
+
+(defn- seat-state-pill [{:keys [state running leaders]}]
+  (case state
+    :open [:span.pill.in [:span.dot.in] (str "open · " running " still in")]
+    :last-in [:span.pill.in [:span.dot.in] "last one in"]
+    :winner [:span.pill.win "★ winner"]
+    :tie [:span.pill.out (str "tie · " (count leaders))]))
+
+(defn- country-key [code]
+  (when-let [slot (get (:selected @db) code)]
+    [:span.key-box {:style {:background (color slot)}}]))
+
+(defn- seats-overview [runners]
+  [:table
+   [:thead [:tr [:th.num "Seat"] [:th "Leader"] [:th "Country"] [:th.num "Laps"] [:th "State"]]]
+   [:tbody
+    (for [n seats
+          :let [{:keys [leaders] :as sum} (seat-summary runners n)
+                lead (first leaders)]]
+      ^{:key n}
+      [:tr.clickable {:on-click #(swap! db assoc :seat n)}
+       [:td.num [:b n]]
+       (if (> (count leaders) 1)
+         [:<> [:td.muted (str (count leaders) " tied")] [:td]]
+         [:<> [:td.name (:name lead "–")]
+          [:td (when lead [:<> [country-key (:country lead)] (:country lead)])]])
+       [:td.num (:laps lead)]
+       [:td [seat-state-pill sum]]])]])
+
+(defn- seat-table [runners n]
+  [:table
+   [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Laps"]
+            [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
+            [:th "Status"]]]
+   [:tbody
+    (for [{:keys [id name country laps best-yards pos] :as r} (seat-ranking runners n)]
+      ^{:key id}
+      [:tr {:class (when-not (running? r) "out")}
+       [:td.num pos]
+       [:td.name name]
+       [:td [country-key country] country]
+       [:td.num laps]
+       [:td.num (or best-yards "–")]
+       [:td [status-badge r]]])]])
+
+(defn- seats-card []
+  (let [{:keys [runners seat]} @db]
+    [:section.card.wide
+     [:div.card-head
+      [:div [:h2 "Seat ranking"]
+       [:p.sub "Every runner has a seat (1–15) in their team. Runners in the same seat compete across all countries; each seat's winner is invited to the Individual Big's Backyard Ultra. Click a seat for its full ranking."]]
+      [:label.toggle "Seat "
+       [:select.seat {:value (or seat "")
+                      :on-change #(swap! db assoc :seat (some-> (.. % -target -value) not-empty parse-long))}
+        [:option {:value ""} "All seats"]
+        (for [n seats] ^{:key n} [:option {:value n} n])]]]
+     (if (empty? runners)
+       [:div.empty "No runners yet"]
+       [:div.table-wrap.full
+        (if seat [seat-table runners seat] [seats-overview runners])])]))
+
 (defn- app []
   [:main
    [header]
    [:div.grid
     (for [p panels/panels] ^{:key (:id p)} [panel p])
     [countries-table]
+    [seats-card]
     [runners-table]]
    [:footer "Unofficial. Data may lag the official results by a few minutes."]])
 

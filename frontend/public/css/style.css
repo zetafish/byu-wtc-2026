@@ -213,6 +213,12 @@ label.toggle {
 .pill.in .dot { width: 7px; height: 7px; }
 .pill.out { color: var(--text-muted); padding-left: 0; }
 .pill.out .icon { color: var(--critical); }
+.pill.win { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+td.name { font-weight: 600; }
+select.seat {
+  font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer;
+}
 
 button.star {
   font-size: 17px; line-height: 1; background: none; border: 0; cursor: pointer;
