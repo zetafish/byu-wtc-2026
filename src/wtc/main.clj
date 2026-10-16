@@ -30,7 +30,8 @@
            :attempts 3
            :backoff-ms 2000}
    :clock {:start (some-> (env "CLOCK_START") Instant/parse)
-           :speed (parse-double (env "CLOCK_SPEED" "1"))}
+           :speed (parse-double (env "CLOCK_SPEED" "1"))
+           :anchor (some-> (env "CLOCK_ANCHOR") Instant/parse)}
    :sources (edn/read-string (env "SOURCES" "[{:id :mock :type :mock :priority 0}]"))})
 
 (defn start [cfg]

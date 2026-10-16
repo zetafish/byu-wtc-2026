@@ -24,7 +24,7 @@ make roster                        # build resources/roster/wtc-2026.edn from ro
 make roster-refresh                # re-fetch every roster/*.json from the official endpoint (~2 min), then build
 ```
 
-Before the race starts, a real-time clock shows nothing. `DEMO=1` starts the app clock 30 h into the race at 60× speed. `user/start` in `dev/user.clj` does the same, but at normal speed. The local default port is 8090, because 8080 and 8787 are often taken by other local `bb` servers. Compose Postgres is on `localhost:55432` (user, password and database are all `wtc`). Without `DATABASE_URL`, the app uses an in-memory store.
+Before the race starts, a real-time clock shows nothing. `DEMO=1` starts the app clock 30 h into the race at 60× speed. `make up DEMO=1` writes these settings to `.env`, with a fixed `CLOCK_ANCHOR` (the wall time at which the clock read `CLOCK_START`). Compose reads `.env`, so restarts and a plain `docker compose up` continue the same simulated race instead of starting it over. At 60× the mock race ends about 2 h of wall time after the anchor and then stays finished. `make demo-reset` starts it over; `make demo-off` returns to real time. `user/start` in `dev/user.clj` does the same, but at normal speed. The local default port is 8090, because 8080 and 8787 are often taken by other local `bb` servers. Compose Postgres is on `localhost:55432` (user, password and database are all `wtc`). Without `DATABASE_URL`, the app uses an in-memory store.
 
 ## Config (env vars, read in `wtc.main/config`)
 
@@ -33,7 +33,7 @@ Before the race starts, a real-time clock shows nothing. `DEMO=1` starts the app
 - `POLL_SECONDS` (60)
 - `GRACE_SECONDS` (900)
 - `FETCH_TIMEOUT_MS`
-- `CLOCK_START` / `CLOCK_SPEED`
+- `CLOCK_START` / `CLOCK_SPEED` / `CLOCK_ANCHOR`
 - `SOURCES`: an EDN vector, e.g. `[{:id :mock :type :mock :priority 0 :failure-rate 0.2}]`.
 
 ## Architecture

@@ -81,10 +81,11 @@
      0 (long (get-in sys [:config :poll-seconds])) TimeUnit/SECONDS)))
 
 (defn make-clock
-  "Real time by default. For demos and dev: start the app clock at `start`
-  and/or run it `speed` times faster than real time."
-  [{:keys [start speed] :or {speed 1}}]
-  (let [boot (Instant/now)
+  "Real time by default. For demos and dev: the app clock reads `start` at
+  wall time `anchor` (default: boot) and runs `speed` times faster than real
+  time. A fixed `anchor` makes the clock survive restarts."
+  [{:keys [start speed anchor] :or {speed 1}}]
+  (let [boot (or anchor (Instant/now))
         origin (or start boot)]
     (if (and (nil? start) (= 1 speed))
       #(Instant/now)

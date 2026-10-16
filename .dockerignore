@@ -2,3 +2,5 @@ target
 .cpcache
 .git
 frontend
+.env
+.envrc
