@@ -247,7 +247,7 @@
     (control-sim! {:action "step" :by 1})
     (schedule-poll!)))
 
-(def ^:private sim-polls [[2000 "2s"] [5000 "5s"] [10000 "10s"] [30000 "30s"] [60000 "60s"]])
+(def ^:private sim-polls [[1000 "1s"] [2000 "2s"] [5000 "5s"] [10000 "10s"]])
 
 (defn- set-sim-poll! [ms]
   (swap! db assoc :sim-poll-ms ms)
@@ -286,11 +286,13 @@
             [:input.scrub {:type "range" :min 1 :max end :step 1 :value lap :aria-label "Race lap"
                            :style {"--progress" (str (* 100 (/ (dec lap) (max 1 (dec end)))) "%")}
                            :on-change (fn [e]
+                                        ;; keeps playing or paused; no step while dragging
                                         (let [n (js/parseInt (.. e -target -value))]
                                           (reset! scrub n)
+                                          (js/clearTimeout @poll-timer)
                                           (js/clearTimeout @timer)
                                           (reset! timer (js/setTimeout
-                                                         #(-> (pause-and! {:action "jump" :lap n})
+                                                         #(-> (control-sim! {:action "jump" :lap n})
                                                               (.then (fn [] (reset! scrub nil))))
                                                          300))))}]
             [:span.sim-lap (str "Lap " lap " / " end)]
@@ -548,7 +550,7 @@
         (str "Show eliminated (" n-out ")")])]))
 
 (defn- runners-table []
-  (let [{:keys [runners selected starred open lap-times show-out-runners? runner-filter starred-only? query]} @db
+  (let [{:keys [runners starred open lap-times show-out-runners? runner-filter starred-only? query]} @db
         starred? #(contains? starred (:id %))
         q (str/lower-case (str/trim query))
         candidates (cond->> (ranked runners)
@@ -593,7 +595,7 @@
                                   :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
                     (if (starred? runner) "★" "☆")]]
               [:td.name name]
-              [:td [:span.key-box {:style {:background (some-> (get selected country) color)}}] country]
+              [:td country]
               [:td.num (:rank runner)]
               [:td.num laps]
               [:td.num (or (:best-yards runner) "–")]
