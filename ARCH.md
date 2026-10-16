@@ -144,7 +144,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - either `:per-country? true` (one series per selected country, queried with `by=country`) or `:series-label :k` (one series per value of label `:k`, with `:series-order` and `:series-names`);
   - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`.
 
-  A new formatter goes in `y-formats` in `wtc.app`. Charts with `:per-country?` render above the countries table and stay empty until countries are ticked there; the other charts render below it.
+  A new formatter goes in `y-formats` in `wtc.app`. All charts render above the countries table, with the `:per-country?` charts first. Those stay empty until countries are ticked in the table.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.

@@ -555,13 +555,12 @@
   (case view
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
-    ;; countries: the comparison charts, the ranking that drives them, then the all-country charts
+    ;; countries: the Compare chips, all charts (comparison row first), then the ranking
     (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
       [:<> [comparing]
        [:div.grid
-        (for [p compare] ^{:key (:id p)} [panel p])
-        [countries-table]
-        (for [p overall] ^{:key (:id p)} [panel p])]])))
+        (for [p (concat compare overall)] ^{:key (:id p)} [panel p])
+        [countries-table]]])))
 
 (defn- app []
   [:div.layout
