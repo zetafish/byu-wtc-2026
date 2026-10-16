@@ -10,6 +10,7 @@
 
 (defonce db (r/atom {:selected {}     ; country code -> color slot 1..8
                      :starred #{}
+                     :show-out? false ; list eliminated countries too
                      :results {}      ; panel id -> query result
                      :open nil}))      ; runner id with the detail chart open
 
@@ -22,7 +23,8 @@
 (defn- save-prefs! []
   (try (js/localStorage.setItem "wtc-prefs"
                                 (js/JSON.stringify (clj->js {:selected (:selected @db)
-                                                             :starred (vec (:starred @db))})))
+                                                             :starred (vec (:starred @db))
+                                                             :show-out (:show-out? @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -169,18 +171,28 @@
            (= kind :line) [chart/line-chart opts]
            :else [chart/bar-chart opts])]))))
 
+(defn- out? [{:keys [eliminated-after]}] (some? eliminated-after))
+
 (defn- countries-table []
-  (let [{:keys [countries selected]} @db
-        full? (>= (count selected) max-selected)]
+  (let [{:keys [countries selected show-out?]} @db
+        full? (>= (count selected) max-selected)
+        n-out (count (filter out? countries))
+        ;; selected countries stay visible so they can still be deselected
+        shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %))) countries)]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
-       [:p.sub (str "Select up to " max-selected " to compare in the charts and the runner list")]]]
+       [:p.sub (str "Select up to " max-selected " to compare in the charts and the runner list")]]
+      (when (pos? n-out)
+        [:label.toggle
+         [:input {:type "checkbox" :checked show-out?
+                  :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
+         (str "Show eliminated (" n-out ")")])]
      [:div.table-wrap
       [:table
        [:thead [:tr [:th "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"] [:th "Status"]]]
        [:tbody
-        (for [{:keys [code name rank active runners total-laps eliminated-after]} countries
+        (for [{:keys [code name rank active runners total-laps eliminated-after]} shown
               :let [slot (get selected code)]]
           ^{:key code}
           [:tr {:class (when slot "selected")}
@@ -253,10 +265,11 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred]} (load-prefs)]
+  (when-let [{:keys [selected starred show-out]} (load-prefs)]
     (swap! db assoc
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
-           :starred (set starred)))
+           :starred (set starred)
+           :show-out? (true? show-out)))
   (render)
   (refresh!)
   (js/setInterval refresh! poll-ms))

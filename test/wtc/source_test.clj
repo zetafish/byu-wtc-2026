@@ -20,7 +20,11 @@
     (let [snap (fetch {} 30)]
       (is (= snap (fetch {} 30)))
       (is (zero? (:rejected (model/sanitize snap))))
-      (is (= 300 (count (:runners snap))))))
+      (testing "runs the team members of the real roster"
+        (is (= 1033 (count (:runners snap))))
+        (is (some #(= "NED-kanter-eefting" (:id %)) (:runners snap))))))
+  (testing ":countries limits the roster"
+    (is (= #{"NED" "BEL"} (set (map :country (:runners (fetch {:countries ["NED" "BEL"]} 1)))))))
   (testing "reveals more as time passes"
     (is (< (count (:laps (fetch {} 5))) (count (:laps (fetch {} 10))))))
   (testing "with clean data, the derived state matches the mock's own team rule"
@@ -72,5 +76,5 @@
       (let [r (metrics/query d m {:by "country"})]
         (is (= "success" (:status r)) m)
         (is (every? #(and (map? (:metric %)) (vector? (:values %))) (get-in r [:data :result])) m)))
-    (is (= [1 300] (first (get-in (metrics/query d "runners_started" {}) [:data :result 0 :values]))))
+    (is (= [1 1033] (first (get-in (metrics/query d "runners_started" {}) [:data :result 0 :values]))))
     (is (= "error" (:status (metrics/query d "nope" {}))))))

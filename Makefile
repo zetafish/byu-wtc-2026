@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run run-mem repl up down logs reset db-up db-down psql uber image clean web-deps web-dev web-build web-deploy
+.PHONY: help test run run-mem repl up down logs reset db-up db-down psql uber image clean web-deps web-dev web-build web-deploy dev roster roster-refresh
 
 PORT ?= 8090
 LOCAL_DB := postgres://wtc:wtc@localhost:55432/wtc
@@ -37,14 +37,18 @@ up: ## Build and run the full stack (Postgres + app + web) in Docker
 	docker compose up --build -d
 	@echo "site: http://localhost:8091   api: http://localhost:$(PORT)/api/race"
 
+dev: ## Full stack in Docker plus hot-reload frontend on :8092
+	docker compose --profile dev up --build -d
+	@echo "hot reload: http://localhost:8092   built site: http://localhost:8091"
+
 down: ## Stop the stack (keeps the data)
-	docker compose down
+	docker compose --profile dev down
 
 logs: ## Follow the app and web logs
 	docker compose logs -f app web
 
 reset: ## Stop the stack and delete the database volume
-	docker compose down -v
+	docker compose --profile dev down -v
 
 db-up: ## Start only Postgres
 	docker compose up -d --wait db
@@ -64,7 +68,7 @@ image: ## Build the production Docker image (tag wtc)
 web-deps:
 	cd frontend && npm install
 
-web-dev: web-deps ## Frontend with hot reload on :8092, proxies /api to the backend on :8090
+web-dev: web-deps ## Frontend hot reload on the host (:8092), proxies /api to :8090
 	cd frontend && npx shadow-cljs watch app
 
 web-build: web-deps ## Release build of the frontend into frontend/public
@@ -72,6 +76,12 @@ web-build: web-deps ## Release build of the frontend into frontend/public
 
 web-deploy: web-build ## Deploy the prebuilt frontend to Vercel (set BACKEND_HOST in vercel.json first)
 	cd frontend && npx vercel deploy --prod
+
+roster: ## Build resources/roster/wtc-2026.edn from roster/*.json, fetching only uncached countries
+	bb scripts/fetch_roster.clj resources/roster/wtc-2026.edn
+
+roster-refresh: ## Re-fetch the whole roster into roster/*.json (~2 min, slow endpoint), then build
+	bb scripts/fetch_roster.clj --refresh resources/roster/wtc-2026.edn
 
 clean: ## Remove build output
 	rm -rf target .cpcache frontend/public/js frontend/.shadow-cljs

@@ -39,5 +39,24 @@ services:
     ports:
       - "${WEB_PORT:-8091}:80"
 
+  # Hot reload: `make dev`. Edits in frontend/src reload in the browser.
+  web-dev:
+    profiles: ["dev"]
+    build:
+      context: ./frontend
+      target: deps
+    command: npx shadow-cljs watch app
+    depends_on:
+      - app
+    environment:
+      API_URL: http://app:8080
+    ports:
+      - "8092:8092"   # site
+      - "9630:9630"   # shadow-cljs (hot reload websocket, build UI)
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/shadow-cljs.edn:/app/shadow-cljs.edn
+
 volumes:
   pgdata:

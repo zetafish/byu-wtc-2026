@@ -1,8 +1,14 @@
 {:source-paths ["src"]
  :dependencies [[reagent/reagent "2.0.1"]]
+ ;; shadow-cljs server (hot reload websocket). 0.0.0.0 so it is reachable
+ ;; from the host when running in the compose `web-dev` service.
+ :http {:port 9630 :host "0.0.0.0"}
  ;; Dev server; anything that isn't a static file (i.e. /api/*) is proxied
- ;; to the backend started with `make run` / `make up`.
- :dev-http {8092 {:root "public" :proxy-url "http://localhost:8090"}}
+ ;; to the backend: localhost:8090 on the host, app:8080 inside compose.
+ :dev-http {8092 {:root "public"
+                  :host "0.0.0.0"
+                  :proxy-predicate wtc.dev/proxy-api?
+                  :proxy-url #shadow/env ["API_URL" :default "http://localhost:8090"]}}
  :builds {:app {:target :browser
                 :output-dir "public/js"
                 :asset-path "/js"

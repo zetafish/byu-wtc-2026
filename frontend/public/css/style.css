@@ -149,6 +149,7 @@ th, td { padding: 6px 8px; border-bottom: 1px solid var(--grid); white-space: no
 tr.clickable { cursor: pointer; }
 tr.clickable:hover, tr.selected { background: var(--hover); }
 tr.detail td { background: var(--surface-1); padding: 8px 0 16px; }
+label.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
 label.pick { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 label.pick .key-box { margin: 0; border: 1px solid var(--axis); }
 

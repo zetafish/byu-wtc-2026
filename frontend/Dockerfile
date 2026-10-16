@@ -1,11 +1,15 @@
-# shadow-cljs needs Node and a JVM.
-FROM node:24-bookworm-slim AS build
+# shadow-cljs needs Node and a JVM. The `deps` stage is also what the
+# compose `web-dev` service runs (shadow-cljs watch with hot reload).
+FROM node:24-bookworm-slim AS deps
 COPY --from=eclipse-temurin:21-jdk /opt/java/openjdk /opt/java/openjdk
 ENV JAVA_HOME=/opt/java/openjdk PATH=/opt/java/openjdk/bin:$PATH
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY shadow-cljs.edn ./
+RUN npx shadow-cljs classpath > /dev/null
+
+FROM deps AS build
 COPY src src
 COPY public public
 RUN npx shadow-cljs release app
