@@ -33,7 +33,18 @@
       (assoc :last-seconds (some :seconds (rseq (vec (:history r)))))
       (dissoc :history)))
 
-(defn- handlers [state]
+(defn- sim-command
+  "Validated demo command from a request body, or nil."
+  [body]
+  (let [{:keys [action lap by] :as cmd} (try (j/read-value body j/keyword-keys-object-mapper)
+                                             (catch Exception _ nil))]
+    (when (case action
+            "jump" (and (int? lap) (<= 1 lap 500))
+            "step" (and (int? by) (<= -24 by 24))
+            false)
+      cmd)))
+
+(defn- handlers [state {:keys [control-sim!]}]
   (let [derived #(:derived @state)]
     {:health (fn [_] (json 200 {:ok (some? (derived)) :fetches (:fetches @state)} "no-store"))
      :race (fn [_]
@@ -42,7 +53,17 @@
                          (assoc :runners (count (:runners d))
                                 :running (count (filter #(= :running (:status %)) (vals (:runners d))))
                                 :fetches (:fetches @state))
-                         (cond-> (:simulation @state) (assoc :simulation (:simulation @state)))))))
+                         (cond-> (or (:sim @state) (:mock-data @state))
+                           (assoc :simulation {:mock-data (:mock-data @state)
+                                               :controls (some? (:sim @state))
+                                               :end-lap (get-in @state [:sim :end-lap])}))))))
+     :sim (fn [{:keys [body]}]
+            (if-not (and control-sim! (:sim @state))
+              (json 404 {:error "not a demo race (CLOCK_START unset)"} "no-store")
+              (if-let [cmd (sim-command body)]
+                (do (control-sim! cmd)
+                    (json 200 {:ok true :now (:now (derived))} "no-store"))
+                (json 400 {:error "expected {action: jump, lap: 1-500} or {action: step, by: -24..24}"} "no-store"))))
      :countries (fn [_] (json (sort-by :rank (vals (:countries (derived))))))
      :runners (fn [{{:strs [country history]} :query-params}]
                 (json (->> (vals (:runners (derived)))
@@ -62,16 +83,24 @@
                                       :lap (some-> lap parse-long)})]
                 (if (= "error" (:status r)) (json 400 r "no-store") (json r))))}))
 
-(defn app [state]
-  (let [h (handlers state)]
-    (ring/ring-handler
-     (ring/router
-      [["/api/health" {:get (:health h)}]
-       ["/api/race" {:get (:race h)}]
-       ["/api/countries" {:get (:countries h)}]
-       ["/api/runners" {:get (:runners h)}]
-       ["/api/runners/:id" {:get (:runner h)}]
-       ["/api/metrics" {:get (:metrics h)}]
-       ["/api/query" {:get (:query h)}]]
-      {:data {:middleware [wrap-params]}})
-     (ring/create-default-handler))))
+(defn app
+  ([state] (app state {}))
+  ([state opts]
+   (let [h (handlers state opts)]
+     (ring/ring-handler
+      (ring/router
+       [["/api/health" {:get (:health h)}]
+        ["/api/race" {:get (:race h)}]
+        ["/api/sim" {:post (:sim h)}]
+        ["/api/countries" {:get (:countries h)}]
+        ["/api/runners" {:get (:runners h)}]
+        ["/api/runners/:id" {:get (:runner h)}]
+        ["/api/metrics" {:get (:metrics h)}]
+        ["/api/query" {:get (:query h)}]]
+       {:data {:middleware [wrap-params]}})
+      (ring/create-default-handler)
+      ;; a demo race moves whenever someone steps it, so no caching at all
+      {:middleware [(fn [handler]
+                      (fn [req]
+                        (cond-> (handler req)
+                          (:sim @state) (assoc-in [:headers "Cache-Control"] "no-store"))))]}))))

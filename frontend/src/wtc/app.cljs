@@ -7,6 +7,7 @@
 
 (def max-selected 8)
 (def poll-ms 60000)
+(def default-sim-poll-ms 10000)  ; a playing demo race steps one lap this often
 
 (defonce db (r/atom {:selected {}     ; compared countries: code -> color slot 1..8; empty until picked
                      :starred #{}
@@ -41,7 +42,8 @@
                                                              :runner-filter (vec (:runner-filter @db))
                                                              :starred-only (:starred-only? @db)
                                                              :favourites-only (:favourites-only? @db)
-                                                             :variant (:variant @db)})))
+                                                             :variant (:variant @db)
+                                                             :sim-poll-ms (:sim-poll-ms @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -112,6 +114,27 @@
                (swap! db assoc :race race :countries countries :runners runners
                       :error nil :updated (js/Date.))))
       (.catch #(swap! db assoc :error (.-message %)))))
+
+(defonce ^:private poll-timer (atom nil))
+
+(declare control-sim!)
+
+(defn- schedule-poll!
+  "(Re)starts the poll timer. The real race reloads every `poll-ms`. A demo
+  race stands still on the server: while it plays, each tick steps it one
+  lap (and reloads); paused, or at the last lap, nothing is polled."
+  []
+  (js/clearTimeout @poll-timer)
+  (let [{:keys [simulation current-lap]} (:race @db)
+        {:keys [controls end-lap]} simulation]
+    (when (and (:playing? @db) end-lap (>= current-lap end-lap))
+      (swap! db assoc :playing? false))
+    (cond
+      (not controls)
+      (reset! poll-timer (js/setTimeout #(do (refresh!) (schedule-poll!)) poll-ms))
+      (:playing? @db)
+      (reset! poll-timer (js/setTimeout #(control-sim! {:action "step" :by 1})
+                                        (:sim-poll-ms @db default-sim-poll-ms))))))
 
 ;; --- actions ---
 
@@ -203,6 +226,80 @@
   ([class label value]
    [:div.stat {:class class} [:span.label label] [:b value]]))
 
+(defn- control-sim!
+  "Move the demo race on the server, then reload everything."
+  [cmd]
+  (-> (js/fetch "/api/sim" #js {:method "POST"
+                                :headers #js {"Content-Type" "application/json"}
+                                :body (js/JSON.stringify (clj->js cmd))})
+      (.then (fn [res] (if (.-ok res) (refresh!) (throw (js/Error. (str "/api/sim " (.-status res)))))))
+      (.catch #(swap! db assoc :error (.-message %)))
+      ;; the next step counts from this fresh load
+      (.finally schedule-poll!)))
+
+(defn- pause-and! [cmd]
+  (swap! db assoc :playing? false)
+  (js/clearTimeout @poll-timer)
+  (control-sim! cmd))
+
+(defn- toggle-play! []
+  (if (:playing? (swap! db update :playing? not))
+    (control-sim! {:action "step" :by 1})
+    (schedule-poll!)))
+
+(def ^:private sim-polls [[2000 "2s"] [5000 "5s"] [10000 "10s"] [30000 "30s"] [60000 "60s"]])
+
+(defn- set-sim-poll! [ms]
+  (swap! db assoc :sim-poll-ms ms)
+  (save-prefs!)
+  (schedule-poll!))
+
+(defn- sim-panel
+  "Says the site shows a simulation. For a demo race, video-player
+  controls: lap back, play/pause, lap forward, a slider over the race, and
+  how often a playing race steps a lap."
+  [_]
+  (let [scrub (r/atom nil)   ; lap shown while dragging the slider
+        timer (atom nil)]
+    (fn [{{:keys [controls end-lap mock-data]} :simulation :keys [current-lap final-lap]}]
+      (let [end (max 1 (or end-lap final-lap current-lap))
+            lap (or @scrub current-lap)
+            playing? (:playing? @db)
+            every (:sim-poll-ms @db default-sim-poll-ms)]
+        [:div.notice.simulation
+         [:p [:span.icon.info "◎"] [:b "Simulation. "]
+          (when mock-data "Mock data, not real results. ")
+          (when controls
+            (str "Demo race at lap " current-lap " of " end ", "
+                 (if playing? (str "playing one lap every " (/ every 1000) " s.") "paused.")))]
+         (when controls
+           [:div.sim-controls
+            [:div.transport
+             [:button.ghost {:title "Previous lap" :aria-label "Previous lap"
+                             :disabled (<= current-lap 1) :on-click #(pause-and! {:action "step" :by -1})} "⏮"]
+             [:button.ghost.play {:title (if playing? "Pause" "Play") :aria-label (if playing? "Pause" "Play")
+                                  :disabled (and (not playing?) (>= current-lap end))
+                                  :on-click toggle-play!}
+              (if playing? "⏸" "▶")]
+             [:button.ghost {:title "Next lap" :aria-label "Next lap"
+                             :disabled (>= current-lap end) :on-click #(pause-and! {:action "step" :by 1})} "⏭"]]
+            [:input.scrub {:type "range" :min 1 :max end :step 1 :value lap :aria-label "Race lap"
+                           :style {"--progress" (str (* 100 (/ (dec lap) (max 1 (dec end)))) "%")}
+                           :on-change (fn [e]
+                                        (let [n (js/parseInt (.. e -target -value))]
+                                          (reset! scrub n)
+                                          (js/clearTimeout @timer)
+                                          (reset! timer (js/setTimeout
+                                                         #(-> (pause-and! {:action "jump" :lap n})
+                                                              (.then (fn [] (reset! scrub nil))))
+                                                         300))))}]
+            [:span.sim-lap (str "Lap " lap " / " end)]
+            [:span.sim-label "Lap every"]
+            [:div.segmented {:role "group" :aria-label "Step one lap every"}
+             (for [[v text] sim-polls]
+               ^{:key v}
+               [:button {:aria-pressed (= v every) :on-click #(set-sim-poll! v)} text])]])]))))
+
 (defn- header []
   (let [{:keys [race countries error updated]} @db
         failing (remove :ok (vals (:fetches race)))]
@@ -224,16 +321,7 @@
             [:span.chip (str "★ " (get by-status "finished") " country winners")])
           [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries "
                            (if (= "finished" (:phase race)) "done" "eliminated"))]]))
-     (when-let [{:keys [clock-speed mock-data]} (:simulation race)]
-       [:p.notice.simulation [:span.icon.info "◎"]
-        [:b "Simulation. "]
-        (str/join " " (remove nil?
-                              [(when mock-data "Mock data, not real results.")
-                               (when clock-speed
-                                 (str "Simulated clock" (when (not= 1 clock-speed) (str " at " clock-speed "×"))
-                                      ", now " (.toLocaleString (js/Date. (:now race)) js/undefined
-                                                                #js {:weekday "short" :hour "2-digit" :minute "2-digit"})
-                                      "."))]))])
+     (when (:simulation race) [sim-panel race])
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
         (str "The race starts "
@@ -715,8 +803,9 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms]} (load-prefs)]
     (swap! db assoc
+           :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
            :starred (set starred)
@@ -730,5 +819,5 @@
   (.addEventListener js/window "hashchange"
                      #(do (swap! db assoc :view (hash-view)) (js/window.scrollTo 0 0)))
   (render)
-  (refresh!)
-  (js/setInterval refresh! poll-ms))
+  ;; the first poll waits for the first load, which says if it's a simulation
+  (-> (refresh!) (.then schedule-poll!)))

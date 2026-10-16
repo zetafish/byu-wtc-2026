@@ -1,7 +1,7 @@
 # Local stack: Postgres (stand-in for Neon), the backend, and the frontend
 # behind nginx (stand-in for Vercel, which proxies /api the same way).
 # Clock/source settings come from the shell or from .env, which `make up DEMO=1`
-# writes so a plain `docker compose up` keeps the demo clock.
+# writes so a plain `docker compose up` keeps the demo race.
 services:
   db:
     image: postgres:17-alpine
@@ -30,8 +30,6 @@ services:
       DATABASE_URL: postgres://wtc:wtc@db:5432/wtc
       POLL_SECONDS: ${POLL_SECONDS:-60}
       CLOCK_START: ${CLOCK_START:-}
-      CLOCK_SPEED: ${CLOCK_SPEED:-1}
-      CLOCK_ANCHOR: ${CLOCK_ANCHOR:-}
       SOURCES: ${SOURCES:-}
 
   web:

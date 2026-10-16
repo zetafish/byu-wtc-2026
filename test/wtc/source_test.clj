@@ -97,3 +97,26 @@
     (testing "source fields win over roster info"
       (is (= "x" (get-in (roster/enrich {:runners {"a" {:id "a" :bib "x"}}} {"a" {:bib "y" :best-yards 3}})
                          [:runners "a" :bib]))))))
+
+(deftest demo-race-controls
+  (let [cfg {:race-start start :grace-s 900}
+        lap #(race/current-lap start (:at %))
+        sim {:at (.plusSeconds start (* 30 3600)) :end-lap 60}]
+    (is (= 31 (lap sim)))
+    (testing "jump lands in the lap with the previous one settled"
+      (let [j (ingest/control-sim sim {:action "jump" :lap 49} cfg)]
+        (is (= 49 (lap j)))
+        (is (= 48 (race/settled-lap start (:at j) 900)))))
+    (testing "jumping to lap 1 is the race start"
+      (is (= start (:at (ingest/control-sim sim {:action "jump" :lap 1} cfg)))))
+    (testing "steps move by laps, within lap 1 .. end-lap"
+      (is (= 32 (lap (ingest/control-sim sim {:action "step" :by 1} cfg))))
+      (is (= 30 (lap (ingest/control-sim sim {:action "step" :by -1} cfg))))
+      (is (= 60 (lap (ingest/control-sim sim {:action "jump" :lap 99} cfg))))
+      (is (= 7 (lap (ingest/control-sim sim {:action "step" :by -24} cfg))))
+      (is (= 1 (lap (reduce #(ingest/control-sim %1 %2 cfg) sim (repeat 3 {:action "step" :by -24}))))))))
+
+(deftest sim-end-lap
+  (testing "the mock race's last lap is known up front"
+    (is (pos-int? (ingest/sim-end-lap (assoc (system {:id :mock :type :mock})
+                                             :roster-info (roster/runner-info)))))))

@@ -6,8 +6,8 @@
 
 (defn start
   "Dev defaults: config from env vars (in-memory store unless DATABASE_URL
-  is set, mock source unless SOURCES is), app clock starting 30 h into the
-  race. Pass overrides, e.g. (start {:clock {:speed 60}})."
+  is set, mock source unless SOURCES is), a demo race standing at lap 31.
+  Pass overrides, e.g. (start {:clock {:start (Instant/parse \"2026-10-19T12:00:00Z\")}})."
   ([] (start {}))
   ([overrides]
    (let [cfg (merge-with #(if (map? %1) (merge %1 %2) %2)

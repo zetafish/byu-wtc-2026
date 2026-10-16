@@ -96,7 +96,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - The state atom holds `:datasets` (live) and `:persisted`. The DB write is retried every tick until they're equal.
   - On boot, the datasets are reloaded from the store.
   - `refresh!` merges, enriches and derives.
-  - `make-clock` provides real time, or a demo clock (`CLOCK_START`, `CLOCK_SPEED`, `CLOCK_ANCHOR`).
+  - `make-clock` provides real time, or the fixed moment of a demo race: state `:sim` `{at end-lap}`, there only when `CLOCK_START` is set. A demo race stands still until `control-sim` moves it (jump to a lap, or step k laps), always to a moment with the previous lap settled. `sim-end-lap` works out the demo race's last lap once at boot (the sources fetched as if a month had passed), for the slider. In a demo every API response is `Cache-Control: no-store`. The position lives in memory only, so an app restart puts the race back at `CLOCK_START`.
 - **`wtc.store`:** the `Store` protocol, plus `MemoryStore`. **`wtc.store.postgres`** creates its tables on start:
   - `countries`, `runners` and `laps`, all keyed by `source`;
   - `fetches`, a log of every fetch with its duration, ok/error, laps and rejected rows.
@@ -125,7 +125,8 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | Route | Returns |
 |---|---|
 | `/api/health` | `{:ok :fetches}` |
-| `/api/race` | `start now phase current-lap settled-lap final-lap race-laps runners running fetches simulation` (`simulation` = `{clock-speed, mock-data}`, only when the demo clock or the mock source is on; the header then shows a Simulation notice and the brand badge reads "Sim") |
+| `/api/race` | `start now phase current-lap settled-lap final-lap race-laps runners running fetches simulation` (`simulation` = `{mock-data, controls, end-lap}`, only with a demo race or the mock source; the header then shows the simulation panel, with controls for a demo race, and the brand badge reads "Sim") |
+| `POST /api/sim` | demo race only (404 otherwise). JSON body `{"action":"jump","lap":n}` (1–500, clamped to the last lap) or `{"action":"step","by":k}` (−24..24). Re-ingests before it responds. |
 | `/api/countries` | countries sorted by rank |
 | `/api/runners?country=NED&history=true` | runners by laps; `history` adds the per-lap history |
 | `/api/runners/:id` | one runner, with history |
@@ -134,7 +135,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 ## Frontend (`frontend/`)
 
-- **`wtc.app`:** a single Reagent `db` atom. It polls `/api/race`, `/api/countries` and `/api/runners` every 60 s, then the panel queries.
+- **`wtc.app`:** a single Reagent `db` atom. It polls `/api/race`, `/api/countries` and `/api/runners` every 60 s, then the panel queries. A demo race doesn't move by itself, so it isn't polled. While it plays (in the browser, not on the server), each tick POSTs a one-lap step and reloads, at the interval picked in the panel (2 s to 60 s, default 10 s, kept in prefs). It stops at the last lap. Each tab steps on its own, so two playing tabs step twice as fast.
   - The views are in `views`; the URL hash selects the view.
   - The seat ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
   - `/api/runners` rows carry `:last-seconds` (the last timed lap) instead of the history. Sparkline data comes from `lap_time_seconds` queries for the leaderboard's country filter plus the starred runners. A row's detail chart fetches `/api/runners/:id`.
@@ -179,7 +180,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | `POLL_SECONDS` | 60 | |
 | `GRACE_SECONDS` | 900 | |
 | `FETCH_TIMEOUT_MS` | 20000 | per fetch attempt |
-| `CLOCK_START` / `CLOCK_SPEED` / `CLOCK_ANCHOR` | real time | demo clock: reads `CLOCK_START` at wall time `CLOCK_ANCHOR` (default: boot), running `CLOCK_SPEED`× |
+| `CLOCK_START` | real time | a demo race standing at this moment until the simulation panel moves it |
 | `SOURCES` | `[{:id :mock :type :mock :priority 0}]` | an EDN vector of source configs |
 
 ## Local development
@@ -190,7 +191,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - `web`: the nginx-served release build on :8091. It uses `resolver 127.0.0.11` with a variable upstream, so a backend restart doesn't leave a stale IP.
   - `web-dev`: `shadow-cljs watch` with hot reload on :8092, and the shadow-cljs UI on :9630.
 - **Ports** avoid 8080 and 8787, which local `bb` servers often use.
-- **`DEMO=1`** writes `CLOCK_START`, `CLOCK_SPEED` and `CLOCK_ANCHOR` to `.env`, which compose reads, so restarts continue the same simulated race. At 60× the mock race ends about 2 h of wall time after the anchor.
+- **`DEMO=1`** writes `CLOCK_START` (default `2026-10-18T18:00:00Z`, lap 31) to `.env`, which compose reads, so a plain `docker compose up` is a demo too. A restart puts the race back at `CLOCK_START`.
 - **REPL:** `make repl` starts nREPL on 7888; then run `(user/start)` or `(user/restart)` from `dev/user.clj`.
 - **Tests** are in `test/wtc/`. `race_test.clj` encodes the confirmed team-rule scenarios, including the Belgium case.
 

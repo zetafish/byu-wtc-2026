@@ -7,7 +7,7 @@
             [wtc.roster :as roster]
             [wtc.source :as source]
             [wtc.store :as store])
-  (:import (java.time Duration Instant)
+  (:import (java.time Instant)
            (java.util.concurrent ExecutionException Executors ScheduledExecutorService TimeUnit)))
 
 (defn- with-timeout [ms f]
@@ -80,14 +80,36 @@
      #(try (tick! sys) (catch Throwable t (log/error t "tick failed")))
      0 (long (get-in sys [:config :poll-seconds])) TimeUnit/SECONDS)))
 
+(defn lap-instant
+  "A moment in lap n with lap n-1 already settled; lap 1 is the race start."
+  ^Instant [^Instant race-start grace-s n]
+  (.plusSeconds race-start (if (<= n 1) 0 (+ (* (dec n) model/lap-seconds) grace-s 60))))
+
+(defn control-sim
+  "Move a demo race, which stands still at (:at sim) until it's told to:
+  {:action \"jump\" :lap n} to lap n, {:action \"step\" :by k} k laps on
+  (or back). Clamped to lap 1 .. (:end-lap sim)."
+  [{:keys [at end-lap] :as sim} {:keys [action lap by]} {:keys [race-start grace-s]}]
+  (let [target (case action
+                 "jump" lap
+                 "step" (+ (race/current-lap race-start at) by))]
+    (assoc sim :at (lap-instant race-start grace-s (min (or end-lap 500) (max 1 target))))))
+
+(defn sim-end-lap
+  "The lap a simulated race ends on: the sources fetched as if a month had
+  passed. nil if that fails."
+  [{:keys [sources config roster-info]}]
+  (try
+    (let [start (:race-start config)
+          now (.plusSeconds ^Instant start (* 30 24 3600))
+          datasets (map #(model/sanitize (source/fetch (:impl %) {:start start :now now}))
+                        (sort-by :priority sources))]
+      (:final-lap (race/derive-state (roster/enrich (model/merge-datasets datasets) roster-info)
+                                     {:start start :now now :grace-s (:grace-s config)})))
+    (catch Exception e
+      (log/warnf "can't work out the simulated race's last lap: %s" (ex-message e)))))
+
 (defn make-clock
-  "Real time by default. For demos and dev: the app clock reads `start` at
-  wall time `anchor` (default: boot) and runs `speed` times faster than real
-  time. A fixed `anchor` makes the clock survive restarts."
-  [{:keys [start speed anchor] :or {speed 1}}]
-  (let [boot (or anchor (Instant/now))
-        origin (or start boot)]
-    (if (and (nil? start) (= 1 speed))
-      #(Instant/now)
-      #(.plus ^Instant origin
-              (Duration/ofMillis (long (* speed (.toMillis (Duration/between boot (Instant/now))))))))))
+  "Real time, or the fixed moment of a demo race, kept in state under :sim."
+  [state]
+  (fn [] (or (get-in @state [:sim :at]) (Instant/now))))

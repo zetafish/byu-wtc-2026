@@ -96,6 +96,7 @@ With two runners left (A and B):
   - Each runner has a "best" result: the most laps in a backyard race during the qualifying period.
   - Names listed twice in one country keep their best rank. [decided]
 - **Mock:** the mock simulates the real roster (team members only). Each runner's lap capacity is drawn around their best result. It can inject missed registrations, unreported DNFs, failed fetches and latency, so the edge cases above get exercised. [decided]
+- **Simulation mode:** with a demo race (`CLOCK_START`) or mock data, the site says so in a simulation panel, and the brand badge reads "Sim" instead of "Live". A demo race has no clock. It stands at one lap until someone moves it, using video-player controls that anyone can use: play/pause (playing steps one lap per tick, paused polls nothing), ⏮/⏭ (one lap back or on, then pause), a slider over the whole race (jump there, then pause), and the tick interval (2 s to 60 s, default 10 s). It opens paused. The real race has no controls. [decided]
 
 ## 5. The site
 

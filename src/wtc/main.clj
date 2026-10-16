@@ -29,20 +29,9 @@
    :fetch {:timeout-ms (parse-long (env "FETCH_TIMEOUT_MS" "20000"))
            :attempts 3
            :backoff-ms 2000}
-   :clock {:start (some-> (env "CLOCK_START") Instant/parse)
-           :speed (parse-double (env "CLOCK_SPEED" "1"))
-           :anchor (some-> (env "CLOCK_ANCHOR") Instant/parse)}
+   ;; set: a demo race that stands at this moment until the site moves it
+   :clock {:start (some-> (env "CLOCK_START") Instant/parse)}
    :sources (edn/read-string (env "SOURCES" "[{:id :mock :type :mock :priority 0}]"))})
-
-(defn simulation
-  "What's simulated, for the site to show: a demo clock and/or mock data.
-  nil when it's the real race."
-  [{:keys [clock sources]}]
-  (let [clock? (or (:start clock) (not= 1.0 (double (:speed clock 1))))
-        mock? (some #(= :mock (:type %)) sources)]
-    (when (or clock? mock?)
-      {:clock-speed (when clock? (:speed clock 1))
-       :mock-data (boolean mock?)})))
 
 (defn start [cfg]
   (let [store (if-let [url (:database-url cfg)]
@@ -50,16 +39,23 @@
                 (do (log/warn "DATABASE_URL not set, using in-memory store")
                     (store/memory-store)))
         datasets (store/load-datasets store)
+        state (atom (cond-> {:datasets datasets :persisted datasets
+                             :mock-data (boolean (some #(= :mock (:type %)) (:sources cfg)))}
+                      (get-in cfg [:clock :start]) (assoc :sim {:at (get-in cfg [:clock :start])})))
         sys {:config cfg
              :store store
-             :clock (ingest/make-clock (:clock cfg))
+             :clock (ingest/make-clock state)
              :roster-info (roster/runner-info)
              :sources (mapv #(assoc % :impl (source/create %)) (:sources cfg))
-             :state (atom {:datasets datasets :persisted datasets
-                           :simulation (simulation cfg)})}
+             :state state}
+        _ (when (:sim @state) (swap! state assoc-in [:sim :end-lap] (ingest/sim-end-lap sys)))
+        control-sim! (fn [cmd]
+                       (swap! state update :sim ingest/control-sim cmd cfg)
+                       ;; synchronous, so the response already shows the new lap
+                       (ingest/tick! sys))
         _ (ingest/refresh! sys)
         scheduler (ingest/start-scheduler sys)
-        stop-http (http-kit/run-server (http/app (:state sys)) {:port (:port cfg)})]
+        stop-http (http-kit/run-server (http/app state {:control-sim! control-sim!}) {:port (:port cfg)})]
     (log/infof "listening on %d, sources %s" (:port cfg) (mapv :id (:sources sys)))
     (assoc sys :scheduler scheduler :stop-http stop-http)))
 

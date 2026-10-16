@@ -4,19 +4,16 @@
 PORT ?= 8090
 LOCAL_DB := postgres://wtc:wtc@localhost:55432/wtc
 
-# DEMO=1 starts the app clock 30 h into the race at 60x speed, so the mock
-# has data before the real start. Override with CLOCK_START / CLOCK_SPEED.
-# The demo is saved in .env with a fixed CLOCK_ANCHOR (the wall time at which
-# the clock read CLOCK_START), so restarts and plain `docker compose up`
-# continue the same simulated race. `make demo-reset` starts it over,
-# `make demo-off` goes back to real time.
+# DEMO=1 runs a demo race: it stands at CLOCK_START (default lap 31) until
+# the site's simulation panel moves it (step, jump, play). It's saved in
+# .env, so plain `docker compose up` and `make run` are demos too. An app
+# restart puts the race back at CLOCK_START. `make demo-off` goes back to
+# real time.
 -include .env
 ifdef DEMO
 CLOCK_START ?= 2026-10-18T18:00:00Z
-CLOCK_SPEED ?= 60
-CLOCK_ANCHOR ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 endif
-export PORT CLOCK_START CLOCK_SPEED CLOCK_ANCHOR
+export PORT CLOCK_START
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -41,18 +38,17 @@ repl: ## Start nREPL on 7888 (then (user/start))
 
 up: ## Build and run the full stack in Docker (Postgres, app, web, web-dev)
 ifdef DEMO
-	@printf 'CLOCK_START=%s\nCLOCK_SPEED=%s\nCLOCK_ANCHOR=%s\n' $(CLOCK_START) $(CLOCK_SPEED) $(CLOCK_ANCHOR) > .env
+	@printf 'CLOCK_START=%s\n' $(CLOCK_START) > .env
 endif
 	docker compose up --build -d
 	@echo "site: http://localhost:8091   hot reload: http://localhost:8092   api: http://localhost:$(PORT)/api/race"
 
-demo-reset: ## Restart the demo race from 30 h in (new CLOCK_ANCHOR)
-	rm -f .env
-	$(MAKE) up DEMO=1 CLOCK_ANCHOR=$$(date -u +%Y-%m-%dT%H:%M:%SZ)
+demo-reset: ## Put the demo race back at CLOCK_START (restarts the app)
+	docker compose up -d --force-recreate app
 
 demo-off: ## Back to the real-time clock
 	rm -f .env
-	CLOCK_START= CLOCK_SPEED=1 CLOCK_ANCHOR= docker compose up -d app
+	CLOCK_START= docker compose up -d app
 
 down: ## Stop the stack (keeps the data)
 	docker compose down
