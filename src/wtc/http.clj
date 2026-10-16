@@ -27,11 +27,13 @@
 (defn- csv-set [s] (when-not (str/blank? s) (set (str/split s #","))))
 
 (defn- runner-row
-  "A runner without history, plus the time of their last timed lap."
+  "A runner without history, plus the times of their last and fastest timed laps."
   [r]
-  (-> r
-      (assoc :last-seconds (some :seconds (rseq (vec (:history r)))))
-      (dissoc :history)))
+  (let [timed (keep :seconds (:history r))]
+    (-> r
+        (assoc :last-seconds (last timed)
+               :fastest-seconds (when (seq timed) (apply min timed)))
+        (dissoc :history))))
 
 (defn- sim-command
   "Validated demo command from a request body, or nil."

@@ -575,11 +575,15 @@
                      starred-only? "No starred runners here yet. Star (☆) a runner to add them."
                      :else "No runners match")]
        [:div.table-wrap.full
-        [:table
-         [:thead [:tr [:th.num "Pos"] [:th] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Laps"]
+        ;; fixed columns, so filtering or "★ only" never moves them
+        [:table.runners
+         [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.n] [:col.status]
+          [:col.time] [:col.time] [:col.spark]]
+         [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Laps"]
                   [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
                   [:th "Status"]
-                  [:th.num "Last lap"] (when sparks? [:th "Lap times"])]]
+                  [:th.num "Last lap"] [:th.num "Fastest"]
+                  [:th {:title "Shown when filtered by country or ★ only"} "Lap times"]]]
          [:tbody
           (for [{:keys [id name country laps pos] :as runner} shown
                 :let [times (get lap-times id)]]
@@ -590,18 +594,19 @@
                                          (when-not (contains? lap-times id) (fetch-lap-times! id))
                                          (swap! db update :open (fn [o] (when-not (= o id) id))))}
               [:td.num pos]
-              [:td [:button.star {:aria-label (if (starred? runner) "Unstar" "Star")
-                                  :aria-pressed (starred? runner)
-                                  :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
-                    (if (starred? runner) "★" "☆")]]
-              [:td.name name]
+              [:td.name [:button.star {:aria-label (if (starred? runner) "Unstar" "Star")
+                                       :aria-pressed (starred? runner)
+                                       :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
+                         (if (starred? runner) "★" "☆")]
+               name]
               [:td country]
               [:td.num (:rank runner)]
               [:td.num laps]
               [:td.num (or (:best-yards runner) "–")]
               [:td [status-badge runner]]
               [:td.num (mmss (:last-seconds runner))]
-              (when sparks? [:td (when times [chart/sparkline times])])]
+              [:td.num (mmss (:fastest-seconds runner))]
+              [:td (when (and sparks? times) [chart/sparkline times])]]
              (when (= open id) [runner-detail runner])])]]])]))
 
 ;; --- seat ranking ---

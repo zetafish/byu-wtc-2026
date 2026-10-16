@@ -324,6 +324,16 @@ label.toggle {
 .pill.out .icon { color: var(--critical); }
 .pill.win { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
 td.name { font-weight: 600; }
+/* runner leaderboard: fixed column widths, the name takes the rest */
+table.runners { table-layout: fixed; min-width: 900px; }
+table.runners td { overflow: hidden; text-overflow: ellipsis; }
+table.runners col.pos { width: 56px; }
+table.runners col.country { width: 84px; }
+table.runners col.n { width: 60px; }
+table.runners col.status { width: 180px; }
+table.runners col.time { width: 84px; }
+table.runners col.spark { width: 124px; }
+table.runners td.name .star { margin-right: 6px; }
 select.seat {
   font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
   border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer;
