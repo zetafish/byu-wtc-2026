@@ -1,0 +1,9 @@
+{:source-paths ["src"]
+ :dependencies [[reagent/reagent "2.0.1"]]
+ ;; Dev server; anything that isn't a static file (i.e. /api/*) is proxied
+ ;; to the backend started with `make run` / `make up`.
+ :dev-http {8092 {:root "public" :proxy-url "http://localhost:8090"}}
+ :builds {:app {:target :browser
+                :output-dir "public/js"
+                :asset-path "/js"
+                :modules {:main {:init-fn wtc.app/init}}}}}

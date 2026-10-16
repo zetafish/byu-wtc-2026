@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run run-mem repl up down logs reset db-up db-down psql uber image clean
+.PHONY: help test run run-mem repl up down logs reset db-up db-down psql uber image clean web-deps web-dev web-build web-deploy
 
 PORT ?= 8090
 LOCAL_DB := postgres://wtc:wtc@localhost:55432/wtc
@@ -33,15 +33,15 @@ run-mem: ## Run the backend on the JVM with the in-memory store
 repl: ## Start nREPL on 7888 (then (user/start))
 	clojure -M:dev:nrepl
 
-up: ## Build and run the full stack (Postgres + app) in Docker
+up: ## Build and run the full stack (Postgres + app + web) in Docker
 	docker compose up --build -d
-	@echo "http://localhost:$(PORT)/api/race"
+	@echo "site: http://localhost:8091   api: http://localhost:$(PORT)/api/race"
 
 down: ## Stop the stack (keeps the data)
 	docker compose down
 
-logs: ## Follow the app logs
-	docker compose logs -f app
+logs: ## Follow the app and web logs
+	docker compose logs -f app web
 
 reset: ## Stop the stack and delete the database volume
 	docker compose down -v
@@ -61,5 +61,17 @@ uber: ## Build target/wtc.jar
 image: ## Build the production Docker image (tag wtc)
 	docker build -t wtc .
 
+web-deps:
+	cd frontend && npm install
+
+web-dev: web-deps ## Frontend with hot reload on :8092, proxies /api to the backend on :8090
+	cd frontend && npx shadow-cljs watch app
+
+web-build: web-deps ## Release build of the frontend into frontend/public
+	cd frontend && npx shadow-cljs release app
+
+web-deploy: web-build ## Deploy the prebuilt frontend to Vercel (set BACKEND_HOST in vercel.json first)
+	cd frontend && npx vercel deploy --prod
+
 clean: ## Remove build output
-	rm -rf target .cpcache
+	rm -rf target .cpcache frontend/public/js frontend/.shadow-cljs

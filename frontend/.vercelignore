@@ -1,0 +1,5 @@
+node_modules
+.shadow-cljs
+src
+Dockerfile
+nginx.conf

@@ -1,4 +1,5 @@
-# Local stack: Postgres (stand-in for Neon) + the backend container.
+# Local stack: Postgres (stand-in for Neon), the backend, and the frontend
+# behind nginx (stand-in for Vercel, which proxies /api the same way).
 # Clock/source settings come from the shell, e.g. `make up DEMO=1`.
 services:
   db:
@@ -30,6 +31,13 @@ services:
       CLOCK_START: ${CLOCK_START:-}
       CLOCK_SPEED: ${CLOCK_SPEED:-1}
       SOURCES: ${SOURCES:-}
+
+  web:
+    build: ./frontend
+    depends_on:
+      - app
+    ports:
+      - "${WEB_PORT:-8091}:80"
 
 volumes:
   pgdata:

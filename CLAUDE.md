@@ -12,7 +12,9 @@ All common commands are in the `Makefile`. Run `make` to list them.
 make test                          # all tests
 make test T=wtc.race-test          # one namespace
 make test T=wtc.race-test/team-rule  # one test
-make up DEMO=1                     # Postgres + app in Docker, http://localhost:8090/api/race
+make up DEMO=1                     # Postgres + app + web in Docker: site :8091, API :8090
+make web-dev                       # frontend hot reload on :8092 (needs a backend on :8090: make run DEMO=1)
+make web-build | web-deploy        # frontend release build | deploy prebuilt to Vercel
 make run DEMO=1                    # app on the JVM against the compose Postgres (port 8090)
 make run-mem                       # app on the JVM, in-memory store, no Docker
 make repl                          # nREPL on 7888, then (user/start) / (user/restart)
@@ -50,11 +52,23 @@ Data flows: **sources → `model/sanitize` → per-source dataset (memory + Post
 - **`wtc.metrics`**: visualisation queries in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The frontend renders panels generically from this shape.
 - **`wtc.http`**: reitit routes under `/api` (`health race countries runners runners/:id metrics query`). Responses come from the in-memory derived state and carry CDN `Cache-Control` headers. That caching replaces the Redis layer from `SPEC.md`.
 
+## Frontend (`frontend/`)
+
+ClojureScript built with shadow-cljs, Reagent and React 18. There is no chart library; the charts are hand-built SVG.
+- **`wtc.panels`**: the dashboard's panel list. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here**: `:metric`, `:kind` (`:line` or `:bar`), `:per-country?` (one series per selected country) or `:series-label` (series from a metric label).
+- **`wtc.chart`**: generic `line-chart`, `bar-chart` (stacks the series in the order given), `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`. Charts come with a legend for 2+ series, direct labels for up to 4, a crosshair or per-bar tooltip, and a table toggle.
+- **`wtc.app`**: one `db` atom, which polls `/api/*` every 60 s.
+  - **Colours:** they follow the country, not its rank. A selected country takes the lowest free slot of `--series-1..8`. At most 8 countries can be selected, because that's how many hues the palette has. Survivors keep their colour when one is deselected.
+  - **Stored per browser:** the selection and the starred runners, in localStorage.
+- **Colour tokens** are in `public/css/style.css`: light and dark, from the validated dataviz palette. Don't add series hues.
+- **API calls** are always same-origin `/api/*`. Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. In production, the Vercel rewrites in `frontend/vercel.json` do. The browser never makes a cross-origin call, so there's no CORS issue.
+- **Vercel's build image has no JVM**, so the frontend is built locally and deployed prebuilt (`make web-deploy`). Set `BACKEND_HOST` in `frontend/vercel.json` to the Caasify host first.
+
 ## Deployment
 
 - **Backend:** the Docker image, run as a single always-on container on Caasify. Run exactly one instance, because the scheduler runs in-process.
 - **Database:** Neon Postgres.
-- **Frontend:** the ClojureScript frontend (not built yet) goes on Vercel as static files, with `/api/*` rewritten to the Caasify URL so the Vercel CDN caches API responses.
+- **Frontend:** static files on Vercel. `/api/*` is rewritten to the Caasify URL, so the Vercel CDN caches the API responses.
 
 ## Domain lessons from `../upfront-live` (an earlier BYU site; its CLAUDE.md is in Dutch)
 
