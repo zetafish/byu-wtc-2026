@@ -67,6 +67,14 @@
     (is (= {:lap 1 :status :finished :seconds nil :suspect true}
            (first (get-in d [:runners "a" :history]))))))
 
+(deftest too-fast-lap-time
+  (let [d (race/derive-state (dataset [["a" "NED"]] {"a" [[1 :finished 1500] [2 :finished 3000]]})
+                             {:start start :now (at-hours 2.5)})]
+    (testing "a lap under 30 min is flagged but still counts, with its time"
+      (is (= {:lap 1 :status :finished :seconds 1500 :too-fast true}
+             (first (get-in d [:runners "a" :history]))))
+      (is (= 2 (get-in d [:runners "a" :laps]))))))
+
 (defn- derive-at [runners laps hours]
   (race/derive-state (dataset runners laps) {:start start :now (at-hours hours)}))
 

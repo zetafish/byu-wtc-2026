@@ -48,7 +48,8 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 | Map country names to IOC codes, and names to roster runner ids | Credit gaps below the last finished lap as `:inferred` |
 | Turn timestamps or durations into `{:lap :status :seconds}` | Mark runners with no result for a settled lap as out (`:missing`) |
 | A finish in the first ~30 min of an hour → the previous lap | Mark `:seconds` > 3600 as `:suspect` and blank the time |
-| A turn-back (an implausibly short "lap") → `:dnf` | Apply the team rule, rankings and phase |
+| A turn-back (an implausibly short "lap") → `:dnf`. Only for timing feeds; the official feed reports DNFs directly | Flag finished laps under 1800 s as `:too-fast`, keeping the time and the credit |
+| | Apply the team rule, rankings and phase |
 | No result yet (for example a blank cell) → **no lap row at all**, never a placeholder | |
 
 **Runner ids:**
@@ -82,11 +83,12 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
     - Laps are credited up to the last finished lap. Gaps below it are missed registrations, marked `:inferred`.
     - A *settled* lap is one whose deadline + `GRACE_SECONDS` has passed. A runner with no result for a settled lap is out with `:missing`, and `:dnf` takes precedence.
     - Lap times over 3600 s become `:suspect` with `:seconds nil`.
+    - Finished laps under 1800 s (`too-fast-seconds`) get `:too-fast true`. They still count, and their time is kept.
   - **The team rule (`team-result`):** the first settled lap with fewer than 2 finishers ends the country.
     - 1 finisher gives `{:after lap :winner id}`, and that runner gets `:status :finished :reason :winner`.
     - 0 finishers give `{:after (dec lap) :winner nil}`.
   - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:rank` (by total laps, then active runners, then code), `:eliminated-after` and `:winner` `{:id :name :laps}`.
-  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds}`, optionally with `:inferred true` or `:suspect true`; `:seconds` is nil for inferred or suspect laps.
+  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds}`, optionally with `:inferred true`, `:suspect true` or `:too-fast true`; `:seconds` is nil for inferred or suspect laps.
     - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1.
   - **Phase:** `:pre`, `:live` or `:finished`. When finished, `:final-lap` is the last lap anyone started, and `:current-lap` and `:settled-lap` are capped there, so the chart axes stop growing. `:race-laps` is the race length: the last lap anyone completed, which is `:final-lap` with a winner and one less when the last runners all DNF.
 - **`wtc.ingest`:** a single-thread scheduler.
@@ -133,14 +135,16 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 - **`wtc.app`:** a single Reagent `db` atom. It polls `/api/race`, `/api/countries` and `/api/runners` every 60 s, then the panel queries.
   - The views are in `views`; the URL hash selects the view.
-  - The seat ranking is computed client-side from `/api/runners`.
+  - The seat ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
+  - `/api/runners` rows carry `:last-seconds` (the last timed lap) instead of the history. Sparkline data comes from `lap_time_seconds` queries for the leaderboard's country filter plus the starred runners. A row's detail chart fetches `/api/runners/:id`.
+  - Each round of chart queries gets a sequence number (`fetch-seq`), and responses from an older round are dropped, so quick clicks can't leave stale charts.
   - Preferences are kept in localStorage under `wtc-prefs`, with every access in try/catch.
 - **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here.** The panel keys:
   - `:id`, `:title`, `:subtitle`, `:metric`, `:kind` (`:line` or `:bar`), `:x-label`, `:y-label`;
   - either `:per-country? true` (one series per selected country, queried with `by=country`) or `:series-label :k` (one series per value of label `:k`, with `:series-order` and `:series-names`);
   - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`.
 
-  A new formatter goes in `y-formats` in `wtc.app`. Charts with `:per-country?` stay empty until countries are selected in the Countries view.
+  A new formatter goes in `y-formats` in `wtc.app`. Charts with `:per-country?` render above the countries table and stay empty until countries are ticked there; the other charts render below it.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.

@@ -27,6 +27,7 @@ Where a requirement comes from:
 
   A reported DNF takes precedence over "no result". [decided]
 - A lap time over 60 min can't be valid. It's kept as "suspect", and its time isn't shown. [decided]
+- A finished lap under 30 min is implausibly fast. It's flagged as "too fast", but it still counts and its time is kept. [decided]
 
 ### Team rule
 Runners of a country can only continue while at least 2 of them are still in. [brief]
@@ -82,7 +83,8 @@ With two runners left (A and B):
 - Assume minimal data: per runner, per lap, a time or a DNF. Some countries may have their own feeds with more detail or better accuracy. Several sources can run side by side, and the source with the higher priority wins per runner and lap. [brief]
 - Each source delivers a full snapshot, not changes. Late or corrected data must fix the site on the next refresh. [decided]
 - Data is fetched every 60 s. A failed or slow fetch must never take the site down: the last good data stays live, and the site shows a notice that the source has a problem. [brief]
-- Timing data is unreliable, as `../upfront-live` showed. Adapters must normalise these cases: [brief]
+- **Who reports the results:** the official overall feed is fed by each country's race director, who submits their runners' results to the organisation every hour. The organisation then updates the overall data, possibly by aggregating a Google Sheet. Race directors know exactly when a runner DNFs, so in the official feed **a DNF is reported as a DNF, and turn-backs don't occur**. [decided]
+- Timing data from other sources, such as live timing or per-country feeds, can be unreliable, as `../upfront-live` showed. Adapters for such sources must normalise these cases: [brief]
   - **Missed registrations.** A later lap shows up without the earlier one, so one recorded time can span hours. Earlier laps are then credited and marked as inferred.
   - **A runner who turns back** shows up as a short "lap". That counts as a DNF.
   - **A finish in the first ~30 min of an hour** belongs to the previous loop.
@@ -106,30 +108,37 @@ With two runners left (A and B):
   - before the start, the start time in the visitor's local time;
   - a data-source or connection problem, with a note that the last good data is shown.
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
-- A **left menu** to switch views: Countries, Charts, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#charts`), so it survives a reload and can be linked. [decided]
+- A **left menu** to switch views: Countries, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
-- Viewer preferences are remembered per browser: the selected countries, starred runners, and the "show eliminated" toggles. [decided]
+- **Viewer preferences are remembered per browser:** the compared countries, starred runners, the leaderboard's country filter and "★ only", and the "show eliminated" toggles. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
+- **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
-### Countries view
-- A table of all countries in ranking order: rank, country, runners in race / total, team score, and status (in race, winner, or out after lap N).
-- Select up to 8 countries to compare. These drive the charts and the runner list, and each keeps its own colour while selected. [brief]
-- **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Selected countries stay visible. After the finish, everything is shown. [decided]
+### Countries view: ranking and comparison charts
+- **Top:** a "Compare" row of chips for the compared countries, each with a ✕, followed by the two comparison charts.
+- **Middle:** the countries table.
+- **Bottom:** the all-country charts.
+- **The table:** all countries in ranking order, with rank, country, runners in race / total, team score, and status (in race, winner, or out after lap N).
+- **Compare:** a checkbox per country adds it to the comparison charts, up to 8. Ticking only affects the charts. Each compared country keeps its own colour while compared, and the colour square next to the checkbox doubles as its legend key. [decided]
+- **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to tick countries in the table. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
+- **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]
+- **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared countries stay visible. After the finish, everything is shown. [decided]
 - The table always shows every row, without an inner scroll. [decided]
-
-### Charts view
-- A "Comparing" row with the selected countries, which can be removed there. Selection itself happens in the Countries view. [decided]
 - **Charts** work like Grafana: the backend serves visualisations as standard JSON in a Prometheus-like shape. The frontend draws them generically, so adding a chart is cheap. [brief] The charts are:
-  - runners starting each lap, per selected country;
-  - team score per lap, per selected country;
-  - runners out per lap, split into "did not finish" and "no result";
-  - a histogram of countries by runners still in. [brief]
+  - **comparison:** runners starting each lap, and team score per lap, one line per compared country;
+  - **all countries:** runners out per lap, split into "did not finish" and "no result", and a histogram of countries by runners still in. [brief]
 - Every chart can switch to a table view.
 
-### Runners view
-- Runners of the selected countries plus any starred runners. Starred runners come first. [brief]
-- **Columns:** star, name, country, laps, best (from the roster), status, last lap time, and a lap-time sparkline. [brief/decided]
+### Runners view: the individual leaderboard
+- A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided]
+- **Filter bar:**
+  - countries, from a "+ Country" picker, shown as removable chips; none means all;
+  - a name search;
+  - "★ only", for starred runners;
+  - "Show eliminated (n)". [decided]
+- **Columns:** position, star, name, country, seat, laps, best (from the roster), status, last lap time. [brief/decided]
+- **Sparklines** of the lap times are shown when the list is filtered by country or "★ only". Unfiltered, the ~1,000 sparklines would be too much data per poll. [decided]
 - Clicking a row opens a lap-time chart for that runner. [brief]
-- **Runners who are out** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Starred runners stay visible. Country winners count as still shown. After the finish, everything is shown. [decided]
+- **Runners who are out** are hidden by default, behind the "Show eliminated" toggle. Starred runners stay visible. Country winners count as still shown. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]
 
 ### Seats view
@@ -165,6 +174,6 @@ With two runners left (A and B):
 - [ ] **Seat = roster rank** [assumed]: confirm.
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).
 - [ ] **Fewer than 2 runners of a country start lap 1.** The general team rule applies for now.
-- [ ] **What counts as a turn-back:** the duration below which a recorded "lap" means the runner turned back, and so counts as a DNF. This depends on the real source.
 - [ ] What the roster's `wa` field means. It's unused.
+- [ ] Show the "too fast" flag in the site, for example as a marker in the runner's lap-time chart. It's only in the data for now.
 - [ ] **Minor:** direct line labels can crowd near the x-axis when several series end at 0.

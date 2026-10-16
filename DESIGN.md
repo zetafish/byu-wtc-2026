@@ -31,7 +31,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 
 ## Layout
 
-- A **left menu** (200 px, sticky, full height) holds the brand and the views Countries, Charts, Runners and Seats. Each item has a small count, explained by a tooltip.
+- A **left menu** (200 px, sticky, full height) holds the brand and the views Countries, Runners and Seats. Each item has a small count, explained by a tooltip.
   - The active item has an orange left bar and a tint.
   - Below **760 px**, the menu becomes a sticky top tab bar with an orange underline, and the brand is hidden.
 - **Content** is at most 1240 px wide. The header (title, stats, chips, notices, finished banner) is on every view, and the chosen view goes below it.
@@ -41,7 +41,10 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 ## Components
 
 - **Stat:** an uppercase label over a big display number. The lap stat is in the accent.
-- **Chip:** a rounded pill with a border, for summary counts and for the "Comparing" countries, which have a ✕ to remove them.
+- **Chip:** a rounded pill with a border. Used for summary counts, for compared countries (with a ✕ and a colour key), and for leaderboard country filters (with a ✕).
+- **Compare checkbox:** a checkbox plus a colour square in the country's series colour, which is empty when unticked. The square is the legend key for that country in the charts above.
+- **Country squad grid:** in the expanded row below a country, a compact multi-column grid (`ul.squad`): seat number, name, laps, and a small mark (green dot for in, ★ for winner, red ✕ for out, with the reason in the tooltip).
+- **Filter bar** (`.filters`): a picker, chips, a search input and toggles in one wrapping row above the leaderboard table.
 - **Pills:**
   - `in` (green dot, "in race");
   - `win` ("★ name · lap N" or "★ country winner");
@@ -56,17 +59,27 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 Charts follow the dataviz method: pick the form first, colour last, and validate the palette.
 
 - **Series colours** are `--series-1..8`, the validated dataviz palette, re-checked against `#ffffff` and `#15232a`. Don't add hues and don't use the accent.
-- **Colour follows the country, not its rank.** A selected country takes the lowest free slot, and the survivors keep their colour when one is deselected. Because there are 8 hues, at most 8 countries can be selected.
+- **Colour follows the country, not its rank.** A compared country takes the lowest free slot, and the survivors keep their colour when one is unticked. Because there are 8 hues, at most 8 countries can be compared. Leaderboard country filters have no colour, so they don't use slots.
 - **Non-per-country series** (for example attrition by reason) take slots in their fixed `:series-order`.
 - **Marks:** 2 px lines and recessive grid lines and axes. One y-axis only; never a dual axis.
 - **Labels:**
   - 2 or more series always get a legend, and up to 4 also get direct labels at the line end. A single series has no legend; the title names it.
+  - **The exception is the comparison charts:** the Compare chips above them, with a colour key per country, are their shared legend, so the charts have none of their own (`:legend? false`). That keeps the chart height fixed while countries are ticked.
   - Text uses the text tokens, never the series colour.
 - **Interaction:**
   - Line charts have a crosshair and a tooltip with all series.
   - Bar charts have a tooltip per bar. Stacked bars follow the given order.
   - Every chart has a Chart/Table toggle.
 - **Sparklines** in the runner table are muted strokes with no axes. Clicking a row opens the full lap-time chart, with a y-axis in mm:ss that doesn't start at zero.
+
+## Stability: no flicker, no jumping
+
+- **Charts keep their card height.** A chart's svg has a fixed aspect (viewBox 640×240). Every non-chart state uses `chart/placeholder`, a box with the same aspect: loading, "No data yet", and "Tick countries…".
+- **The Compare row** has a minimum height, so its empty text and its chips take the same space. With many long names it can still wrap to a second line.
+- **No partial first paint:** the page shows "Loading live data…" until the first data arrives, then renders everything at once. The chart queries start alongside the main fetch, not after it.
+- **Fonts load with `display=block`.** Text appears only once Big Shoulders and Barlow are ready (cached after the first visit), instead of jumping from a fallback font.
+- **Auto-refresh changes only what changed.** With unchanged data, a refresh replaces no DOM nodes. Keep it that way: stable React keys, and no remounting of whole views.
+- **Unticking a country** removes it from the charts at once, without waiting for the next response.
 
 ## Copy
 

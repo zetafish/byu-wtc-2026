@@ -8,8 +8,12 @@
 (def max-selected 8)
 (def poll-ms 60000)
 
-(defonce db (r/atom {:selected {}     ; country code -> color slot 1..8
+(defonce db (r/atom {:selected {}     ; compared countries: code -> color slot 1..8; empty until picked
                      :starred #{}
+                     :runner-filter #{} ; leaderboard: only these countries (empty = all)
+                     :starred-only? false
+                     :query ""        ; leaderboard name search (not stored)
+                     :expanded nil    ; country code whose runners are shown in the table
                      :show-out? false ; list eliminated countries too
                      :show-out-runners? false ; list eliminated runners too
                      :view :countries ; menu view, mirrors the URL hash
@@ -28,7 +32,9 @@
                                 (js/JSON.stringify (clj->js {:selected (:selected @db)
                                                              :starred (vec (:starred @db))
                                                              :show-out (:show-out? @db)
-                                                             :show-out-runners (:show-out-runners? @db)})))
+                                                             :show-out-runners (:show-out-runners? @db)
+                                                             :runner-filter (vec (:runner-filter @db))
+                                                             :starred-only (:starred-only? @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -44,38 +50,53 @@
 
 (defn- selected-codes [] (str/join "," (sort (keys (:selected @db)))))
 
+(declare fetch-runner-times!)
+
+(defonce ^:private fetch-seq (atom 0))
+
 (defn- fetch-panels! []
-  (doseq [{:keys [id metric per-country?]} panels/panels]
-    (-> (get-json "/api/query" (cond-> {:metric metric}
-                                 per-country? (assoc :by "country" :countries (selected-codes))))
-        (.then #(swap! db assoc-in [:results id] (get-in % [:data :result])))
-        (.catch #(js/console.warn %))))
+  ;; quick clicks fire overlapping requests; only the latest round may land
+  (let [n (swap! fetch-seq inc)
+        latest? #(= n @fetch-seq)]
+    (doseq [{:keys [id metric per-country?]} panels/panels]
+      (-> (get-json "/api/query" (cond-> {:metric metric}
+                                   per-country? (assoc :by "country" :countries (selected-codes))))
+          (.then #(when (latest?) (swap! db assoc-in [:results id] (get-in % [:data :result]))))
+          (.catch #(js/console.warn %))))
+    (fetch-runner-times! latest?)))
+
+(defn- fetch-runner-times!
+  "Lap times for the sparklines: the leaderboard's country filter plus the
+  starred runners. Unfiltered, all ~1,000 runners would be too much per poll."
+  [latest?]
   (let [ids (str/join "," (:starred @db))
-        codes (selected-codes)]
+        codes (str/join "," (sort (:runner-filter @db)))]
     (-> (js/Promise.all
          (clj->js [(if (seq codes) (get-json "/api/query" {:metric "lap_time_seconds" :countries codes}) #js {})
                    (if (seq ids) (get-json "/api/query" {:metric "lap_time_seconds" :runners ids}) #js {})]))
         (.then (fn [rs]
                  (let [series (mapcat #(get-in (js->clj % :keywordize-keys true) [:data :result]) rs)]
-                   (swap! db assoc :lap-times
-                          (into {} (map (fn [s] [(get-in s [:metric :runner]) (:values s)])) series)))))
+                   (when (latest?)
+                     (swap! db update :lap-times merge
+                            (into {} (map (fn [s] [(get-in s [:metric :runner]) (:values s)])) series))))))
         (.catch #(js/console.warn %)))))
 
-(defn- default-selection [countries]
-  (let [codes (map :code (sort-by :rank countries))
-        picks (take 4 (distinct (cons "NED" (filter #(some #{%} codes) codes))))]
-    (into {} (map-indexed (fn [i c] [c (inc i)])) (filter (set codes) picks))))
+(defn- fetch-lap-times! [id]
+  (-> (get-json (str "/api/runners/" (js/encodeURIComponent id)) {})
+      (.then (fn [r] (swap! db assoc-in [:lap-times id]
+                            (into [] (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])))
+                                  (:history r)))))
+      (.catch #(js/console.warn %))))
 
 (defn refresh! []
+  ;; charts load alongside the rest instead of after it, so they don't pop in late
+  (fetch-panels!)
   (-> (js/Promise.all (clj->js [(get-json "/api/race" {})
                                 (get-json "/api/countries" {})
                                 (get-json "/api/runners" {})]))
       (.then (fn [[race countries runners]]
-               (swap! db (fn [s]
-                           (cond-> (assoc s :race race :countries countries :runners runners
-                                          :error nil :updated (js/Date.))
-                             (empty? (:selected s)) (assoc :selected (default-selection countries)))))
-               (fetch-panels!)))
+               (swap! db assoc :race race :countries countries :runners runners
+                      :error nil :updated (js/Date.))))
       (.catch #(swap! db assoc :error (.-message %)))))
 
 ;; --- actions ---
@@ -87,6 +108,11 @@
              (contains? sel code) (dissoc sel code)
              (>= (count sel) max-selected) sel
              :else (assoc sel code (first (remove (set (vals sel)) (range 1 (inc max-selected))))))))
+  (save-prefs!)
+  (fetch-panels!))
+
+(defn- toggle-filter! [code]
+  (swap! db update :runner-filter #(if (contains? % code) (disj % code) (conj % code)))
   (save-prefs!)
   (fetch-panels!))
 
@@ -120,8 +146,11 @@
         selected (:selected @db)]
     (cond
       per-country?
+      ;; only countries still ticked: a stale response must not flash a
+      ;; just-unticked country in a borrowed colour
       (for [{:keys [metric values]} (sort-by #(get selected (get-in % [:metric :country])) result)
-            :let [code (:country metric)]]
+            :let [code (:country metric)]
+            :when (contains? selected code)]
         {:key code :label (or (country-name code) code) :color (color (get selected code 1)) :values values})
 
       series-label
@@ -184,38 +213,85 @@
           (str "Can't reach the server (" error "). Showing the last data we had.")
           (str "Data source problem (" (str/join ", " (map :error failing)) "). Showing the last good data."))])]))
 
-
 ;; panel :y-format -> tick/tooltip formatter
 (def ^:private y-formats {:mmss mmss})
 
 (defn- panel [_]
   (let [table? (r/atom false)]
     (fn [{:keys [id title subtitle kind] :as p}]
-      (let [series (to-series p (get-in @db [:results id]))
+      (let [results (:results @db)
+            series (to-series p (get results id))
             opts {:series series :x-label (:x-label p) :y-label (:y-label p)
-                  :fmt-y (y-formats (:y-format p)) :y-zero? (:y-zero? p true)}]
+                  :fmt-y (y-formats (:y-format p)) :y-zero? (:y-zero? p true)
+                  ;; the Compare chips above the charts are their shared legend
+                  :legend? (not (:per-country? p))}]
         [:section.card
          [:div.card-head
           [:div [:h2 title] (when subtitle [:p.sub subtitle])]
           [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]]
          (cond
+           (and (:per-country? p) (empty? (:selected @db)))
+           [chart/placeholder (str "Tick countries in the table below to compare them here (up to " max-selected ")")]
+           (not (contains? results id)) [chart/placeholder ""]
            @table? [chart/data-table opts]
            (= kind :line) [chart/line-chart opts]
            :else [chart/bar-chart opts])]))))
 
+;; --- ranking ---
+
 (defn- out? [{:keys [eliminated-after]}] (some? eliminated-after))
 
+(defn- running? [r] (= "running" (:status r)))
+
+(defn- race-key [r] [(:laps r) (if (running? r) 1 0)])
+
+(defn- ranked
+  "Runners best first, each with :pos. Equal laps share a position, except
+  that a runner still going is ahead of one who is out."
+  [runners]
+  (let [sorted (sort-by (juxt (comp - :laps) #(if (running? %) 0 1) :name) runners)]
+    (first (reduce (fn [[acc prev-key prev-pos] [i r]]
+                     (let [k (race-key r)
+                           pos (if (= k prev-key) prev-pos (inc i))]
+                       [(conj acc (assoc r :pos pos)) k pos]))
+                   [[] nil 0]
+                   (map-indexed vector sorted)))))
+
+(defn- mini-status [{:keys [status reason]}]
+  (case status
+    "running" [:span.dot.in {:title "in race"}]
+    "finished" [:span.win {:title "country winner"} "★"]
+    [:span.icon {:title (str "out · " (reason-text reason reason))} "✕"]))
+
+;; --- countries ---
+
+(defn- country-runners [{:keys [code name]}]
+  (let [rs (->> (:runners @db)
+                (filter #(= code (:country %)))
+                (sort-by (juxt (comp - :laps) #(if (running? %) 0 1) :rank)))]
+    [:tr.detail
+     [:td {:col-span 7}
+      [:ul.squad
+       (for [{:keys [id rank laps] :as r} rs]
+         ^{:key id}
+         [:li {:class (when-not (running? r) "out")}
+          [:span.seat {:title "seat"} rank] [:span.who (:name r)] [:b laps] [mini-status r]])]
+      [:a.change {:href "#runners"
+                  :on-click #(do (swap! db assoc :runner-filter #{code} :query "")
+                                 (save-prefs!) (fetch-panels!))}
+       (str "Show " name " in the runner leaderboard →")]]]))
+
 (defn- countries-table []
-  (let [{:keys [countries selected show-out?]} @db
+  (let [{:keys [countries selected show-out? expanded]} @db
         full? (>= (count selected) max-selected)
         n-out (count (filter out? countries))
-        ;; selected countries stay visible so they can still be deselected
+        ;; compared countries stay visible so they can still be unticked
         show-out? (or show-out? (finished?))
         shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %))) countries)]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
-       [:p.sub (str "Select up to " max-selected " to compare in the charts and the runner list")]]
+       [:p.sub (str "Ranked by team score. Tick Compare to add a country to the charts (up to " max-selected "). Click a row for its runners.")]]
       (when (and (pos? n-out) (not (finished?)))
         [:label.toggle
          [:input {:type "checkbox" :checked show-out?
@@ -223,83 +299,122 @@
          (str "Show eliminated (" n-out ")")])]
      [:div.table-wrap.full
       [:table
-       [:thead [:tr [:th "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"] [:th "Status"]]]
+       [:thead [:tr [:th "Compare"] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"] [:th "Status"] [:th]]]
        [:tbody
-        (for [{:keys [code name rank active runners total-laps eliminated-after winner]} shown
-              :let [slot (get selected code)]]
+        (for [{:keys [code name rank active runners total-laps eliminated-after winner] :as c} shown
+              :let [slot (get selected code)
+                    open? (= expanded code)
+                    toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
           ^{:key code}
-          [:tr {:class [(when slot "selected") (when eliminated-after "out")]}
-           [:td.num rank]
-           [:td [:label.pick
-                 [:input {:type "checkbox" :checked (boolean slot) :disabled (and full? (not slot))
-                          :on-change #(toggle-country! code)}]
-                 [:span.key-box {:style {:background (if slot (color slot) "transparent")}}]
-                 name " " [:span.muted code]]]
-           [:td.num active " / " runners]
-           [:td.num total-laps]
-           [:td (cond
-                  winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
-                  eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
-                  :else
-                  [:span.pill.in [:span.dot.in] "in race"])]])]]]]))
+          [:<>
+           [:tr.clickable {:class [(when slot "selected") (when eliminated-after "out")]
+                           :on-click toggle-open}
+            [:td {:on-click #(.stopPropagation %)}
+             [:label.pick {:title (when (and full? (not slot)) (str "You can compare up to " max-selected " countries"))}
+              [:input {:type "checkbox" :checked (boolean slot) :disabled (and full? (not slot))
+                       :aria-label (str "Compare " name)
+                       :on-change #(toggle-country! code)}]
+              [:span.key-box {:style {:background (if slot (color slot) "transparent")}}]]]
+            [:td.num rank]
+            [:td.name name " " [:span.muted code]]
+            [:td.num active " / " runners]
+            [:td.num total-laps]
+            [:td (cond
+                   winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
+                   eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+                   :else
+                   [:span.pill.in [:span.dot.in] "in race"])]
+            [:td [:button.expand {:aria-expanded open? :aria-label (str "Runners of " name)
+                                  :on-click (fn [e] (.stopPropagation e) (toggle-open))}
+                  (if open? "▾" "▸")]]]
+           (when open? [country-runners c])])]]]]))
+
+;; --- runner leaderboard ---
 
 (defn- runner-detail [{:keys [id name]}]
   (let [values (get-in @db [:lap-times id])]
     [:tr.detail
-     [:td {:col-span 8}
+     [:td {:col-span 10}
       [chart/line-chart {:series [{:key id :label name :color "var(--series-1)" :values values}]
                          :y-zero? false :fmt-y mmss :x-label "lap" :y-label "lap time"}]]]))
 
+(defn- runner-filters [n-out show-out?]
+  (let [{:keys [countries runner-filter starred-only? query]} @db]
+    [:div.filters
+     [:select.seat {:value "" :aria-label "Filter by country"
+                    :on-change #(some-> (.. % -target -value) not-empty toggle-filter!)}
+      [:option {:value ""} "+ Country"]
+      (for [{:keys [code name]} (sort-by :name (remove #(contains? runner-filter (:code %)) countries))]
+        ^{:key code} [:option {:value code} name])]
+     (for [code (sort runner-filter)]
+       ^{:key code}
+       [:span.chip (or (country-name code) code)
+        [:button.remove {:aria-label (str "Remove " code) :on-click #(toggle-filter! code)} "✕"]])
+     [:input.search {:type "search" :placeholder "Search runner" :value query :aria-label "Search runner"
+                     :on-change #(swap! db assoc :query (.. % -target -value))}]
+     [:label.toggle
+      [:input {:type "checkbox" :checked starred-only?
+               :on-change #(do (swap! db update :starred-only? not) (save-prefs!))}]
+      "★ only"]
+     (when (and (pos? n-out) (not (finished?)))
+       [:label.toggle
+        [:input {:type "checkbox" :checked show-out?
+                 :on-change #(do (swap! db update :show-out-runners? not) (save-prefs!))}]
+        (str "Show eliminated (" n-out ")")])]))
+
 (defn- runners-table []
-  (let [{:keys [runners selected starred open lap-times show-out-runners?]} @db
+  (let [{:keys [runners selected starred open lap-times show-out-runners? runner-filter starred-only? query]} @db
         starred? #(contains? starred (:id %))
-        candidates (filter #(or (contains? selected (:country %)) (starred? %)) runners)
+        q (str/lower-case (str/trim query))
+        candidates (cond->> (ranked runners)
+                     (seq runner-filter) (filter #(contains? runner-filter (:country %)))
+                     starred-only? (filter starred?)
+                     (seq q) (filter #(str/includes? (str/lower-case (:name %)) q)))
         out-runner? #(= "out" (:status %))
-        show-out-runners? (or show-out-runners? (finished?))
+        show-out? (or show-out-runners? (finished?))
         n-out (count (filter out-runner? candidates))
         ;; starred runners stay visible so they can still be unstarred
-        shown (->> candidates
-                   (filter #(or show-out-runners? (not (out-runner? %)) (starred? %)))
-                   (sort-by (juxt #(if (starred? %) 0 1)
-                                  #(if (out-runner? %) 1 0)
-                                  (comp - :laps))))]
+        shown (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)
+        ;; sparklines only for a filtered list, see `fetch-runner-times!`
+        sparks? (or (seq runner-filter) starred-only?)]
     [:section.card.wide
      [:div.card-head
-      [:div [:h2 "Runners"]
-       [:p.sub "Starred runners and the selected countries. Click a row for the lap times."]]
-      (when (and (pos? n-out) (not (finished?)))
-        [:label.toggle
-         [:input {:type "checkbox" :checked show-out-runners?
-                  :on-change #(do (swap! db update :show-out-runners? not) (save-prefs!))}]
-         (str "Show eliminated (" n-out ")")])]
+      [:div [:h2 "Runner leaderboard"]
+       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Filter by country or ★ to see lap-time sparklines; click a row for the lap-time chart."]]]
+     [runner-filters n-out show-out?]
      (if (empty? shown)
-       [:div.empty (if (seq candidates)
-                     "Everyone here is out. Tick \"Show eliminated\" to see them."
-                     "Select a country or star a runner")]
+       [:div.empty (cond
+                     (seq candidates) "Everyone here is out. Tick \"Show eliminated\" to see them."
+                     starred-only? "No starred runners here yet. Star (☆) a runner to add them."
+                     :else "No runners match")]
        [:div.table-wrap.full
         [:table
-         [:thead [:tr [:th] [:th "Runner"] [:th "Country"] [:th.num "Laps"]
+         [:thead [:tr [:th.num "Pos"] [:th] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Laps"]
                   [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
                   [:th "Status"]
-                  [:th.num "Last lap"] [:th "Lap times"]]]
+                  [:th.num "Last lap"] (when sparks? [:th "Lap times"])]]
          [:tbody
-          (for [{:keys [id name country laps] :as runner} shown
+          (for [{:keys [id name country laps pos] :as runner} shown
                 :let [times (get lap-times id)]]
             ^{:key id}
             [:<>
-             [:tr.clickable {:class (when (= "out" (:status runner)) "out")
-                             :on-click #(swap! db update :open (fn [o] (when-not (= o id) id)))}
-              [:td [:button.star {:aria-label (if (contains? starred id) "Unstar" "Star")
-                                  :aria-pressed (contains? starred id)
+             [:tr.clickable {:class (when (out-runner? runner) "out")
+                             :on-click (fn []
+                                         (when-not (contains? lap-times id) (fetch-lap-times! id))
+                                         (swap! db update :open (fn [o] (when-not (= o id) id))))}
+              [:td.num pos]
+              [:td [:button.star {:aria-label (if (starred? runner) "Unstar" "Star")
+                                  :aria-pressed (starred? runner)
                                   :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
-                    (if (contains? starred id) "★" "☆")]]
-              [:td name]
+                    (if (starred? runner) "★" "☆")]]
+              [:td.name name]
               [:td [:span.key-box {:style {:background (some-> (get selected country) color)}}] country]
+              [:td.num (:rank runner)]
               [:td.num laps]
               [:td.num (or (:best-yards runner) "–")]
               [:td [status-badge runner]]
-              [:td.num (mmss (second (last times)))]
-              [:td [chart/sparkline times]]]
+              [:td.num (mmss (:last-seconds runner))]
+              (when sparks? [:td (when times [chart/sparkline times])])]
              (when (= open id) [runner-detail runner])])]]])]))
 
 ;; --- seat ranking ---
@@ -309,19 +424,10 @@
 
 (def seats (range 1 16))
 
-(defn- running? [r] (= "running" (:status r)))
-
-(defn- seat-key [r] [(:laps r) (if (running? r) 1 0)])
-
 (defn- seat-ranking
-  "Runners of seat n, best first, with :pos. Equal laps share a position,
-  except that a runner still going is ahead of one who is out."
+  "Runners of seat n, best first, with :pos (see `ranked`)."
   [runners n]
-  (let [rs (filter #(= n (:rank %)) runners)
-        better? (fn [a b] (pos? (compare (seat-key a) (seat-key b))))]
-    (->> rs
-         (map (fn [r] (assoc r :pos (inc (count (filter #(better? % r) rs))))))
-         (sort-by (juxt :pos :name)))))
+  (ranked (filter #(= n (:rank %)) runners)))
 
 (defn- seat-summary [runners n]
   (let [ranked (seat-ranking runners n)
@@ -403,7 +509,6 @@
 
 (def views
   [{:id :countries :label "Countries"}
-   {:id :charts :label "Charts"}
    {:id :runners :label "Runners"}
    {:id :seats :label "Seats"}])
 
@@ -412,20 +517,16 @@
     (or (some #(when (= h (name (:id %))) (:id %)) views) :countries)))
 
 (defn- nav-count [id]
-  (let [{:keys [countries runners selected starred]} @db]
+  (let [{:keys [countries runners]} @db]
     (case id
       :countries (count (remove out? countries))
-      :charts (count selected)
-      :runners (count (filter #(and (running? %) (or (contains? selected (:country %))
-                                                      (contains? starred (:id %))))
-                              runners))
+      :runners (count (filter running? runners))
       :seats (count seats))))
 
 (defn- nav-title [id]
   (case id
     :countries "countries still in the race"
-    :charts "countries selected for comparison"
-    :runners "selected or starred runners still in the race"
+    :runners "runners still in the race"
     :seats "seats"))
 
 (defn- nav []
@@ -442,29 +543,34 @@
 (defn- comparing []
   (let [{:keys [selected]} @db]
     [:div.comparing
-     [:span.label "Comparing"]
+     [:span.label "Compare"]
      (if (empty? selected)
-       [:span.muted "no countries"]
+       [:span.muted "no countries ticked yet"]
        (for [[code slot] (sort-by val selected)]
          ^{:key code}
          [:span.chip [:span.key-box {:style {:background (color slot)}}] (or (country-name code) code)
-          [:button.remove {:aria-label (str "Remove " code) :on-click #(toggle-country! code)} "✕"]]))
-     [:a.change {:href "#countries"} "Change selection"]]))
+          [:button.remove {:aria-label (str "Stop comparing " code) :on-click #(toggle-country! code)} "✕"]]))]))
 
 (defn- view-body [view]
   (case view
-    :charts [:<> [comparing]
-             [:div.grid (for [p panels/panels] ^{:key (:id p)} [panel p])]]
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
-    [:div.grid [countries-table]]))
+    ;; countries: the comparison charts, the ranking that drives them, then the all-country charts
+    (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
+      [:<> [comparing]
+       [:div.grid
+        (for [p compare] ^{:key (:id p)} [panel p])
+        [countries-table]
+        (for [p overall] ^{:key (:id p)} [panel p])]])))
 
 (defn- app []
   [:div.layout
    [nav]
    [:main
-    [header]
-    [view-body (:view @db)]
+    ;; render the page once, with data, instead of filling in piece by piece
+    (if (or (:race @db) (:error @db))
+      [:<> [header] [view-body (:view @db)]]
+      [:div.loading "Loading live data…"])
     [:footer "Unofficial. Data may lag the official results by a few minutes."]]])
 
 (defonce root (delay (rdc/create-root (js/document.getElementById "app"))))
@@ -473,10 +579,12 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred show-out show-out-runners]} (load-prefs)]
+  (when-let [{:keys [selected starred show-out show-out-runners runner-filter starred-only]} (load-prefs)]
     (swap! db assoc
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
            :starred (set starred)
+           :runner-filter (set runner-filter)
+           :starred-only? (true? starred-only)
            :show-out? (true? show-out)
            :show-out-runners? (true? show-out-runners)))
   (swap! db assoc :view (hash-view))

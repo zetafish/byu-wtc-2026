@@ -26,7 +26,12 @@
 
 (defn- csv-set [s] (when-not (str/blank? s) (set (str/split s #","))))
 
-(defn- runner-row [r] (dissoc r :history))
+(defn- runner-row
+  "A runner without history, plus the time of their last timed lap."
+  [r]
+  (-> r
+      (assoc :last-seconds (some :seconds (rseq (vec (:history r)))))
+      (dissoc :history)))
 
 (defn- handlers [state]
   (let [derived #(:derived @state)]

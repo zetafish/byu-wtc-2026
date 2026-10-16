@@ -2,7 +2,8 @@
   "Generic SVG charts. Input is a list of series:
     [{:key \"NED\" :label \"Netherlands\" :color \"var(--series-1)\"
       :values [[x y] ...]}]
-  Every chart comes with a legend (2+ series), a hover layer and a table view."
+  Every chart comes with a legend (2+ series; `:legend? false` when the page
+  shows a shared one), a hover layer and a table view."
   (:require [clojure.string :as str]
             [reagent.core :as r]))
 
@@ -39,6 +40,12 @@
 (defn- xs-of [series] (vec (sort (distinct (mapcat #(map first (:values %)) series)))))
 
 (defn- fmt [f v] (if f (f v) (str v)))
+
+(defn placeholder
+  "A chart-sized box with a message, so swapping it for a chart doesn't
+  change the card's height."
+  [text]
+  [:div.plot-box [:span text]])
 
 (defn- legend [series kind]
   (when (> (count series) 1)
@@ -108,9 +115,9 @@
                                              (/ (- px (:l m)) (- W (:l m) (:r m))))))
             hx @hover]
         (if (empty? xs)
-          [:div.empty "No data yet"]
+          [placeholder "No data yet"]
           [:div.chart
-           [legend series :line]
+           (when (:legend? opts true) [legend series :line])
            [:div.plot
             [:svg {:view-box (str "0 0 " W " " H) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
@@ -174,9 +181,9 @@
             step (max 1 (js/Math.ceil (/ (count xs) 10)))
             hx @hover]
         (if (empty? xs)
-          [:div.empty "No data yet"]
+          [placeholder "No data yet"]
           [:div.chart
-           [legend series :bar]
+           (when (:legend? opts true) [legend series :bar])
            [:div.plot
             [:svg {:view-box (str "0 0 " W " " H) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x

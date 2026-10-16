@@ -21,10 +21,15 @@
   (max 0 (Math/floorDiv (- (secs-since start now) (long grace-s))
                         (long model/lap-seconds))))
 
-(defn- clean [{:keys [seconds] :as lap}]
-  (if (and seconds (> seconds model/lap-seconds))
-    (assoc lap :seconds nil :suspect true)
-    lap))
+(def too-fast-seconds
+  "A finished lap under 30 min is implausible: flagged, but still credited."
+  1800)
+
+(defn- clean [{:keys [seconds status] :as lap}]
+  (cond
+    (and seconds (> seconds model/lap-seconds)) (assoc lap :seconds nil :suspect true)
+    (and seconds (= :finished status) (< seconds too-fast-seconds)) (assoc lap :too-fast true)
+    :else lap))
 
 (defn- runner-state
   "Laps are credited up to the last finished lap. Gaps below it are missed
