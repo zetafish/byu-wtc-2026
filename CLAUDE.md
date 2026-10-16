@@ -34,11 +34,25 @@ make roster-refresh                # re-fetch every roster/*.json from the offic
 
 Before the race starts, a real-time clock shows nothing. `DEMO=1` starts the app clock 30 h into the race at 60× speed. `make up DEMO=1` writes these settings to `.env`, with a fixed `CLOCK_ANCHOR` (the wall time at which the clock read `CLOCK_START`). Compose reads `.env`, so restarts and a plain `docker compose up` continue the same simulated race instead of starting it over. At 60× the mock race ends about 2 h of wall time after the anchor and then stays finished. `make demo-reset` starts it over; `make demo-off` returns to real time. `user/start` in `dev/user.clj` does the same, but at normal speed. The local default port is 8090, because 8080 and 8787 are often taken by other local `bb` servers. Compose Postgres is on `localhost:55432` (user, password and database are all `wtc`). Without `DATABASE_URL`, the app uses an in-memory store.
 
+## Checking your work
+
+- **Backend:** `make test`, then `curl localhost:8090/api/race` (look at `phase` and `current-lap`) and `curl 'localhost:8090/api/query?metric=…'`. `docker compose up -d --build app` rebuilds it.
+- **Frontend:** there are no frontend tests, so look at it.
+  - `web-dev` hot-reloads `frontend/src` at http://localhost:8092. `docker compose logs --tail 5 web-dev` shows compile errors and warnings.
+  - Open a view by hash (`/#charts`, `/#runners`, `/#seats`). Per-country charts and the runner list need countries selected in the Countries view; the first visit selects NED plus the top 3.
+  - For screenshots, use headless Chrome: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --virtual-time-budget=8000 --window-size=1300,900 --screenshot=<scratchpad>/x.png 'http://localhost:8092/#charts'`. Then read the PNG. Phone widths under ~500 px get clipped.
+  - The nginx site on :8091 serves the *release* build, so it only changes after `docker compose up -d --build web`.
+- **The race state of the local stack:**
+  - `make up DEMO=1` writes `.env`, and the Makefile `-include`s it. From then on `make run` and `make run-mem` run the demo clock too, until `make demo-off`.
+  - At 60× the demo race finishes about 2 h after its anchor, so a fresh session often finds `phase` `finished`. `make demo-reset` brings it back to mid-race (lap 31).
+  - To freeze at a chosen moment, use `CLOCK_START=2026-10-19T12:00:00Z CLOCK_SPEED=1 CLOCK_ANCHOR= docker compose up -d app`. That's lap 49, with real-time speed from there.
+  - `CLOCK_START=2026-10-24T14:00:00Z` shows the end of the race.
+
 ## Conventions that bite
 
 - **`wtc.race` is pure and holds every domain rule.** Status is derived on read; never store it. The team-rule scenarios in `test/wtc/race_test.clj` are confirmed by the owner, so don't change their expectations without asking.
 - **Adapters** normalise the unreliable timing data into `wtc.model` and use the roster's runner ids (see `ARCH.md`).
-- **Adding a chart** means adding a metric to `wtc.metrics/registry`, then a map in `frontend/src/wtc/panels.cljs`.
+- **Adding a chart** means adding a metric to `wtc.metrics/registry`, then a map in `frontend/src/wtc/panels.cljs`. `ARCH.md` lists the panel keys; a new axis format also needs an entry in `y-formats` in `wtc.app`.
 - **Chart colours** are `--series-1..8` and follow the country, not its rank. Never use the accent or a new hue for a series (see `DESIGN.md`).
 - **Run exactly one backend instance.** The scheduler and the state are in-process.
 - **Rebuilding one compose service can recreate `app`.** The demo clock survives this because of `.env` and `CLOCK_ANCHOR`.

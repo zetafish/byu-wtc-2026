@@ -185,11 +185,15 @@
           (str "Data source problem (" (str/join ", " (map :error failing)) "). Showing the last good data."))])]))
 
 
+;; panel :y-format -> tick/tooltip formatter
+(def ^:private y-formats {:mmss mmss})
+
 (defn- panel [_]
   (let [table? (r/atom false)]
     (fn [{:keys [id title subtitle kind] :as p}]
       (let [series (to-series p (get-in @db [:results id]))
-            opts {:series series :x-label (:x-label p) :y-label (:y-label p)}]
+            opts {:series series :x-label (:x-label p) :y-label (:y-label p)
+                  :fmt-y (y-formats (:y-format p)) :y-zero? (:y-zero? p true)}]
         [:section.card
          [:div.card-head
           [:div [:h2 title] (when subtitle [:p.sub subtitle])]

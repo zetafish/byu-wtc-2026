@@ -165,5 +165,6 @@ With two runners left (A and B):
 - [ ] **Seat = roster rank** [assumed]: confirm.
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).
 - [ ] **Fewer than 2 runners of a country start lap 1.** The general team rule applies for now.
+- [ ] **What counts as a turn-back:** the duration below which a recorded "lap" means the runner turned back, and so counts as a DNF. This depends on the real source.
 - [ ] What the roster's `wa` field means. It's unused.
 - [ ] **Minor:** direct line labels can crowd near the x-axis when several series end at 0.

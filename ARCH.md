@@ -18,7 +18,15 @@ sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-
                        Vercel CDN (rewrite /api/* → Caasify) ──▶ ClojureScript SPA
 ```
 
-- **Backend:** Clojure, built with `deps.edn` and run by http-kit, with reitit for routing and jsonista for JSON. It's a single process, and it runs the scheduler itself.
+- **Backend:** Clojure (`deps.edn`), one process, which also runs the scheduler. Libraries:
+  - http-kit: the server, and `org.httpkit.client` for adapters' HTTP calls;
+  - reitit and ring: routing;
+  - jsonista: JSON;
+  - malli: model schemas;
+  - next.jdbc, HikariCP and postgresql: the store;
+  - tools.logging with logback.
+
+  There's no CSV library. Add one to `deps.edn` if an adapter needs it.
 - **Frontend:** ClojureScript, with shadow-cljs 3.5.5, Reagent 2.0.1 and React 18.3.1. The charts are hand-built SVG; there's no chart library.
 
 ## Data model (`wtc.model`)
@@ -33,6 +41,22 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 
 `sanitize` drops invalid rows, never the whole snapshot. `merge-datasets` merges the per-source datasets; the higher `:priority` wins per `[runner-id lap]`.
 
+### What an adapter does and what `wtc.race` does
+
+| Adapter (normalise the source) | `wtc.race` (on every derive) |
+|---|---|
+| Map country names to IOC codes, and names to roster runner ids | Credit gaps below the last finished lap as `:inferred` |
+| Turn timestamps or durations into `{:lap :status :seconds}` | Mark runners with no result for a settled lap as out (`:missing`) |
+| A finish in the first ~30 min of an hour → the previous lap | Mark `:seconds` > 3600 as `:suspect` and blank the time |
+| A turn-back (an implausibly short "lap") → `:dnf` | Apply the team rule, rankings and phase |
+| No result yet (for example a blank cell) → **no lap row at all**, never a placeholder | |
+
+**Runner ids:**
+- The roster ids are `<IOC code>-<slug of the name>`. The slug function lives in `scripts/fetch_roster.clj`, which is babashka, so it isn't on the JVM classpath.
+- An adapter should resolve names against the roster EDN rather than re-slugging. Copy `slug` into `wtc.roster` if it needs it.
+- The IOC code map for country names is `codes` in the same script.
+- A runner whose id isn't in the roster still works, but gets no `:rank` or `:best-yards`.
+
 ## Backend namespaces
 
 - **`wtc.source`:** the `Source` protocol (`fetch [this {:start :now}]`) and the `create` multimethod on `:type`. To add an adapter:
@@ -40,6 +64,8 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   2. add a `defmethod source/create`;
   3. require it in `wtc.main`;
   4. add it to `SOURCES`.
+
+  `SOURCES` *replaces* the default mock, so leave the mock out of it when a real adapter is live; otherwise mock laps merge in wherever the real source has no row. Compose passes `SOURCES` through from the shell or `.env`. Put adapter tests in `test/wtc/source_test.clj`, next to `mock-source`.
 - **`wtc.source.mock`:** a deterministic simulation per `:seed` of the real roster: the team members (rank ≤ 15) from `resources/roster/wtc-2026.edn`.
   - Each runner gets a lap capacity drawn around their `:best-yards` (±~25%), and the mock applies the team rule itself.
   - A fetch reveals only what has happened by `:now`, and the generated race is cached per start time.
@@ -60,7 +86,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
     - 1 finisher gives `{:after lap :winner id}`, and that runner gets `:status :finished :reason :winner`.
     - 0 finishers give `{:after (dec lap) :winner nil}`.
   - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:rank` (by total laps, then active runners, then code), `:eliminated-after` and `:winner` `{:id :name :laps}`.
-  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason`, `:laps`, `:started` and `:history`.
+  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds}`, optionally with `:inferred true` or `:suspect true`; `:seconds` is nil for inferred or suspect laps.
     - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1.
   - **Phase:** `:pre`, `:live` or `:finished`. When finished, `:final-lap` is the last lap anyone started, and `:current-lap` and `:settled-lap` are capped there, so the chart axes stop growing. `:race-laps` is the race length: the last lap anyone completed, which is `:final-lap` with a winner and one less when the last runners all DNF.
 - **`wtc.ingest`:** a single-thread scheduler.
@@ -80,6 +106,12 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `attrition`
   - `lap_time_seconds`
   - `countries_by_active_runners`
+
+  **The shape of an entry:** `"name" {:doc "…" :x "lap" :fn (fn [derived params] …)}`.
+  - `:fn` gets the derived state (see `wtc.race` above) and `params` `{:by "country"|nil :countries #{codes} :runners #{ids} :lap n}`. Empty sets mean "all".
+  - It returns a seq of `{:metric {:__name__ … labels…} :values [[x y] …]}`.
+  - The private helpers `select` (filter runners by params) and `grouped` (one series per country when `by=country`) do most of the work.
+  - There's no metrics test file yet. `query-shape` in `test/wtc/source_test.clj` checks the response shape, and new metric tests can go there.
 - **`wtc.http`:** the API.
 - **`wtc.main`:** reads the config from env vars, wires the system and starts the server and the scheduler.
 
@@ -103,10 +135,12 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - The views are in `views`; the URL hash selects the view.
   - The seat ranking is computed client-side from `/api/runners`.
   - Preferences are kept in localStorage under `wtc-prefs`, with every access in try/catch.
-- **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here** with:
-  - `:metric`
-  - `:kind` (`:line` or `:bar`)
-  - either `:per-country?` (one series per selected country) or `:series-label` (series from a metric label)
+- **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here.** The panel keys:
+  - `:id`, `:title`, `:subtitle`, `:metric`, `:kind` (`:line` or `:bar`), `:x-label`, `:y-label`;
+  - either `:per-country? true` (one series per selected country, queried with `by=country`) or `:series-label :k` (one series per value of label `:k`, with `:series-order` and `:series-names`);
+  - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`.
+
+  A new formatter goes in `y-formats` in `wtc.app`. Charts with `:per-country?` stay empty until countries are selected in the Countries view.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.

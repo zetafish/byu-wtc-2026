@@ -5,8 +5,9 @@
 (defonce system nil)
 
 (defn start
-  "Dev defaults: in-memory store, mock source, app clock starting 30 h into
-  the race. Pass overrides, e.g. (start {:clock {:speed 60}})."
+  "Dev defaults: config from env vars (in-memory store unless DATABASE_URL
+  is set, mock source unless SOURCES is), app clock starting 30 h into the
+  race. Pass overrides, e.g. (start {:clock {:speed 60}})."
   ([] (start {}))
   ([overrides]
    (let [cfg (merge-with #(if (map? %1) (merge %1 %2) %2)
