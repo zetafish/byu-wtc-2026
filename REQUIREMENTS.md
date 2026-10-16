@@ -145,8 +145,8 @@ With two runners left (A and B):
   - a name search;
   - "★ only", for starred runners;
   - "Show eliminated (n)". [decided]
-- **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them; the sparkline cells stay empty when the list isn't filtered. [decided]
-- **Sparklines** of the lap times are shown when the list is filtered by country or "★ only". Unfiltered, the ~1,000 sparklines would be too much data per poll. [decided]
+- **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
+- **Sparklines** of the lap times are always shown. Unfiltered, that means fetching every runner's lap times (~480 KB, ~140 KB gzipped late in the race) per refresh; accepted. [decided]
 - Clicking a row opens a lap-time chart for that runner. [brief]
 - **Runners who are out** are hidden by default, behind the "Show eliminated" toggle. Starred runners stay visible. Country winners count as still shown. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]

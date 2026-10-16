@@ -82,14 +82,17 @@
     (fetch-runner-times! latest?)))
 
 (defn- fetch-runner-times!
-  "Lap times for the sparklines: the leaderboard's country filter plus the
-  starred runners. Unfiltered, all ~1,000 runners would be too much per poll."
+  "Lap times for the sparklines: every runner when the leaderboard isn't
+  filtered by country (~140 KB gzipped late in the race), else the filtered
+  countries plus the starred runners."
   [latest?]
   (let [ids (str/join "," (:starred @db))
         codes (str/join "," (sort (:runner-filter @db)))]
     (-> (js/Promise.all
-         (clj->js [(if (seq codes) (get-json "/api/query" {:metric "lap_time_seconds" :countries codes}) #js {})
-                   (if (seq ids) (get-json "/api/query" {:metric "lap_time_seconds" :runners ids}) #js {})]))
+         (clj->js (if (seq codes)
+                    [(get-json "/api/query" {:metric "lap_time_seconds" :countries codes})
+                     (if (seq ids) (get-json "/api/query" {:metric "lap_time_seconds" :runners ids}) #js {})]
+                    [(get-json "/api/query" {:metric "lap_time_seconds"})])))
         (.then (fn [rs]
                  (let [series (mapcat #(get-in (js->clj % :keywordize-keys true) [:data :result]) rs)]
                    (when (latest?)
@@ -564,13 +567,11 @@
         show-out? (or show-out-runners? (finished?))
         n-out (count (filter out-runner? candidates))
         ;; starred runners stay visible so they can still be unstarred
-        shown (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)
-        ;; sparklines only for a filtered list, see `fetch-runner-times!`
-        sparks? (or (seq runner-filter) starred-only?)]
+        shown (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
-       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Filter by country or ★ to see lap-time sparklines; click a row for the lap-time chart."]]]
+       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the lap-time chart."]]]
      [runner-filters n-out show-out?]
      (if (empty? shown)
        [:div.empty (cond
@@ -587,7 +588,7 @@
                   [:th "Status"]
                   [:th.num "Last lap"] [:th.num "Fastest"]
                   [:th.num {:title "Sum of the timed laps"} "Total"]
-                  [:th {:title "Shown when filtered by country or ★ only"} "Lap times"]]]
+                  [:th "Lap times"]]]
          [:tbody
           (for [{:keys [id name country laps pos] :as runner} shown
                 :let [times (get lap-times id)]]
@@ -611,7 +612,7 @@
               [:td.num (mmss (:last-seconds runner))]
               [:td.num (mmss (:fastest-seconds runner))]
               [:td.num (hmmss (:total-seconds runner))]
-              [:td (when (and sparks? times) [chart/sparkline times])]]
+              [:td (when times [chart/sparkline times])]]
              (when (= open id) [runner-detail runner])])]]])]))
 
 ;; --- seat ranking ---
