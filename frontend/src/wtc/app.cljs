@@ -211,7 +211,7 @@
 (defn- runner-detail [{:keys [id name]}]
   (let [values (get-in @db [:lap-times id])]
     [:tr.detail
-     [:td {:col-span 7}
+     [:td {:col-span 8}
       [chart/line-chart {:series [{:key id :label name :color "var(--series-1)" :values values}]
                          :y-zero? false :fmt-y mmss :x-label "lap" :y-label "lap time"}]]]))
 
@@ -230,7 +230,9 @@
        [:div.empty "Select a country or star a runner"]
        [:div.table-wrap
         [:table
-         [:thead [:tr [:th] [:th "Runner"] [:th "Country"] [:th.num "Laps"] [:th "Status"]
+         [:thead [:tr [:th] [:th "Runner"] [:th "Country"] [:th.num "Laps"]
+                  [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
+                  [:th "Status"]
                   [:th.num "Last lap"] [:th "Lap times"]]]
          [:tbody
           (for [{:keys [id name country laps] :as runner} shown
@@ -245,6 +247,7 @@
               [:td name]
               [:td [:span.key-box {:style {:background (some-> (get selected country) color)}}] country]
               [:td.num laps]
+              [:td.num (or (:best-yards runner) "–")]
               [:td [status-badge runner]]
               [:td.num (mmss (second (last times)))]
               [:td [chart/sparkline times]]]

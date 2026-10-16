@@ -4,6 +4,7 @@
   (:require [clojure.tools.logging :as log]
             [wtc.model :as model]
             [wtc.race :as race]
+            [wtc.roster :as roster]
             [wtc.source :as source]
             [wtc.store :as store])
   (:import (java.time Duration Instant)
@@ -61,9 +62,9 @@
 
 (defn refresh!
   "Recompute the derived race state. Sources merge in :priority order."
-  [{:keys [state sources clock config]}]
+  [{:keys [state sources clock config roster-info]}]
   (let [datasets (keep #(get-in @state [:datasets (:id %)]) (sort-by :priority sources))
-        derived (race/derive-state (model/merge-datasets datasets)
+        derived (race/derive-state (roster/enrich (model/merge-datasets datasets) roster-info)
                                    {:start (:race-start config) :now (clock)
                                     :grace-s (:grace-s config)})]
     (swap! state assoc :derived derived)

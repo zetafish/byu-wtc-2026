@@ -4,6 +4,7 @@
             [clojure.tools.logging :as log]
             [org.httpkit.server :as http-kit]
             [wtc.http :as http]
+            [wtc.roster :as roster]
             [wtc.ingest :as ingest]
             [wtc.source :as source]
             [wtc.source.mock]
@@ -41,6 +42,7 @@
         sys {:config cfg
              :store store
              :clock (ingest/make-clock (:clock cfg))
+             :roster-info (roster/runner-info)
              :sources (mapv #(assoc % :impl (source/create %)) (:sources cfg))
              :state (atom {:datasets datasets :persisted datasets})}
         _ (ingest/refresh! sys)

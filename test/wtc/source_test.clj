@@ -6,6 +6,7 @@
             [wtc.race :as race]
             [wtc.source :as source]
             [wtc.source.mock]
+            [wtc.roster :as roster]
             [wtc.store :as store])
   (:import (java.time Instant)))
 
@@ -78,3 +79,12 @@
         (is (every? #(and (map? (:metric %)) (vector? (:values %))) (get-in r [:data :result])) m)))
     (is (= [1 1033] (first (get-in (metrics/query d "runners_started" {}) [:data :result 0 :values]))))
     (is (= "error" (:status (metrics/query d "nope" {}))))))
+
+(deftest roster-enrichment
+  (let [info (roster/runner-info)
+        sys (assoc (system {:id :mock :type :mock :countries ["NED"]}) :roster-info info)
+        d (ingest/tick! sys)]
+    (is (= 54 (get-in d [:runners "NED-kanter-eefting" :best-yards])))
+    (testing "source fields win over roster info"
+      (is (= "x" (get-in (roster/enrich {:runners {"a" {:id "a" :bib "x"}}} {"a" {:bib "y" :best-yards 3}})
+                         [:runners "a" :bib]))))))
