@@ -105,8 +105,8 @@
 
 (defn- status-badge [{:keys [status reason]}]
   (if (= status "running")
-    [:span.badge.good [:span.icon "●"] "in race"]
-    [:span.badge.out [:span.icon "✕"] (str "out · " (reason-text reason reason))]))
+    [:span.pill.in [:span.dot.in] "in race"]
+    [:span.pill.out [:span.icon "✕"] (str "out · " (reason-text reason reason))]))
 
 (defn- country-name [code] (some #(when (= code (:code %)) (:name %)) (:countries @db)))
 
@@ -131,21 +131,28 @@
 
 ;; --- components ---
 
-(defn- stat [label value]
-  [:div.stat [:div.stat-value value] [:div.stat-label label]])
+(defn- stat
+  ([label value] (stat nil label value))
+  ([class label value]
+   [:div.stat {:class class} [:span.label label] [:b value]]))
 
 (defn- header []
   (let [{:keys [race countries error updated]} @db
         failing (remove :ok (vals (:fetches race)))]
-    [:header
-     [:div.title
-      [:h1 "World Team Championship 2026"]
-      [:p.sub "Big's Backyard Ultra · unofficial live stats"
-       (when updated [:span " · updated " (.toLocaleTimeString updated)])]]
-     [:div.stats
-      [stat "current lap" (:current-lap race "–")]
-      [stat "runners in race" (str (:running race "–") " / " (:runners race "–"))]
-      [stat "countries in race" (count (filter #(pos? (:active %)) countries))]]
+    [:<>
+     [:header
+      [:h1 [:small "Big's Backyard Ultra · Unofficial"] "World Team Championship 2026"]
+      [:div.stats
+       [stat "lap" "Lap" (:current-lap race "–")]
+       [stat "Runners in race" (:running race "–")]
+       [stat "Countries in race" (count (filter #(pos? (:active %)) countries))]]]
+     [:p.disclaimer "Unofficial live stats, computed from the published results. May differ from the official standings."
+      (when updated [:span.muted " Updated " (.toLocaleTimeString updated) "."])]
+     (when (:runners race)
+       [:div.summary
+        [:span.chip [:span.dot.in] (str (:running race) " in race")]
+        [:span.chip [:span.dot.out] (str (- (:runners race) (:running race)) " out")]
+        [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries eliminated")]])
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
         (str "The race starts "
@@ -158,6 +165,7 @@
         (if error
           (str "Can't reach the server (" error "). Showing the last data we had.")
           (str "Data source problem (" (str/join ", " (map :error failing)) "). Showing the last good data."))])]))
+
 
 (defn- panel [_]
   (let [table? (r/atom false)]
@@ -197,7 +205,7 @@
         (for [{:keys [code name rank active runners total-laps eliminated-after]} shown
               :let [slot (get selected code)]]
           ^{:key code}
-          [:tr {:class (when slot "selected")}
+          [:tr {:class [(when slot "selected") (when eliminated-after "out")]}
            [:td.num rank]
            [:td [:label.pick
                  [:input {:type "checkbox" :checked (boolean slot) :disabled (and full? (not slot))
@@ -207,8 +215,8 @@
            [:td.num active " / " runners]
            [:td.num total-laps]
            [:td (if eliminated-after
-                  [:span.badge.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
-                  [:span.badge.good [:span.icon "●"] "in race"])]])]]]]))
+                  [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+                  [:span.pill.in [:span.dot.in] "in race"])]])]]]]))
 
 (defn- runner-detail [{:keys [id name]}]
   (let [values (get-in @db [:lap-times id])]
@@ -253,7 +261,8 @@
                 :let [times (get lap-times id)]]
             ^{:key id}
             [:<>
-             [:tr.clickable {:on-click #(swap! db update :open (fn [o] (when-not (= o id) id)))}
+             [:tr.clickable {:class (when (not= "running" (:status runner)) "out")
+                             :on-click #(swap! db update :open (fn [o] (when-not (= o id) id)))}
               [:td [:button.star {:aria-label (if (contains? starred id) "Unstar" "Star")
                                   :aria-pressed (contains? starred id)
                                   :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}

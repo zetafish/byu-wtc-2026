@@ -70,7 +70,7 @@
      ^{:key (str "x" t)}
      [:text.tick {:x (sx t) :y (- H (:b m) -16) :text-anchor "middle"} (fmt fmt-x t)])
    (when x-label [:text.axis-label {:x (- W (:r m)) :y (- H 2) :text-anchor "end"} x-label])
-   (when y-label [:text.axis-label {:x (- (:l m) 6) :y 8 :text-anchor "end"} y-label])])
+   (when y-label [:text.axis-label {:x 0 :y 8} y-label])])
 
 (defn- direct-labels
   "End-of-line labels for up to 4 series, nudged apart so they don't collide."
