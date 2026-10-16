@@ -12,6 +12,7 @@
                      :starred #{}
                      :show-out? false ; list eliminated countries too
                      :show-out-runners? false ; list eliminated runners too
+                     :view :countries ; menu view, mirrors the URL hash
                      :seat nil        ; seat ranking: nil = all seats overview
                      :results {}      ; panel id -> query result
                      :open nil}))      ; runner id with the detail chart open
@@ -392,15 +393,75 @@
        [:div.table-wrap.full
         (if seat [seat-table runners seat] [seats-overview runners])])]))
 
+;; --- views ---
+;; The left menu switches between views. The view lives in the URL hash so
+;; it survives a reload, can be linked and works with the back button.
+
+(def views
+  [{:id :countries :label "Countries"}
+   {:id :charts :label "Charts"}
+   {:id :runners :label "Runners"}
+   {:id :seats :label "Seats"}])
+
+(defn- hash-view []
+  (let [h (subs (.. js/window -location -hash) 1)]
+    (or (some #(when (= h (name (:id %))) (:id %)) views) :countries)))
+
+(defn- nav-count [id]
+  (let [{:keys [countries runners selected starred]} @db]
+    (case id
+      :countries (count (remove out? countries))
+      :charts (count selected)
+      :runners (count (filter #(and (running? %) (or (contains? selected (:country %))
+                                                      (contains? starred (:id %))))
+                              runners))
+      :seats (count seats))))
+
+(defn- nav-title [id]
+  (case id
+    :countries "countries still in the race"
+    :charts "countries selected for comparison"
+    :runners "selected or starred runners still in the race"
+    :seats "seats"))
+
+(defn- nav []
+  (let [view (:view @db)]
+    [:nav.menu {:aria-label "Views"}
+     [:div.brand "WTC 2026" [:span "Live"]]
+     [:ul
+      (for [{:keys [id label]} views]
+        ^{:key id}
+        [:li [:a {:href (str "#" (name id))
+                  :aria-current (when (= id view) "page")}
+              label [:span.count {:title (nav-title id)} (nav-count id)]]])]]))
+
+(defn- comparing []
+  (let [{:keys [selected]} @db]
+    [:div.comparing
+     [:span.label "Comparing"]
+     (if (empty? selected)
+       [:span.muted "no countries"]
+       (for [[code slot] (sort-by val selected)]
+         ^{:key code}
+         [:span.chip [:span.key-box {:style {:background (color slot)}}] (or (country-name code) code)
+          [:button.remove {:aria-label (str "Remove " code) :on-click #(toggle-country! code)} "✕"]]))
+     [:a.change {:href "#countries"} "Change selection"]]))
+
+(defn- view-body [view]
+  (case view
+    :charts [:<> [comparing]
+             [:div.grid (for [p panels/panels] ^{:key (:id p)} [panel p])]]
+    :runners [:div.grid [runners-table]]
+    :seats [:div.grid [seats-card]]
+    [:div.grid [countries-table]]))
+
 (defn- app []
-  [:main
-   [header]
-   [:div.grid
-    (for [p panels/panels] ^{:key (:id p)} [panel p])
-    [countries-table]
-    [seats-card]
-    [runners-table]]
-   [:footer "Unofficial. Data may lag the official results by a few minutes."]])
+  [:div.layout
+   [nav]
+   [:main
+    [header]
+    [view-body (:view @db)]
+    [:footer "Unofficial. Data may lag the official results by a few minutes."]]])
 
 (defonce root (delay (rdc/create-root (js/document.getElementById "app"))))
 
@@ -414,6 +475,9 @@
            :starred (set starred)
            :show-out? (true? show-out)
            :show-out-runners? (true? show-out-runners)))
+  (swap! db assoc :view (hash-view))
+  (.addEventListener js/window "hashchange"
+                     #(do (swap! db assoc :view (hash-view)) (js/window.scrollTo 0 0)))
   (render)
   (refresh!)
   (js/setInterval refresh! poll-ms))
