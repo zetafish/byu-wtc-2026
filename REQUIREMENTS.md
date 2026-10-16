@@ -118,6 +118,7 @@ With two runners left (A and B):
 - **Bottom:** the countries table. [decided]
 - **The table:** all countries in ranking order, with rank, country, runners in race / total, team score, gap (laps behind the leader's team score, "–" for the leader), and status (in race, winner, or out after lap N). [decided]
 - **Compare:** a checkbox per country adds it to the comparison charts, up to 8. Ticking only affects the charts. Each compared country keeps its own colour while compared, and the colour square next to the checkbox doubles as its legend key. [decided]
+- **Bulk selection:** "Select top 8" in the table head replaces the comparison with the 8 best-ranked countries (eliminated ones included), and "Deselect all" clears it. Countries that stay compared keep their colour. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to tick countries in the table. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]
 - **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared countries stay visible. After the finish, everything is shown. [decided]

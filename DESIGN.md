@@ -50,6 +50,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
   - `win` ("★ name · lap N" or "★ country winner");
   - `out` ("✕ out · did not finish / no result", or "out after lap N");
   - for seats: "open · N still in", "last one in", "★ winner" and "tie · N".
+- **Bulk buttons:** "Select top 8" and "Deselect all" are ghost buttons in the Countries card head, before the toggle. "Deselect all" is disabled when nothing is compared.
 - **Toggles:** "Show eliminated (n)" checkboxes in the card head. They're opt-in and hidden after the finish, when everything is shown.
 - **Zoom dialog** (`dialog.zoom`): a native modal `<dialog>`, up to 1200 px wide, over a dark backdrop, showing one chart card big. A chart's plot area shows a zoom-in cursor; the ⤢ button in the card head does the same for keyboard users.
   - The big chart uses a larger viewBox (`chart/sizes` `:big`, 1100×520) rather than scaling up the small one, so the text stays at its normal size.

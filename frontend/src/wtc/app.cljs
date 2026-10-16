@@ -121,6 +121,21 @@
   (save-prefs!)
   (fetch-panels!))
 
+(defn- deselect-all! []
+  (swap! db assoc :selected {})
+  (save-prefs!)
+  (fetch-panels!))
+
+(defn- select-top! []
+  ;; countries already compared keep their colour slot; the rest take free ones
+  (swap! db (fn [{:keys [countries selected] :as d}]
+              (let [top (map :code (take max-selected (sort-by :rank countries)))
+                    kept (select-keys selected top)
+                    free (remove (set (vals kept)) (range 1 (inc max-selected)))]
+                (assoc d :selected (into kept (map vector (remove kept top) free))))))
+  (save-prefs!)
+  (fetch-panels!))
+
 (defn- toggle-filter! [code]
   (swap! db update :runner-filter #(if (contains? % code) (disj % code) (conj % code)))
   (save-prefs!)
@@ -345,11 +360,14 @@
      [:div.card-head
       [:div [:h2 "Countries"]
        [:p.sub (str "Ranked by team score. Tick Compare to add a country to the charts (up to " max-selected "). Click a row for its runners.")]]
-      (when (and (pos? n-out) (not (finished?)))
-        [:label.toggle
-         [:input {:type "checkbox" :checked show-out?
-                  :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
-         (str "Show eliminated (" n-out ")")])]
+      [:div.head-actions
+       [:button.ghost {:on-click select-top!} (str "Select top " max-selected)]
+       [:button.ghost {:on-click deselect-all! :disabled (empty? selected)} "Deselect all"]
+       (when (and (pos? n-out) (not (finished?)))
+         [:label.toggle
+          [:input {:type "checkbox" :checked show-out?
+                   :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
+          (str "Show eliminated (" n-out ")")])]]
      [:div.table-wrap.full
       [:table
        [:thead [:tr [:th "Compare"] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
