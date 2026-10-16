@@ -116,7 +116,7 @@ With two runners left (A and B):
 ### Countries view: ranking and comparison charts
 - **Top:** a "Compare" row of chips for the compared countries, each with a ✕. Then the charts in two rows: first the two comparison charts, then the two all-country charts.
 - **Bottom:** the countries table. [decided]
-- **The table:** all countries in ranking order, with rank, country, runners in race / total, team score, and status (in race, winner, or out after lap N).
+- **The table:** all countries in ranking order, with rank, country, runners in race / total, team score, gap (laps behind the leader's team score, "–" for the leader), and status (in race, winner, or out after lap N). [decided]
 - **Compare:** a checkbox per country adds it to the comparison charts, up to 8. Ticking only affects the charts. Each compared country keeps its own colour while compared, and the colour square next to the checkbox doubles as its legend key. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to tick countries in the table. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]

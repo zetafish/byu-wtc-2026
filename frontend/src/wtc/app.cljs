@@ -293,7 +293,7 @@
                 (filter #(= code (:country %)))
                 (sort-by (juxt (comp - :laps) #(if (running? %) 0 1) :rank)))]
     [:tr.detail
-     [:td {:col-span 7}
+     [:td {:col-span 8}
       [:ul.squad
        (for [{:keys [id rank laps] :as r} rs]
          ^{:key id}
@@ -307,6 +307,7 @@
 (defn- countries-table []
   (let [{:keys [countries selected show-out? expanded]} @db
         full? (>= (count selected) max-selected)
+        lead (reduce max 0 (map :total-laps countries))
         n-out (count (filter out? countries))
         ;; compared countries stay visible so they can still be unticked
         show-out? (or show-out? (finished?))
@@ -322,7 +323,9 @@
          (str "Show eliminated (" n-out ")")])]
      [:div.table-wrap.full
       [:table
-       [:thead [:tr [:th "Compare"] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"] [:th "Status"] [:th]]]
+       [:thead [:tr [:th "Compare"] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
+                [:th.num {:title "Laps behind the leading country's team score"} "Gap"]
+                [:th "Status"] [:th]]]
        [:tbody
         (for [{:keys [code name rank active runners total-laps eliminated-after winner] :as c} shown
               :let [slot (get selected code)
@@ -342,6 +345,7 @@
             [:td.name name " " [:span.muted code]]
             [:td.num active " / " runners]
             [:td.num total-laps]
+            [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
             [:td (cond
                    winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
                    eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
