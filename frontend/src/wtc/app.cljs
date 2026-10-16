@@ -184,6 +184,9 @@
 (defn- mmss [s]
   (when s (str (quot s 60) ":" (.padStart (str (mod s 60)) 2 "0"))))
 
+(defn- hmmss [s]
+  (when s (str (quot s 3600) ":" (.padStart (mmss (mod s 3600)) 5 "0"))))
+
 (def ^:private reason-text
   {"dnf" "did not finish" "missing" "no result"})
 
@@ -521,7 +524,7 @@
 (defn- runner-detail [{:keys [id name]}]
   (let [values (get-in @db [:lap-times id])]
     [:tr.detail
-     [:td {:col-span 10}
+     [:td {:col-span 11}
       [chart/line-chart {:series [{:key id :label name :color "var(--series-1)" :values values}]
                          :y-zero? false :fmt-y mmss :x-label "lap" :y-label "lap time"}]]]))
 
@@ -578,11 +581,12 @@
         ;; fixed columns, so filtering or "★ only" never moves them
         [:table.runners
          [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.n] [:col.status]
-          [:col.time] [:col.time] [:col.spark]]
+          [:col.time] [:col.time] [:col.total] [:col.spark]]
          [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Laps"]
                   [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
                   [:th "Status"]
                   [:th.num "Last lap"] [:th.num "Fastest"]
+                  [:th.num {:title "Sum of the timed laps"} "Total"]
                   [:th {:title "Shown when filtered by country or ★ only"} "Lap times"]]]
          [:tbody
           (for [{:keys [id name country laps pos] :as runner} shown
@@ -606,6 +610,7 @@
               [:td [status-badge runner]]
               [:td.num (mmss (:last-seconds runner))]
               [:td.num (mmss (:fastest-seconds runner))]
+              [:td.num (hmmss (:total-seconds runner))]
               [:td (when (and sparks? times) [chart/sparkline times])]]
              (when (= open id) [runner-detail runner])])]]])]))
 
