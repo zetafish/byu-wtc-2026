@@ -93,7 +93,11 @@
     (let [d (derive-at [["a" "NED"] ["b" "NED"] ["c" "NED"] ["d" "NED"]]
                        {"a" (finished 3) "b" (finished 2) "c" (finished 2) "d" (finished 2)} 3.5)]
       (is (= "a" (get-in d [:countries "NED" :winner :id])))
-      (is (= 3 (get-in d [:countries "NED" :eliminated-after]))))))
+      (is (= 3 (get-in d [:countries "NED" :eliminated-after])))))
+  (testing "a winner ends the race: it lasted as long as the winner's last lap"
+    (let [d (derive-at [["a" "NED"] ["b" "NED"]] {"a" (finished 3) "b" (concat (finished 2) [[3 :dnf nil]])} 4.5)]
+      (is (= :finished (:phase d)))
+      (is (= [3 3] ((juxt :final-lap :race-laps) d))))))
 
 (deftest last-country-standing
   (let [runners [["a" "BEL"] ["b" "BEL"] ["x" "USA"] ["y" "USA"]]
@@ -111,6 +115,8 @@
       (is (= 4 (get-in end [:countries "USA" :eliminated-after])))
       (is (nil? (get-in end [:countries "BEL" :winner])))
       (is (= 1 (get-in end [:countries "BEL" :rank]))))
+    (testing "both DNF on 101: the race lasted 100 laps"
+      (is (= 100 (:race-laps end))))
     (testing "after the end the lap counter stops at the last lap anyone started"
       (is (= 101 (:final-lap end)))
       (is (= 101 (:current-lap end)))

@@ -12263,7 +12263,7 @@
      :status :reserve,
      :best-yards 10}]}
   {:code "AIN",
-   :name "AIN",
+   :name "Individual Neutral Athletes (Russia)",
    :runners
    [{:id "AIN-ivan-zaborsky",
      :name "Ivan Zaborsky",

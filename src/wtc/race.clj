@@ -103,12 +103,16 @@
                     (and (pos? settled) (not any-running?)) :finished
                     :else :live)
         ;; once it's over the clock keeps ticking, but the race doesn't
-        final (when (= phase :finished) (reduce max 1 (map :started (vals runners))))]
+        final (when (= phase :finished) (reduce max 1 (map :started (vals runners))))
+        ;; the race's length: the last lap anyone completed. With a winner
+        ;; that's the final lap; when the last runners all DNF it's one less.
+        race-laps (when final (reduce max 0 (map :laps (vals runners))))]
     {:start start
      :now now
      :current-lap (if final (min current final) current)
      :settled-lap (if final (min settled final) settled)
      :final-lap final
+     :race-laps race-laps
      :phase phase
      :runners runners
      :countries (into {} (map (juxt :code identity)) country-rows)}))

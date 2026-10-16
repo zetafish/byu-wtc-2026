@@ -53,6 +53,12 @@
    "United Kingdom" "GBR" "United States of America" "USA" "Uruguay" "URU"
    "Venezuela" "VEN" "Zambia" "ZAM" "AIN" "AIN"})
 
+;; The official roster lists Russian runners as AIN (Individual Neutral
+;; Athletes). The code stays AIN, as in the official data; only the shown name
+;; says who they are.
+(def display-names
+  {"AIN" "Individual Neutral Athletes (Russia)"})
+
 (defn- fetch [country]
   (loop [attempt 1]
     (let [r (try (http/get endpoint {:query-params {"cycle" roster-cycle "country" country}
@@ -135,7 +141,7 @@
                                                                      (vswap! seen conj id)
                                                                      dup?)))
                                                                runners)]
-                         {:country {:code code :name c :runners (vec kept)}
+                         {:country {:code code :name (display-names c c) :runners (vec kept)}
                           :dupes (vec dupes)})))
         data (mapv :country fetched)
         doc {:event "Big's Backyard Ultra World Team Championship 2026"

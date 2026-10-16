@@ -33,7 +33,7 @@
     {:health (fn [_] (json 200 {:ok (some? (derived)) :fetches (:fetches @state)} "no-store"))
      :race (fn [_]
              (let [d (derived)]
-               (json (-> (select-keys d [:start :now :current-lap :settled-lap :final-lap :phase])
+               (json (-> (select-keys d [:start :now :current-lap :settled-lap :final-lap :race-laps :phase])
                          (assoc :runners (count (:runners d))
                                 :running (count (filter #(= :running (:status %)) (vals (:runners d))))
                                 :fetches (:fetches @state))))))

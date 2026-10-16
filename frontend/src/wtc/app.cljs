@@ -172,7 +172,7 @@
      (when (= "finished" (:phase race))
        (let [podium (take 3 (sort-by :rank countries))]
          [:div.finished
-          [:h2 (str "Race finished after " (:final-lap race) " laps")]
+          [:h2 (str "Race finished after " (:race-laps race) " laps")]
           [:ol.podium
            (for [{:keys [code name rank total-laps winner]} podium]
              ^{:key code}
