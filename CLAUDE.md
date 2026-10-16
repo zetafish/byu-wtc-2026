@@ -13,13 +13,16 @@ make test                          # all tests
 make test T=wtc.race-test          # one namespace
 make test T=wtc.race-test/team-rule  # one test
 make up DEMO=1                     # Postgres + app + web in Docker: site :8091, API :8090
-make web-dev                       # frontend hot reload on :8092 (needs a backend on :8090: make run DEMO=1)
+make dev DEMO=1                    # same + `web-dev` container: hot reload on :8092, shadow-cljs UI on :9630
+make web-dev                       # hot reload on the host instead (needs a backend on :8090: make run DEMO=1)
 make web-build | web-deploy        # frontend release build | deploy prebuilt to Vercel
 make run DEMO=1                    # app on the JVM against the compose Postgres (port 8090)
 make run-mem                       # app on the JVM, in-memory store, no Docker
 make repl                          # nREPL on 7888, then (user/start) / (user/restart)
 make psql | logs | down | reset    # reset also deletes the DB volume
 make uber | image                  # target/wtc.jar | production image `wtc`
+make roster                        # build resources/roster/wtc-2026.edn from roster/*.json; fetches only uncached countries
+make roster-refresh                # re-fetch every roster/*.json from the official endpoint (~2 min), then build
 ```
 
 Before the race starts, a real-time clock shows nothing. `DEMO=1` starts the app clock 30 h into the race at 60× speed. `user/start` in `dev/user.clj` does the same, but at normal speed. The local default port is 8090, because 8080 and 8787 are often taken by other local `bb` servers. Compose Postgres is on `localhost:55432` (user, password and database are all `wtc`). Without `DATABASE_URL`, the app uses an in-memory store.
@@ -39,7 +42,7 @@ Before the race starts, a real-time clock shows nothing. `DEMO=1` starts the app
 Data flows: **sources → `model/sanitize` → per-source dataset (memory + Postgres) → `model/merge-datasets` by priority → `race/derive-state` → API**.
 
 - **`wtc.model`**: the data model every adapter must produce. A source returns a full *snapshot* (countries, runners, laps), never a delta. A lap is `{:runner-id :lap :status :finished|:dnf :seconds}`, and lap n runs from start+(n-1)h to start+n h. Invalid rows are dropped, never the whole snapshot. Runner ids must match across sources, because merging is per `[runner-id lap]` and the higher `:priority` wins.
-- **`wtc.source`**: the `Source` protocol (`fetch [this {:start :now}]`) and the `create` multimethod on `:type`. To add an adapter: create `wtc.source.<name>`, add a `defmethod source/create`, require it in `wtc.main`, and add it to `SOURCES`. `wtc.source.mock` is a deterministic simulation per seed. It applies the team rule itself, and it can inject missed registrations, unreported DNFs, failed fetches and latency.
+- **`wtc.source`**: the `Source` protocol (`fetch [this {:start :now}]`) and the `create` multimethod on `:type`. To add an adapter: create `wtc.source.<name>`, add a `defmethod source/create`, require it in `wtc.main`, and add it to `SOURCES`. `wtc.source.mock` is a deterministic simulation per seed of the real roster: the team members (rank ≤ 15, 1,033 runners) from `resources/roster/wtc-2026.edn`, each with a lap capacity drawn around their `:best-yards` (±~25%). `:countries ["NED" …]` limits it to some countries. The mock applies the team rule itself, and it can inject missed registrations, unreported DNFs, failed fetches and latency. The generated race is cached per start time.
 - **`wtc.race`**: pure functions, with all the domain rules. Who is in or out is computed on read, so late or corrected data fixes itself on the next derive. Don't store derived status.
   - Laps are credited up to the last finished lap. Gaps below it are missed registrations, marked `:inferred`.
   - A runner with no result for a *settled* lap (deadline + `GRACE_SECONDS` passed) is out with `:missing`.
@@ -52,6 +55,16 @@ Data flows: **sources → `model/sanitize` → per-source dataset (memory + Post
 - **`wtc.metrics`**: visualisation queries in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The frontend renders panels generically from this shape.
 - **`wtc.http`**: reitit routes under `/api` (`health race countries runners runners/:id metrics query`). Responses come from the in-memory derived state and carry CDN `Cache-Control` headers. That caching replaces the Redis layer from `SPEC.md`.
 
+## Roster (`resources/roster/wtc-2026.edn`)
+
+`scripts/fetch_roster.clj` (babashka) builds this file from the raw JSON responses in `roster/`: `_.json` holds the country list, plus one `<Country>.json` per country.
+- `roster/` is a read-through cache: `make roster` fetches only countries without a cached file, so it makes no requests once everything is cached.
+- `make roster-refresh` re-downloads everything from the endpoint behind the official roster page, `wp-json/byu-wtt/v1/selection?cycle=2024_2026&country=…`. That endpoint takes about 3–4 s per country and handles requests mostly one at a time.
+- `:fetched-at` is the newest raw file's modification time.
+- Ranks 1–15 are `:role :team`; 16 and up are `:reserve`.
+- Runner ids are `<IOC code>-<slugged name>`. CJK names keep their characters.
+- Names the official roster lists twice in one country keep the best rank; the others go in `:dropped-duplicates`.
+
 ## Frontend (`frontend/`)
 
 ClojureScript built with shadow-cljs, Reagent and React 18. There is no chart library; the charts are hand-built SVG.
@@ -61,6 +74,7 @@ ClojureScript built with shadow-cljs, Reagent and React 18. There is no chart li
   - **Colours:** they follow the country, not its rank. A selected country takes the lowest free slot of `--series-1..8`. At most 8 countries can be selected, because that's how many hues the palette has. Survivors keep their colour when one is deselected.
   - **Stored per browser:** the selection and the starred runners, in localStorage.
 - **Colour tokens** are in `public/css/style.css`: light and dark, from the validated dataviz palette. Don't add series hues.
+- **The `web-dev` compose service** (profile `dev`) runs `shadow-cljs watch` in the Dockerfile's `deps` stage, with `src`, `public` and `shadow-cljs.edn` bind-mounted. `API_URL` points its proxy at `app:8080`. `wtc.dev/proxy-api?` (JVM side) limits the proxy to `/api/*`, so `/` serves `index.html`.
 - **API calls** are always same-origin `/api/*`. Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. In production, the Vercel rewrites in `frontend/vercel.json` do. The browser never makes a cross-origin call, so there's no CORS issue.
 - **Vercel's build image has no JVM**, so the frontend is built locally and deployed prebuilt (`make web-deploy`). Set `BACKEND_HOST` in `frontend/vercel.json` to the Caasify host first.
 
