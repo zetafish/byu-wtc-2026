@@ -10,6 +10,10 @@
 (def W 640)
 (def H 240)
 
+;; viewBox sizes; text scales with the svg, so a big chart gets a bigger
+;; viewBox rather than a stretched small one
+(def sizes {:normal [W H] :big [1100 520]})
+
 (defn- nice-step [span n]
   (let [raw (/ span n)
         mag (js/Math.pow 10 (js/Math.floor (js/Math.log10 raw)))
@@ -73,13 +77,13 @@
   [:g
    (for [t y-ticks]
      ^{:key (str "y" t)}
-     [:g [:line.grid {:x1 (:l m) :x2 (- W (:r m)) :y1 (sy t) :y2 (sy t)}]
+     [:g [:line.grid {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (sy t) :y2 (sy t)}]
       [:text.tick {:x (- (:l m) 6) :y (sy t) :dy "0.32em" :text-anchor "end"} (fmt fmt-y t)]])
-   [:line.axis {:x1 (:l m) :x2 (- W (:r m)) :y1 (- H (:b m)) :y2 (- H (:b m))}]
+   [:line.axis {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (- (:h m) (:b m)) :y2 (- (:h m) (:b m))}]
    (for [t x-ticks]
      ^{:key (str "x" t)}
-     [:text.tick {:x (sx t) :y (- H (:b m) -16) :text-anchor "middle"} (fmt fmt-x t)])
-   (when x-label [:text.axis-label {:x (- W (:r m)) :y (- H 2) :text-anchor "end"} x-label])
+     [:text.tick {:x (sx t) :y (- (:h m) (:b m) -16) :text-anchor "middle"} (fmt fmt-x t)])
+   (when x-label [:text.axis-label {:x (- (:w m) (:r m)) :y (- (:h m) 2) :text-anchor "end"} x-label])
    (when y-label [:text.axis-label {:x 0 :y 8} y-label])])
 
 (defn- direct-labels
@@ -102,27 +106,28 @@
 
 (defn- pointer->x [e m]
   (let [rect (.getBoundingClientRect (.-currentTarget e))
-        px (* (- (.-clientX e) (.-left rect)) (/ (- W (:l m) (:r m)) (.-width rect)))]
+        px (* (- (.-clientX e) (.-left rect)) (/ (- (:w m) (:l m) (:r m)) (.-width rect)))]
     (+ (:l m) px)))
 
 (defn line-chart [_]
   (let [hover (r/atom nil)]
     (fn [{:keys [series fmt-y fmt-x x-label y-label] :as opts}]
       (let [labels? (<= 1 (count series) 4)
-            m {:l 44 :r (if labels? 44 12) :t 24 :b 30}
+            [w h] (sizes (:size opts :normal))
+            m {:l 44 :r (if labels? 44 12) :t 24 :b 30 :w w :h h}
             xs (xs-of series)
             {y-ticks :ticks y-dom :domain} (y-axis series opts false)
-            sx (scale [(first xs) (last xs)] [(:l m) (- W (:r m))])
-            sy (scale y-dom [(- H (:b m)) (:t m)])
+            sx (scale [(first xs) (last xs)] [(:l m) (- (:w m) (:r m))])
+            sy (scale y-dom [(- (:h m) (:b m)) (:t m)])
             invert (fn [px] (+ (first xs) (* (- (last xs) (first xs))
-                                             (/ (- px (:l m)) (- W (:l m) (:r m))))))
+                                             (/ (- px (:l m)) (- (:w m) (:l m) (:r m))))))
             hx @hover]
         (if (empty? xs)
           [placeholder "No data yet"]
           [:div.chart
            (when (:legend? opts true) [legend series :line])
            [:div.plot
-            [:svg {:view-box (str "0 0 " W " " H) :role "img" :aria-label y-label}
+            [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
                      :x-ticks (ticks (first xs) (last xs) 8 true false) :x-label x-label :y-label y-label}]
              (for [{:keys [key color values]} series]
@@ -131,12 +136,12 @@
                             :stroke color}])
              (when labels? [direct-labels series sx sy])
              (when hx
-               [:g [:line.crosshair {:x1 (sx hx) :x2 (sx hx) :y1 (:t m) :y2 (- H (:b m))}]
+               [:g [:line.crosshair {:x1 (sx hx) :x2 (sx hx) :y1 (:t m) :y2 (- (:h m) (:b m))}]
                 (for [{:keys [key color values]} series
                       :let [y (some (fn [[x y]] (when (= x hx) y)) values)]
                       :when y]
                   ^{:key key} [:circle.dot {:cx (sx hx) :cy (sy y) :r 4 :fill color}])])
-             [:rect {:x (:l m) :y 0 :width (- W (:l m) (:r m)) :height H :fill "transparent"
+             [:rect {:x (:l m) :y 0 :width (- (:w m) (:l m) (:r m)) :height (:h m) :fill "transparent"
                      :tab-index 0
                      :on-pointer-move #(reset! hover (nearest xs (invert (pointer->x % m))))
                      :on-pointer-leave #(reset! hover nil)
@@ -148,7 +153,7 @@
                                         "ArrowRight" (reset! hover (nth xs (min (dec (count xs)) (inc i))))
                                         nil)))}]]
             (when hx
-              [tooltip {:left (* 100 (/ (sx hx) W))
+              [tooltip {:left (* 100 (/ (sx hx) (:w m)))
                         :title (str (or x-label "x") " " (fmt fmt-x hx))
                         :rows (->> series
                                    (keep (fn [{:keys [values] :as s}]
@@ -171,13 +176,14 @@
   [_]
   (let [hover (r/atom nil)]
     (fn [{:keys [series fmt-y fmt-x x-label y-label] :as opts}]
-      (let [m {:l 44 :r 12 :t 24 :b 30}
+      (let [[w h] (sizes (:size opts :normal))
+            m {:l 44 :r 12 :t 24 :b 30 :w w :h h}
             xs (xs-of series)
             {y-ticks :ticks y-dom :domain} (y-axis series opts true)
-            band (/ (- W (:l m) (:r m)) (max 1 (count xs)))
+            band (/ (- (:w m) (:l m) (:r m)) (max 1 (count xs)))
             bw (max 1 (- band 2))
             sx (fn [x] (+ (:l m) (* band (+ 0.5 (.indexOf xs x)))))
-            sy (scale y-dom [(- H (:b m)) (:t m)])
+            sy (scale y-dom [(- (:h m) (:b m)) (:t m)])
             by-x (fn [x] (keep (fn [s] (when-let [y (some (fn [[vx vy]] (when (= vx x) vy)) (:values s))]
                                          (assoc s :y y)))
                                series))
@@ -188,7 +194,7 @@
           [:div.chart
            (when (:legend? opts true) [legend series :bar])
            [:div.plot
-            [:svg {:view-box (str "0 0 " W " " H) :role "img" :aria-label y-label}
+            [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
                      :x-ticks (take-nth step xs) :x-label x-label :y-label y-label}]
              (for [x xs
@@ -205,12 +211,12 @@
                   (if (= i (dec (count segs)))
                     [:path {:d (bar-path x0 top bw h) :fill color}]
                     [:rect {:x x0 :y top :width bw :height h :fill color}]))
-                [:rect {:x (- (sx x) (/ band 2)) :y (:t m) :width band :height (- H (:t m) (:b m))
+                [:rect {:x (- (sx x) (/ band 2)) :y (:t m) :width band :height (- (:h m) (:t m) (:b m))
                         :fill "transparent" :tab-index 0
                         :on-pointer-enter #(reset! hover x) :on-focus #(reset! hover x)
                         :on-pointer-leave #(reset! hover nil) :on-blur #(reset! hover nil)}]])]
             (when hx
-              [tooltip {:left (* 100 (/ (sx hx) W))
+              [tooltip {:left (* 100 (/ (sx hx) (:w m)))
                         :title (str (or x-label "x") " " (fmt fmt-x hx))
                         :rows (map #(assoc % :value (fmt fmt-y (:y %))) (by-x hx))}])]])))))
 

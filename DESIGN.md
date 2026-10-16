@@ -51,6 +51,9 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
   - `out` ("✕ out · did not finish / no result", or "out after lap N");
   - for seats: "open · N still in", "last one in", "★ winner" and "tie · N".
 - **Toggles:** "Show eliminated (n)" checkboxes in the card head. They're opt-in and hidden after the finish, when everything is shown.
+- **Zoom dialog** (`dialog.zoom`): a native modal `<dialog>`, up to 1200 px wide, over a dark backdrop, showing one chart card big. A chart's plot area shows a zoom-in cursor; the ⤢ button in the card head does the same for keyboard users.
+  - The big chart uses a larger viewBox (`chart/sizes` `:big`, 1100×520) rather than scaling up the small one, so the text stays at its normal size.
+  - The comparison charts show their own legend in the big view, since the Compare chips aren't visible there.
 - **Segmented control** (`.segmented`): the views of one chart, for example Gap to leader / Total, next to the Table toggle in the card head. The active view has `aria-pressed` and a tint.
 - **Star:** ☆/★ in the accent. It doesn't open the row.
 - **Country key:** a small square in the country's series colour, shown wherever a selected country appears.

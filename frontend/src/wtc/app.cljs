@@ -20,6 +20,7 @@
                      :seat nil        ; seat ranking: nil = all seats overview
                      :results {}      ; [panel id, metric] -> query result
                      :variant {}      ; panel id -> index into the panel's :variants
+                     :zoom nil        ; panel id shown big in the zoom dialog
                      :open nil}))      ; runner id with the detail chart open
 
 ;; --- persistence of viewer preferences (best effort) ---
@@ -225,9 +226,12 @@
 ;; panel :y-format -> tick/tooltip formatter
 (def ^:private y-formats {:mmss mmss})
 
-(defn- panel [_]
+(defn- panel
+  "A chart card. `big?` renders it in the zoom dialog: a larger chart, with
+  its own legend."
+  [_ _]
   (let [table? (r/atom false)]
-    (fn [p0]
+    (fn [p0 big?]
       (let [{:keys [id title subtitle kind variants] :as p} (effective p0)
             chosen (get-in @db [:variant id] 0)
             results (:results @db)
@@ -236,7 +240,9 @@
             opts {:series series :x-label (:x-label p) :y-label (:y-label p)
                   :fmt-y (y-formats (:y-format p)) :y-zero? (:y-zero? p true)
                   ;; the Compare chips above the charts are their shared legend
-                  :legend? (not (:per-country? p))}]
+                  :legend? (or big? (not (:per-country? p)))
+                  :size (if big? :big :normal)}
+            zoomable? (and (not big?) (not @table?) (contains? results rkey))]
         [:section.card
          [:div.card-head
           [:div [:h2 title] (when subtitle [:p.sub subtitle])]
@@ -251,14 +257,37 @@
                                        (save-prefs!)
                                        (fetch-panels!))}
                  label])])
-           [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]]]
-         (cond
-           (and (:per-country? p) (empty? (:selected @db)))
-           [chart/placeholder (str "Tick countries in the table below to compare them here (up to " max-selected ")")]
-           (not (contains? results rkey)) [chart/placeholder ""]
-           @table? [chart/data-table opts]
-           (= kind :line) [chart/line-chart opts]
-           :else [chart/bar-chart opts])]))))
+           [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]
+           (when-not big?
+             [:button.ghost {:aria-label (str "Enlarge " title) :title "Enlarge"
+                             :on-click #(swap! db assoc :zoom id)} "⤢"])]]
+         [:div {:class (when zoomable? "zoomable")
+                :on-click (when zoomable? #(swap! db assoc :zoom id))}
+          (cond
+            (and (:per-country? p) (empty? (:selected @db)))
+            [chart/placeholder (str "Tick countries in the table below to compare them here (up to " max-selected ")")]
+            (not (contains? results rkey)) [chart/placeholder ""]
+            @table? [chart/data-table opts]
+            (= kind :line) [chart/line-chart opts]
+            :else [chart/bar-chart opts])]]))))
+
+(defn- zoom-dialog
+  "One panel, big, in a modal <dialog>. Esc, ✕ or a click on the backdrop
+  closes it."
+  [_]
+  (let [el (atom nil)
+        close #(some-> @el .close)]
+    (r/create-class
+     {:component-did-mount #(some-> @el .showModal)
+      :reagent-render
+      (fn [p]
+        [:dialog.zoom {:ref #(reset! el %)
+                       :on-close #(swap! db assoc :zoom nil)
+                       ;; the dialog itself is only hit outside the content: the backdrop
+                       :on-click #(when (= (.-target %) @el) (close))}
+         [:div.zoom-body
+          [:button.close {:aria-label "Close" :on-click close} "✕"]
+          [panel p true]]])})))
 
 ;; --- ranking ---
 
@@ -586,7 +615,7 @@
     (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
       [:<> [comparing]
        [:div.grid
-        (for [p (concat compare overall)] ^{:key (:id p)} [panel p])
+        (for [p (concat compare overall)] ^{:key (:id p)} [panel p false])
         [countries-table]]])))
 
 (defn- app []
@@ -597,7 +626,9 @@
     (if (or (:race @db) (:error @db))
       [:<> [header] [view-body (:view @db)]]
       [:div.loading "Loading live data…"])
-    [:footer "Unofficial. Data may lag the official results by a few minutes."]]])
+    [:footer "Unofficial. Data may lag the official results by a few minutes."]]
+   (when-let [p (some #(when (= (:id %) (:zoom @db)) %) panels/panels)]
+     ^{:key (:id p)} [zoom-dialog p])])
 
 (defonce root (delay (rdc/create-root (js/document.getElementById "app"))))
 

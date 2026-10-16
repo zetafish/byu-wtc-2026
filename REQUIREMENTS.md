@@ -128,6 +128,7 @@ With two runners left (A and B):
     - **"Total"**: the cumulative team score.
   - **all countries:** runners out per lap, split into "did not finish" and "no result", and a histogram of countries by runners still in. [brief]
 - Every chart can switch to a table view.
+- **Clicking a chart**, or its ⤢ button, opens it big in an overlay. The overlay has its own legend and the same view switch and table toggle. Esc, ✕ or a click outside closes it. [decided]
 
 ### Runners view: the individual leaderboard
 - A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided]

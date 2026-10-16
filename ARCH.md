@@ -138,6 +138,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - The views are in `views`; the URL hash selects the view.
   - The seat ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
   - `/api/runners` rows carry `:last-seconds` (the last timed lap) instead of the history. Sparkline data comes from `lap_time_seconds` queries for the leaderboard's country filter plus the starred runners. A row's detail chart fetches `/api/runners/:id`.
+  - `:zoom` holds the panel id shown big. `zoom-dialog` renders `[panel p true]` in a modal `<dialog>`; `chart/line-chart` and `bar-chart` take `:size :normal|:big`.
   - Each round of chart queries gets a sequence number (`fetch-seq`), and responses from an older round are dropped, so quick clicks can't leave stale charts.
   - Preferences are kept in localStorage under `wtc-prefs`, with every access in try/catch.
 - **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here.** The panel keys:
