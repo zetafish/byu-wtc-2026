@@ -46,10 +46,16 @@ Data flows: **sources → `model/sanitize` → per-source dataset (memory + Post
 - **`wtc.race`**: pure functions, with all the domain rules. Who is in or out is computed on read, so late or corrected data fixes itself on the next derive. Don't store derived status.
   - Laps are credited up to the last finished lap. Gaps below it are missed registrations, marked `:inferred`.
   - A runner with no result for a *settled* lap (deadline + `GRACE_SECONDS` passed) is out with `:missing`.
-  - `:dnf` takes precedence. Then the **team rule**: once fewer than 2 runners of a country finish lap L, that country's remaining runner is out (`:team`), even if their later laps also show as missing.
+  - `:dnf` takes precedence. Then the **team rule**: after each settled lap, count the country's runners who finished it.
+    - 2 or more: the country continues.
+    - Exactly 1: that runner is the country's winner (`:status :finished`, `:reason :winner`, listed in the country's `:winner`). They don't run an extra solo lap.
+    - 0: everyone left is a DNF, and the country has no winner.
+
+    A winner is only declared once the lap has settled, because a partner's DNF is often only known at the deadline. Countries are independent: one country can keep going alone after all others are out (Belgium in 2022), and it ends without a winner if its last two DNF in the same lap.
   - Lap times > 3600 s become `:suspect` with `:seconds nil`.
   - `:started` (laps started) drives the active-runner counts.
-  - Countries rank by total laps (team score).
+  - When no one is running any more, `:phase` is `:finished` and `:final-lap` is the last lap anyone started. `:current-lap` and `:settled-lap` freeze there, so the chart axes stop growing.
+  - Countries rank by total laps of all their runners (team score). This is the official ranking.
 - **`wtc.ingest`**: a single-thread scheduler. Each source is isolated, with a timeout, 3 attempts and exponential backoff. If a fetch fails, the last good dataset stays live. The DB write is retried every tick until the persisted copy equals the live one (`:persisted` vs `:datasets` in the state atom). On boot, the datasets are reloaded from the store.
 - **`wtc.store`**: the `Store` protocol, plus `MemoryStore`. `wtc.store.postgres` creates its tables on start; rows are keyed by `source`, and every fetch is logged in `fetches`. Postgres exists for durability and later statistics. The API never reads from it.
 - **`wtc.metrics`**: visualisation queries in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The frontend renders panels generically from this shape.

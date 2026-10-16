@@ -102,12 +102,15 @@
   (when s (str (quot s 60) ":" (.padStart (str (mod s 60)) 2 "0"))))
 
 (def ^:private reason-text
-  {"dnf" "did not finish" "missing" "no result" "team" "team rule"})
+  {"dnf" "did not finish" "missing" "no result"})
 
 (defn- status-badge [{:keys [status reason]}]
-  (if (= status "running")
-    [:span.pill.in [:span.dot.in] "in race"]
+  (case status
+    "running" [:span.pill.in [:span.dot.in] "in race"]
+    "finished" [:span.pill.win "★ country winner"]
     [:span.pill.out [:span.icon "✕"] (str "out · " (reason-text reason reason))]))
+
+(defn- finished? [] (= "finished" (get-in @db [:race :phase])))
 
 (defn- country-name [code] (some #(when (= code (:code %)) (:name %)) (:countries @db)))
 
@@ -150,10 +153,14 @@
      [:p.disclaimer "Unofficial live stats, computed from the published results. May differ from the official standings."
       (when updated [:span.muted " Updated " (.toLocaleTimeString updated) "."])]
      (when (:runners race)
-       [:div.summary
-        [:span.chip [:span.dot.in] (str (:running race) " in race")]
-        [:span.chip [:span.dot.out] (str (- (:runners race) (:running race)) " out")]
-        [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries eliminated")]])
+       (let [by-status (frequencies (map :status (:runners @db)))]
+         [:div.summary
+          [:span.chip [:span.dot.in] (str (get by-status "running" 0) " in race")]
+          [:span.chip [:span.dot.out] (str (get by-status "out" 0) " out")]
+          (when (pos? (get by-status "finished" 0))
+            [:span.chip (str "★ " (get by-status "finished") " country winners")])
+          [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries "
+                           (if (= "finished" (:phase race)) "done" "eliminated"))]]))
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
         (str "The race starts "
@@ -161,6 +168,15 @@
                               #js {:weekday "long" :day "numeric" :month "long"
                                    :hour "2-digit" :minute "2-digit"})
              " (your local time). Charts fill in after the first lap.")])
+     (when (= "finished" (:phase race))
+       (let [podium (take 3 (sort-by :rank countries))]
+         [:div.finished
+          [:h2 (str "Race finished after " (:final-lap race) " laps")]
+          [:ol.podium
+           (for [{:keys [code name rank total-laps winner]} podium]
+             ^{:key code}
+             [:li [:span.pos (str rank ".")] [:b name] [:span (str total-laps " laps")]
+              (when winner [:span.muted (str "★ " (:name winner))])])]]))
      (when (or error (seq failing))
        [:p.notice [:span.icon "⚠"]
         (if error
@@ -189,12 +205,13 @@
         full? (>= (count selected) max-selected)
         n-out (count (filter out? countries))
         ;; selected countries stay visible so they can still be deselected
+        show-out? (or show-out? (finished?))
         shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %))) countries)]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
        [:p.sub (str "Select up to " max-selected " to compare in the charts and the runner list")]]
-      (when (pos? n-out)
+      (when (and (pos? n-out) (not (finished?)))
         [:label.toggle
          [:input {:type "checkbox" :checked show-out?
                   :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
@@ -203,7 +220,7 @@
       [:table
        [:thead [:tr [:th "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"] [:th "Status"]]]
        [:tbody
-        (for [{:keys [code name rank active runners total-laps eliminated-after]} shown
+        (for [{:keys [code name rank active runners total-laps eliminated-after winner]} shown
               :let [slot (get selected code)]]
           ^{:key code}
           [:tr {:class [(when slot "selected") (when eliminated-after "out")]}
@@ -215,8 +232,10 @@
                  name " " [:span.muted code]]]
            [:td.num active " / " runners]
            [:td.num total-laps]
-           [:td (if eliminated-after
-                  [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+           [:td (cond
+                  winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
+                  eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+                  :else
                   [:span.pill.in [:span.dot.in] "in race"])]])]]]]))
 
 (defn- runner-detail [{:keys [id name]}]
@@ -230,7 +249,8 @@
   (let [{:keys [runners selected starred open lap-times show-out-runners?]} @db
         starred? #(contains? starred (:id %))
         candidates (filter #(or (contains? selected (:country %)) (starred? %)) runners)
-        out-runner? #(not= "running" (:status %))
+        out-runner? #(= "out" (:status %))
+        show-out-runners? (or show-out-runners? (finished?))
         n-out (count (filter out-runner? candidates))
         ;; starred runners stay visible so they can still be unstarred
         shown (->> candidates
@@ -242,7 +262,7 @@
      [:div.card-head
       [:div [:h2 "Runners"]
        [:p.sub "Starred runners and the selected countries. Click a row for the lap times."]]
-      (when (pos? n-out)
+      (when (and (pos? n-out) (not (finished?)))
         [:label.toggle
          [:input {:type "checkbox" :checked show-out-runners?
                   :on-change #(do (swap! db update :show-out-runners? not) (save-prefs!))}]
@@ -262,7 +282,7 @@
                 :let [times (get lap-times id)]]
             ^{:key id}
             [:<>
-             [:tr.clickable {:class (when (not= "running" (:status runner)) "out")
+             [:tr.clickable {:class (when (= "out" (:status runner)) "out")
                              :on-click #(swap! db update :open (fn [o] (when-not (= o id) id)))}
               [:td [:button.star {:aria-label (if (contains? starred id) "Unstar" "Star")
                                   :aria-pressed (contains? starred id)

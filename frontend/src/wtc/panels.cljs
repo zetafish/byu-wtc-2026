@@ -22,8 +22,8 @@
     :subtitle "All countries"
     :metric "attrition"
     :series-label :reason
-    :series-order ["dnf" "missing" "team"]
-    :series-names {"dnf" "Did not finish" "missing" "No result" "team" "Team rule"}
+    :series-order ["dnf" "missing"]
+    :series-names {"dnf" "Did not finish" "missing" "No result"}
     :kind :bar
     :x-label "lap" :y-label "runners"}
    {:id :histogram

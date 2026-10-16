@@ -49,18 +49,27 @@
              (< credited settled) {:status :out :reason :missing}
              :else {:status :running}))))
 
-(defn- team-eliminated-after
-  "First settled lap after which fewer than 2 of the country's runners were
-  still in, or nil."
+(defn- team-result
+  "A country continues while at least 2 of its runners finish each lap. The
+  first settled lap with fewer finishers ends it: a single finisher is the
+  country's winner, with none everyone left is a DNF and there is no winner.
+  -> {:after last-lap-completed :winner id-or-nil}, or nil while the country
+  is still going. :after is the deciding lap when someone won it, and the lap
+  before it when nobody finished it."
   [runners settled]
-  (first (filter (fn [lap] (< (count (filter #(>= (:laps %) lap) runners)) 2))
-                 (range 1 (inc settled)))))
+  (some (fn [lap]
+          (let [finishers (filter #(>= (:laps %) lap) runners)]
+            (case (count finishers)
+              0 {:after (dec lap) :winner nil}
+              1 {:after lap :winner (:id (first finishers))}
+              nil)))
+        (range 1 (inc settled))))
 
-(defn- started [{:keys [status reason laps]} current]
-  (cond
-    (= status :running) (max laps current)
-    (= reason :team) laps
-    :else (inc laps)))
+(defn- started [{:keys [status laps]} current]
+  (case status
+    :running (max laps current)
+    :finished laps
+    (inc laps)))
 
 (defn derive-state
   [{:keys [countries runners laps]} {:keys [start now grace-s] :or {grace-s 900}}]
@@ -68,13 +77,11 @@
         settled (min (settled-lap start now grace-s) (max 0 (dec current)))
         laps-by-runner (reduce-kv (fn [m [id l] o] (assoc-in m [id l] o)) {} laps)
         base (update-vals runners #(runner-state % (get laps-by-runner (:id %) {}) settled))
-        elim (update-vals (group-by :country (vals base))
-                          #(team-eliminated-after % settled))
+        result (update-vals (group-by :country (vals base)) #(team-result % settled))
         runners (update-vals base
                              (fn [r]
-                               (let [e (elim (:country r))
-                                     r (if (and e (>= (:laps r) e) (not= :dnf (:reason r)))
-                                         (assoc r :status :out :reason :team)
+                               (let [r (if (= (:id r) (:winner (result (:country r))))
+                                         (assoc r :status :finished :reason :winner)
                                          r)]
                                  (assoc r :started (started r current)))))
         by-country (group-by :country (vals runners))
@@ -86,16 +93,22 @@
                                           :runners (count rs)
                                           :active (count (filter #(= :running (:status %)) rs))
                                           :total-laps (reduce + 0 (map :laps rs))
-                                          :eliminated-after (elim code)))))
+                                          :eliminated-after (:after (result code))
+                                          :winner (when-let [id (:winner (result code))]
+                                                    (select-keys (runners id) [:id :name :laps]))))))
                           (sort-by (juxt (comp - :total-laps) (comp - :active) :code))
                           (map-indexed (fn [i c] (assoc c :rank (inc i)))))
-        any-running? (some #(= :running (:status %)) (vals runners))]
+        any-running? (some #(= :running (:status %)) (vals runners))
+        phase (cond (zero? current) :pre
+                    (and (pos? settled) (not any-running?)) :finished
+                    :else :live)
+        ;; once it's over the clock keeps ticking, but the race doesn't
+        final (when (= phase :finished) (reduce max 1 (map :started (vals runners))))]
     {:start start
      :now now
-     :current-lap current
-     :settled-lap settled
-     :phase (cond (zero? current) :pre
-                  (and (pos? settled) (not any-running?)) :finished
-                  :else :live)
+     :current-lap (if final (min current final) current)
+     :settled-lap (if final (min settled final) settled)
+     :final-lap final
+     :phase phase
      :runners runners
      :countries (into {} (map (juxt :code identity)) country-rows)}))

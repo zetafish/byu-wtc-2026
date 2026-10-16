@@ -32,7 +32,7 @@
     (let [d (race/derive-state (model/sanitize (fetch {:missing-rate 0 :silent-rate 0} 300))
                                {:start start :now (.plusSeconds start (* 300 3600))})]
       (is (= :finished (:phase d)))
-      (is (every? #(#{:dnf :team} (:reason %)) (vals (:runners d)))))))
+      (is (every? #(#{:dnf :winner} (:reason %)) (vals (:runners d)))))))
 
 (deftest merge-priority
   (let [low (model/sanitize {:runners [{:id "a" :name "A" :country "NED"}]
