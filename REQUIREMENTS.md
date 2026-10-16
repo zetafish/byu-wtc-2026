@@ -110,16 +110,21 @@ With two runners left (A and B):
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
 - A **left menu** to switch views: Countries, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
-- **Viewer preferences are remembered per browser:** the compared countries, starred runners, the leaderboard's country filter and "★ only", and the "show eliminated" toggles. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
+- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter and "★ only", and the "show eliminated" toggles. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
 ### Countries view: ranking and comparison charts
-- **Top:** a "Compare" row of chips for the compared countries, each with a ✕. Then the charts in two rows: first the two comparison charts, then the two all-country charts.
+- **Top:** a "Compare" row with all the selection controls, then a chip per compared country, each with a ✕. Then the charts in two rows: first the two comparison charts, then the two all-country charts.
 - **Bottom:** the countries table. [decided]
 - **The table:** all countries in ranking order, with rank, country, runners in race / total, team score, gap (laps behind the leader's team score, "–" for the leader), and status (in race, winner, or out after lap N). [decided]
-- **Compare:** a checkbox per country adds it to the comparison charts, up to 8. Ticking only affects the charts. Each compared country keeps its own colour while compared, and the colour square next to the checkbox doubles as its legend key. [decided]
-- **Bulk selection:** "Select top 8" in the table head replaces the comparison with the 8 best-ranked countries (eliminated ones included), and "Deselect all" clears it. Countries that stay compared keep their colour. [decided]
-- **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to tick countries in the table. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
+- **Compare:** countries are added to the comparison charts, up to 8, only from the Compare row; the table has no checkboxes. Comparing only affects the charts. Each compared country keeps its own colour while compared, and the colour square on its chip is its legend key. [decided]
+  - A search box with suggestions adds one country. It matches the name or the code, lists favourites first and leaves out countries already compared. It's disabled at 8. [decided]
+  - "Top 8" replaces the comparison with the 8 best-ranked countries, eliminated ones included. [decided]
+  - "★ Favourites" replaces it with the favourite countries, the 8 best-ranked if there are more. It's hidden when there are no favourites. [decided]
+  - "Clear" empties it. [decided]
+  - Countries that stay compared after "Top 8" or "★ Favourites" keep their colour. [decided]
+- **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites only feed the search box and the "★ Favourites" button. [decided]
+- **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]
 - **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared countries stay visible. After the finish, everything is shown. [decided]
 - The table always shows every row, without an inner scroll. [decided]

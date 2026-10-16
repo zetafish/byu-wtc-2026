@@ -10,6 +10,7 @@
 
 (defonce db (r/atom {:selected {}     ; compared countries: code -> color slot 1..8; empty until picked
                      :starred #{}
+                     :favourites #{}  ; favourite country codes
                      :runner-filter #{} ; leaderboard: only these countries (empty = all)
                      :starred-only? false
                      :query ""        ; leaderboard name search (not stored)
@@ -33,6 +34,7 @@
   (try (js/localStorage.setItem "wtc-prefs"
                                 (js/JSON.stringify (clj->js {:selected (:selected @db)
                                                              :starred (vec (:starred @db))
+                                                             :favourites (vec (:favourites @db))
                                                              :show-out (:show-out? @db)
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
@@ -121,20 +123,24 @@
   (save-prefs!)
   (fetch-panels!))
 
-(defn- deselect-all! []
-  (swap! db assoc :selected {})
+(defn- select-countries!
+  "Compares the first `max-selected` of `codes`, replacing the selection.
+  Countries already compared keep their colour slot; the rest take free ones."
+  [codes]
+  (swap! db update :selected
+         (fn [sel]
+           (let [codes (take max-selected codes)
+                 kept (select-keys sel codes)
+                 free (remove (set (vals kept)) (range 1 (inc max-selected)))]
+             (into kept (map vector (remove kept codes) free)))))
   (save-prefs!)
   (fetch-panels!))
 
-(defn- select-top! []
-  ;; countries already compared keep their colour slot; the rest take free ones
-  (swap! db (fn [{:keys [countries selected] :as d}]
-              (let [top (map :code (take max-selected (sort-by :rank countries)))
-                    kept (select-keys selected top)
-                    free (remove (set (vals kept)) (range 1 (inc max-selected)))]
-                (assoc d :selected (into kept (map vector (remove kept top) free))))))
-  (save-prefs!)
-  (fetch-panels!))
+(defn- ranked-codes [pred] (map :code (filter pred (sort-by :rank (:countries @db)))))
+
+(defn- toggle-favourite! [code]
+  (swap! db update :favourites #(if (contains? % code) (disj % code) (conj % code)))
+  (save-prefs!))
 
 (defn- toggle-filter! [code]
   (swap! db update :runner-filter #(if (contains? % code) (disj % code) (conj % code)))
@@ -280,7 +286,7 @@
                 :on-click (when zoomable? #(swap! db assoc :zoom id))}
           (cond
             (and (:per-country? p) (empty? (:selected @db)))
-            [chart/placeholder (str "Tick countries in the table below to compare them here (up to " max-selected ")")]
+            [chart/placeholder (str "Add countries above to compare them here (up to " max-selected ")")]
             (not (contains? results rkey)) [chart/placeholder ""]
             @table? [chart/data-table opts]
             (= kind :line) [chart/line-chart opts]
@@ -349,45 +355,39 @@
        (str "Show " name " in the runner leaderboard →")]]]))
 
 (defn- countries-table []
-  (let [{:keys [countries selected show-out? expanded]} @db
-        full? (>= (count selected) max-selected)
+  (let [{:keys [countries selected favourites show-out? expanded]} @db
         lead (reduce max 0 (map :total-laps countries))
         n-out (count (filter out? countries))
-        ;; compared countries stay visible so they can still be unticked
+        ;; compared countries stay visible, like the charts they're in
         show-out? (or show-out? (finished?))
         shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %))) countries)]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
-       [:p.sub (str "Ranked by team score. Tick Compare to add a country to the charts (up to " max-selected "). Click a row for its runners.")]]
-      [:div.head-actions
-       [:button.ghost {:on-click select-top!} (str "Select top " max-selected)]
-       [:button.ghost {:on-click deselect-all! :disabled (empty? selected)} "Deselect all"]
-       (when (and (pos? n-out) (not (finished?)))
-         [:label.toggle
-          [:input {:type "checkbox" :checked show-out?
-                   :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
-          (str "Show eliminated (" n-out ")")])]]
+       [:p.sub "Ranked by team score. Star your favourite countries. Click a row for its runners."]]
+      (when (and (pos? n-out) (not (finished?)))
+        [:label.toggle
+         [:input {:type "checkbox" :checked show-out?
+                  :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
+         (str "Show eliminated (" n-out ")")])]
      [:div.table-wrap.full
       [:table
-       [:thead [:tr [:th "Compare"] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
+       [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
                 [:th.num {:title "Laps behind the leading country's team score"} "Gap"]
                 [:th "Status"] [:th]]]
        [:tbody
         (for [{:keys [code name rank active runners total-laps eliminated-after winner] :as c} shown
-              :let [slot (get selected code)
+              :let [fav? (contains? favourites code)
                     open? (= expanded code)
                     toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
           ^{:key code}
           [:<>
-           [:tr.clickable {:class [(when slot "selected") (when eliminated-after "out")]
+           [:tr.clickable {:class [(when (contains? selected code) "selected") (when eliminated-after "out")]
                            :on-click toggle-open}
-            [:td {:on-click #(.stopPropagation %)}
-             [:label.pick {:title (when (and full? (not slot)) (str "You can compare up to " max-selected " countries"))}
-              [:input {:type "checkbox" :checked (boolean slot) :disabled (and full? (not slot))
-                       :aria-label (str "Compare " name)
-                       :on-change #(toggle-country! code)}]
-              [:span.key-box {:style {:background (if slot (color slot) "transparent")}}]]]
+            [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
+                                :aria-pressed fav?
+                                :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
+                  (if fav? "★" "☆")]]
             [:td.num rank]
             [:td.name name " " [:span.muted code]]
             [:td.num active " / " runners]
@@ -614,12 +614,50 @@
                   :aria-current (when (= id view) "page")}
               label [:span.count {:title (nav-title id)} (nav-count id)]]])]]))
 
+(defn- country-picker
+  "Search box with suggestions; picking a suggestion, or Enter, adds the country."
+  []
+  (let [text (r/atom "")]
+    (fn []
+      (let [{:keys [countries selected favourites]} @db
+            full? (>= (count selected) max-selected)
+            options (->> countries
+                         (remove #(contains? selected (:code %)))
+                         (sort-by (juxt #(not (contains? favourites (:code %))) :name)))
+            add! (fn [{:keys [code]}] (reset! text "") (toggle-country! code))
+            find-by (fn [q f] (let [q (str/lower-case (str/trim q))]
+                                (when (seq q) (some #(when (f q (str/lower-case (:name %)) (str/lower-case (:code %))) %)
+                                                    options))))]
+        [:<>
+         [:input.search {:type "search" :list "country-options" :value @text :disabled full?
+                         :placeholder (if full? (str max-selected " compared, the most") "Add a country")
+                         :aria-label "Add a country to compare"
+                         :on-change (fn [e]
+                                      (let [v (.. e -target -value)]
+                                        ;; a picked suggestion fills in the full name
+                                        (if-let [c (find-by v (fn [q nm _] (= q nm)))] (add! c) (reset! text v))))
+                         :on-key-down (fn [e]
+                                        (when (= "Enter" (.-key e))
+                                          (some-> (or (find-by @text (fn [q _ cd] (= q cd)))
+                                                      (find-by @text (fn [q nm _] (str/starts-with? nm q)))
+                                                      (find-by @text (fn [q nm _] (str/includes? nm q))))
+                                                  add!)))}]
+         [:datalist {:id "country-options"}
+          (for [{:keys [code name]} options]
+            ^{:key code} [:option {:value name} (str (when (contains? favourites code) "★ ") code)])]]))))
+
 (defn- comparing []
-  (let [{:keys [selected]} @db]
+  (let [{:keys [selected favourites]} @db]
     [:div.comparing
      [:span.label "Compare"]
+     [country-picker]
+     [:button.ghost {:on-click #(select-countries! (ranked-codes any?))} (str "Top " max-selected)]
+     (when (seq favourites)
+       [:button.ghost {:title (str "Your favourite countries, the best-ranked " max-selected " if more")
+                       :on-click #(select-countries! (ranked-codes (comp favourites :code)))} "★ Favourites"])
+     [:button.ghost {:on-click #(select-countries! []) :disabled (empty? selected)} "Clear"]
      (if (empty? selected)
-       [:span.muted "no countries ticked yet"]
+       [:span.muted "no countries compared yet"]
        (for [[code slot] (sort-by val selected)]
          ^{:key code}
          [:span.chip [:span.key-box {:style {:background (color slot)}}] (or (country-name code) code)
@@ -654,11 +692,12 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred show-out show-out-runners runner-filter starred-only variant]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only variant]} (load-prefs)]
     (swap! db assoc
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
            :starred (set starred)
+           :favourites (set favourites)
            :runner-filter (set runner-filter)
            :starred-only? (true? starred-only)
            :show-out? (true? show-out)

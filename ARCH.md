@@ -149,7 +149,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
   `:y-zero?` (default true) keeps 0 on the y-axis, from below for counts or from above for negative values like gaps.
 
-  A new formatter goes in `y-formats` in `wtc.app`. All charts render above the countries table, with the `:per-country?` charts first. Those stay empty until countries are ticked in the table.
+  A new formatter goes in `y-formats` in `wtc.app`. All charts render above the countries table, with the `:per-country?` charts first. Those stay empty until countries are added in the Compare row.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.

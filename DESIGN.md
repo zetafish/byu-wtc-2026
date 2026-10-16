@@ -42,7 +42,8 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 
 - **Stat:** an uppercase label over a big display number. The lap stat is in the accent.
 - **Chip:** a rounded pill with a border. Used for summary counts, for compared countries (with a ✕ and a colour key), and for leaderboard country filters (with a ✕).
-- **Compare checkbox:** a checkbox plus a colour square in the country's series colour, which is empty when unticked. The square is the legend key for that country in the charts above.
+- **Compare row:** "Compare" label, a search box (native `<datalist>` suggestions; Enter takes the best match), ghost buttons "Top 8", "★ Favourites" and "Clear", then the chips. Controls come before the chips so they don't move as chips are added. At narrow widths the row wraps.
+- **Favourite star:** ☆/★ in the first column of the Countries table, styled like the runner stars. The table shows no series colour; compared rows only get the selected background.
 - **Country squad grid:** in the expanded row below a country, a compact multi-column grid (`ul.squad`): seat number, name, laps, and a small mark (green dot for in, ★ for winner, red ✕ for out, with the reason in the tooltip).
 - **Filter bar** (`.filters`): a picker, chips, a search input and toggles in one wrapping row above the leaderboard table.
 - **Pills:**
@@ -50,13 +51,12 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
   - `win` ("★ name · lap N" or "★ country winner");
   - `out` ("✕ out · did not finish / no result", or "out after lap N");
   - for seats: "open · N still in", "last one in", "★ winner" and "tie · N".
-- **Bulk buttons:** "Select top 8" and "Deselect all" are ghost buttons in the Countries card head, before the toggle. "Deselect all" is disabled when nothing is compared.
 - **Toggles:** "Show eliminated (n)" checkboxes in the card head. They're opt-in and hidden after the finish, when everything is shown.
 - **Zoom dialog** (`dialog.zoom`): a native modal `<dialog>`, up to 1200 px wide, over a dark backdrop, showing one chart card big. A chart's plot area shows a zoom-in cursor; the ⤢ button in the card head does the same for keyboard users.
   - The big chart uses a larger viewBox (`chart/sizes` `:big`, 1100×520) rather than scaling up the small one, so the text stays at its normal size.
   - The comparison charts show their own legend in the big view, since the Compare chips aren't visible there.
 - **Segmented control** (`.segmented`): the views of one chart, for example Gap to leader / Total, next to the Table toggle in the card head. The active view has `aria-pressed` and a tint.
-- **Star:** ☆/★ in the accent. It doesn't open the row.
+- **Star:** ☆/★ in gold `--star` (`#b98900` light, `#ffc61a` dark), not the accent, so it reads as a star. It doesn't open the row.
 - **Country key:** a small square in the country's series colour, shown wherever a selected country appears.
 
 ## Charts
@@ -64,12 +64,12 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 Charts follow the dataviz method: pick the form first, colour last, and validate the palette.
 
 - **Series colours** are `--series-1..8`, the validated dataviz palette, re-checked against `#ffffff` and `#15232a`. Don't add hues and don't use the accent.
-- **Colour follows the country, not its rank.** A compared country takes the lowest free slot, and the survivors keep their colour when one is unticked. Because there are 8 hues, at most 8 countries can be compared. Leaderboard country filters have no colour, so they don't use slots.
+- **Colour follows the country, not its rank.** A compared country takes the lowest free slot, and the survivors keep their colour when one is removed. Because there are 8 hues, at most 8 countries can be compared. Leaderboard country filters have no colour, so they don't use slots.
 - **Non-per-country series** (for example attrition by reason) take slots in their fixed `:series-order`.
 - **Marks:** 2 px lines and recessive grid lines and axes. One y-axis only; never a dual axis.
 - **Labels:**
   - 2 or more series always get a legend, and up to 4 also get direct labels at the line end. A single series has no legend; the title names it.
-  - **The exception is the comparison charts:** the Compare chips above them, with a colour key per country, are their shared legend, so the charts have none of their own (`:legend? false`). That keeps the chart height fixed while countries are ticked.
+  - **The exception is the comparison charts:** the Compare chips above them, with a colour key per country, are their shared legend, so the charts have none of their own (`:legend? false`). That keeps the chart height fixed while countries are added.
   - Text uses the text tokens, never the series colour.
 - **Interaction:**
   - Line charts have a crosshair and a tooltip with all series.
@@ -79,12 +79,12 @@ Charts follow the dataviz method: pick the form first, colour last, and validate
 
 ## Stability: no flicker, no jumping
 
-- **Charts keep their card height.** A chart's svg has a fixed aspect (viewBox 640×240). Every non-chart state uses `chart/placeholder`, a box with the same aspect: loading, "No data yet", and "Tick countries…".
+- **Charts keep their card height.** A chart's svg has a fixed aspect (viewBox 640×240). Every non-chart state uses `chart/placeholder`, a box with the same aspect: loading, "No data yet", and "Add countries above…".
 - **The Compare row** has a minimum height, so its empty text and its chips take the same space. With many long names it can still wrap to a second line.
 - **No partial first paint:** the page shows "Loading live data…" until the first data arrives, then renders everything at once. The chart queries start alongside the main fetch, not after it.
 - **Fonts load with `display=block`.** Text appears only once Big Shoulders and Barlow are ready (cached after the first visit), instead of jumping from a fallback font.
 - **Auto-refresh changes only what changed.** With unchanged data, a refresh replaces no DOM nodes. Keep it that way: stable React keys, and no remounting of whole views.
-- **Unticking a country** removes it from the charts at once, without waiting for the next response.
+- **Removing a country** removes it from the charts at once, without waiting for the next response.
 
 ## Copy
 

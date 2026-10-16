@@ -12,6 +12,7 @@
   --grid: #e3e8ea;
   --axis: #b9c4c8;
   --accent: #e8590c;
+  --star: #b98900;    /* gold; darker in light mode for 3:1 on white */
   --good: #2b8a5e;
   --critical: #c92a2a;
   --warning: #e8590c;
@@ -41,6 +42,7 @@
     --grid: #22343c;
     --axis: #34474f;
     --accent: #ff7a2e;
+    --star: #ffc61a;
     --good: #4cc38a;
     --critical: #ff6b6b;
     --warning: #ff7a2e;
@@ -66,6 +68,7 @@
   --grid: #22343c;
   --axis: #34474f;
   --accent: #ff7a2e;
+  --star: #ffc61a;
   --good: #4cc38a;
   --critical: #ff6b6b;
   --warning: #ff7a2e;
@@ -283,8 +286,6 @@ tr.clickable:hover { background: var(--hover); }
 tr.selected { background: var(--selected); }
 tr.out td { color: var(--text-muted); }
 tr.detail td { background: var(--surface-1); padding: 8px 0 16px; }
-label.pick { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; }
-label.pick .key-box { margin: 0; border: 1px solid var(--axis); }
 label.toggle {
   display: inline-flex; align-items: center; gap: 6px; font-size: 14px;
   color: var(--text-muted); cursor: pointer; white-space: nowrap;
@@ -307,7 +308,7 @@ select.seat {
 
 button.star {
   font-size: 17px; line-height: 1; background: none; border: 0; cursor: pointer;
-  color: var(--accent); padding: 0 2px;
+  color: var(--star); padding: 0 2px;
 }
 button.star:disabled { color: var(--axis); cursor: not-allowed; }
 td.name .key-box { margin-right: 6px; }
