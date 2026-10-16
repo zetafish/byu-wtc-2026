@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Iceland",
+  "rows" : [ {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ISL",
+    "name" : "Thorleifur Thorleifsson",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 62,
+    "country" : "Iceland",
+    "wa" : "W",
+    "best_yards" : 62
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ISL",
+    "name" : "Mari Jaersk",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 50,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 50
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Þórdís Jónsdóttir",
+    "rank" : 3,
+    "status" : "Silver Ticket",
+    "yards" : 44,
+    "country" : "Iceland",
+    "wa" : "W",
+    "best_yards" : 44
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Iceland Backyard Ultra",
+    "name" : "Gudjon Sigurdsson",
+    "rank" : 4,
+    "status" : "Silver Ticket",
+    "yards" : 43,
+    "country" : "Iceland",
+    "wa" : "W",
+    "best_yards" : 43
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Gudmundur Luther Hallgrimsson",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 43,
+    "country" : "Iceland",
+    "wa" : "A",
+    "best_yards" : 43
+  }, {
+    "date" : "10/05/2025",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Sylwester Kalucki",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Gunnar Karlsson",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 39,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 39
+  }, {
+    "date" : "10/05/2025",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Tomas Jacobsen",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "21/09/2024",
+    "race" : "Iceland Backyard Ultra Heidmork",
+    "name" : "Solvi Snaer Egilsson",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "21/09/2024",
+    "race" : "Iceland Backyard Ultra Heidmork",
+    "name" : "Adam Komorowski",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 34
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ISL",
+    "name" : "Fridrik Benediktsson",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Hekla Hannesdottir",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Iceland Backyard Ultra",
+    "name" : "Thuridur Thorarinsdottir",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "10/05/2025",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Oddur Máni Malmberg",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ISL",
+    "name" : "Hildur Gudny Karadottir",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Iceland Backyard Ultra",
+    "name" : "Dalros Ingadottir",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "21/09/2024",
+    "race" : "Iceland Backyard Ultra Heidmork",
+    "name" : "Tómas Jacobsen",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ISL",
+    "name" : "Jon Trausti Gudmundsson",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ISL",
+    "name" : "Margret Salome L. Thorsteinsdottir",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "10/05/2025",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Dalros Ingadottir",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Iceland Backyard Ultra 101",
+    "name" : "Kristján Karl Björnsson",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Iceland",
+    "wa" : "",
+    "best_yards" : 27
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Elisabet Margeirsdottir",
+    "manager_email" : "elisabet@arcticrunning.is"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

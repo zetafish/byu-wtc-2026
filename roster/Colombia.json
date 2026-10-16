@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Colombia",
+  "rows" : [ {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Sergio Moreno",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Colombia",
+    "wa" : "W",
+    "best_yards" : 34
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Cesar Serna",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Colombia",
+    "wa" : "A",
+    "best_yards" : 33
+  }, {
+    "date" : "28/06/2025",
+    "race" : "Freedom Race Colombia: Bogotá",
+    "name" : "JOSÉ ANTONIO RODRÍGUEZ PINZON",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Colombia",
+    "wa" : "W",
+    "best_yards" : 31
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Daniel Alejandro Marín Osorio",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Lauren Matiz",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "28/06/2025",
+    "race" : "Freedom Race Colombia: Bogotá",
+    "name" : "Yehison Ramos",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Colombia",
+    "wa" : "A",
+    "best_yards" : 30
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Bogotá",
+    "name" : "Abrahan Villanueva",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "28/05/2025",
+    "race" : "Freedom Race Colombia: Cali",
+    "name" : "Mario Vergara",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Colombia",
+    "wa" : "W",
+    "best_yards" : 28
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Cúcuta",
+    "name" : "Jordin Imanol",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Colombia",
+    "wa" : "A",
+    "best_yards" : 26
+  }, {
+    "date" : "28/05/2025",
+    "race" : "Freedom Race Colombia: Cali",
+    "name" : "Anderson Vaquiro",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "12/10/2024",
+    "race" : "Cottonwood Countdown-Nelson Backyard Ultra",
+    "name" : "Edisson Fuquene",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "08/06/2025",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Jhon Querubin",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "08/06/2025",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Juan Calle",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Brahian Ramirez Gómez",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "Lorena Saavedra Cardona",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Freedom Race Colombia: Medellín",
+    "name" : "JHORMAN ANDRES ARIAS HERNANDEZ",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Colombia",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Esteban Gutierrez",
+    "manager_email" : "fgutierrezq@icloud.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

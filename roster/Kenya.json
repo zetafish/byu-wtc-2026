@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Kenya",
+  "rows" : [ {
+    "date" : "12/04/2025",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Reuben Josphat Mgonga Njoroge",
+    "rank" : 1,
+    "status" : "Silver Ticket",
+    "yards" : 33,
+    "country" : "Kenya",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - KEN",
+    "name" : "Clement Akach",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Kenya",
+    "wa" : "A",
+    "best_yards" : 37
+  }, {
+    "date" : "12/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Burton Mudogo",
+    "rank" : 3,
+    "status" : "Silver Ticket",
+    "yards" : 33,
+    "country" : "Kenya",
+    "wa" : "W",
+    "best_yards" : 33
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "King'ori Wanjiru",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Kenya",
+    "wa" : "A",
+    "best_yards" : 32
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Dickson Muthiani",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Dylan Johnson",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Phyll Nawanjaya",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - KEN",
+    "name" : "Patrick Scheel Hinojosa",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Eva Jacky",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Stephen Bwire",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - KEN",
+    "name" : "Kaka Yusuf",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 21
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Chelimo Kimaiyo",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Kennedy Mbuyuyu",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Eric de Wildt",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Carolyne Wanjiru",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 10,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Limo Kipkemoi",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Naboth Masinde",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 17,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Nyakwar Beldina",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 7,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 7
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Ultra Running Kenya. Nairobi Backyard",
+    "name" : "Stanley Waweru",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 15,
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Kenya",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Limo Kipkemoi",
+    "manager_email" : "limo.arch@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

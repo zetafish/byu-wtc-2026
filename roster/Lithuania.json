@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Lithuania",
+  "rows" : [ {
+    "date" : "24/04/2026",
+    "race" : "Banana Slug Backyard Ultra",
+    "name" : "Julija Soryte",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 60,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 60
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Tomas Aglinskas",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 43,
+    "country" : "Lithuania",
+    "wa" : "W",
+    "best_yards" : 43
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Tomas Puida",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Lithuania",
+    "wa" : "A",
+    "best_yards" : 42
+  }, {
+    "date" : "27/09/2025",
+    "race" : "Swampman Backyard Ultra",
+    "name" : "Ernestas Vedeikis",
+    "rank" : 4,
+    "status" : "Silver Ticket",
+    "yards" : 37,
+    "country" : "Lithuania",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "pacevicius algis",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 37
+  }, {
+    "date" : "08/08/2025",
+    "race" : "Backyard Ultra Wiewióra Olecko",
+    "name" : "Marius Zakarauskas",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Lithuania",
+    "wa" : "A",
+    "best_yards" : 34
+  }, {
+    "date" : "20/06/2026",
+    "race" : "Last One Standing Florence Court",
+    "name" : "Aleksanders Dubinovicius",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 34
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Martinkevič Edgar",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Alvydas Batakis",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "27/03/2026",
+    "race" : "Wayout Backyard Ultra",
+    "name" : "Ramunas Klimavicius",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Lithuania",
+    "wa" : "A",
+    "best_yards" : 30
+  }, {
+    "date" : "17/07/2026",
+    "race" : "Backyard Ultra Polska – First & Original",
+    "name" : "Milda Grušauskaitė",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "30/05/2026",
+    "race" : "Kings Backyard Ultra",
+    "name" : "Roberta Meksraityte",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Velutis Vaidas",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Gelšvartas Julius",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Toleikis Deividas",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "17/07/2026",
+    "race" : "Backyard Ultra Polska – First & Original",
+    "name" : "Arunas Dubinskas",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 26,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "15/03/2025",
+    "race" : "Fat Dog Backyard Ultra",
+    "name" : "Lukas Ciunys",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "27/09/2025",
+    "race" : "Swampman Backyard Ultra",
+    "name" : "Ignas Meilunas",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Swampman Backyard Ultra By Trailo Kalvė",
+    "name" : "Malinauskas Mangirdas",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Samogitia Ultra",
+    "name" : "Marius Suveizdis",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Samogitia Ultra",
+    "name" : "Rasa Zemaitiene",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Lithuania",
+    "wa" : "",
+    "best_yards" : 25
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Marijus Kersulis",
+    "manager_email" : "trailokalve@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

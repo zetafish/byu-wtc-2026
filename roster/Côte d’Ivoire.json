@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Côte d’Ivoire",
+  "rows" : [ {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Marius Kouakou",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 85,
+    "country" : "Côte d’Ivoire",
+    "wa" : "A",
+    "best_yards" : 85
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Infinity Trail Backyard – Hossegor",
+    "name" : "Adele Al Khalil",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 51,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 51
+  }, {
+    "date" : "07/06/2025",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Christophe Yahiri",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Yoann Preteseille",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Côte d’Ivoire",
+    "wa" : "A",
+    "best_yards" : 24
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Zakaria Kossobe",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Adama Sidibe",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 18,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 18
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Yann Perret",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "19/10/2024",
+    "race" : "World Team Championship",
+    "name" : "Dimitri Kouassi",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "19/10/2024",
+    "race" : "World Team Championship",
+    "name" : "Jeremie Goutto",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Marie Pierre Koudou",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Bambara Adama",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "N'Gadio Wassa Konate",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Florian Buchet",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Regis Coumenges",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Epiphane Dossou",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Ladji Dosso",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 12,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Tekry Efozou",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 12,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Bliss Barry Boukary",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 11,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Aboubakary Kone",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Ali Chalhoub",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Backyard Ultra Abidjan",
+    "name" : "Dje Bi Sory Thibaut Sehi",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Côte d’Ivoire",
+    "wa" : "",
+    "best_yards" : 10
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Alain Jolivet",
+    "manager_email" : "alainjolivet@yahoo.fr"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Slovakia",
+  "rows" : [ {
+    "date" : "25/04/2026",
+    "race" : "Legends Backyard Belgium",
+    "name" : "Patrik Hrotek",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 98,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 98
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "Milan Kralik",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Slovakia",
+    "wa" : "A",
+    "best_yards" : 54
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Esztergom 2026",
+    "name" : "Attila Kepesi",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 36
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SVK",
+    "name" : "ROMAN PETRIKOVIC",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 34
+  }, {
+    "date" : "11/10/2025",
+    "race" : "Austria Backyard Ultra – Seekirchen am Wallersee",
+    "name" : "Jaroslav Klizan",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SVK",
+    "name" : "TOMAS DURTA",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "Jozef Gomola",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "Peter Ondras",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "JAKUB RAJNIC",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "MILAN TOLD",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "08/05/2026",
+    "race" : "Czechia Backyard Ultra Run",
+    "name" : "Marijan Crnkovič",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SVK",
+    "name" : "Ivan Husar",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "DANIELA PELLEROVA",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "ADAM RUSINKO",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SVK",
+    "name" : "Marian Pavuk",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "TIBOR MUNKA",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 26,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SVK",
+    "name" : "Marcel Hanecak",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "JAROSLAV BUCHTA",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "MAREK MACHALA",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "MIROSLAV SKLENKA",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Slovakia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Bear's Party Backyard Ultra",
+    "name" : "Stefan Gregor",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Slovakia",
+    "wa" : "A",
+    "best_yards" : 24
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Milos Pintrava",
+    "manager_email" : "milospin@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

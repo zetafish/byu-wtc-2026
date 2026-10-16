@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Guatemala",
+  "rows" : [ {
+    "date" : "01/08/2026",
+    "race" : "Backyard Ultra Comayagua",
+    "name" : "Mauricio Juarez",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Guatemala",
+    "wa" : "A",
+    "best_yards" : 33
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Luis Guzman",
+    "rank" : 2,
+    "status" : "Silver Ticket",
+    "yards" : 32,
+    "country" : "Guatemala",
+    "wa" : "W",
+    "best_yards" : 32
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Abner Guzman",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - GUA",
+    "name" : "Edgar Nehemias Cali",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Guatemala",
+    "wa" : "W",
+    "best_yards" : 26
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Fredy Panteul",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "03/05/2025",
+    "race" : "Backyard Ultra MOLVU Esquipulas Guatemala",
+    "name" : "Kelinton Sic",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Guatemala",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Conrado Paulich",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "David Juarez",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "03/05/2025",
+    "race" : "Backyard Ultra MOLVU Esquipulas Guatemala",
+    "name" : "Estuardo Rogelio Tobar Vasquez",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Guatemala",
+    "wa" : "A",
+    "best_yards" : 24
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Reyna Raymundo",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Backyard Ultra MOLVU Esquipulas Guatemala",
+    "name" : "Ismael Antonio Pinzon Santizo",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 23,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 23
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - GUA",
+    "name" : "Danny Adolfo Vasquez Salama",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Noé Salatiel Guzmán Morales",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Guatemala",
+    "name" : "Carlos Otoniel Herrera Pérez",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 21
+  }, {
+    "date" : "03/05/2025",
+    "race" : "Backyard Ultra MOLVU Esquipulas Guatemala",
+    "name" : "David Gallo",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "MIGUEL ÁNGEL AJCOT US",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 19,
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : 19
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Guatemala",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Estuardo Tobar",
+    "manager_email" : "estuardotobar87@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

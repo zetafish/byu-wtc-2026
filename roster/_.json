@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Algeria",
+  "rows" : [ {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Madjid Bentalha",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Malek Leroul",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Naim Selloum",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Saddek Mouloua",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Salim Zaouia",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Lotfi Mazouz",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Othmane Hamidi",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Ghiles Khati",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard Ultra",
+    "name" : "Farouk Azib",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard",
+    "name" : "DJEBROUNI ZOHRA",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard",
+    "name" : "IMESSAOUDENE MAHREZ AGHILES",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "02/12/2025",
+    "race" : "Mezghena Backyard",
+    "name" : "Kerbouche Bilal",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mexghena Backyard",
+    "name" : "Dahdah Nabyl",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Mezghena Backyard",
+    "name" : "MAZOUZ HANANE",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 19,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 19
+  }, {
+    "date" : "05-12-2025",
+    "race" : "Mezghena Backyard",
+    "name" : "SERI MOMAMED REDA",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Algeria",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Lies Makhlouf",
+    "manager_email" : "lies.makhlouf@free.fr"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

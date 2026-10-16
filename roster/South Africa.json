@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "South Africa",
+  "rows" : [ {
+    "date" : "25/04/2026",
+    "race" : "Potch Big Backyard Ultra",
+    "name" : "Donovan Shirley",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 43,
+    "country" : "South Africa",
+    "wa" : "W",
+    "best_yards" : 43
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Potch Big Backyard Ultra",
+    "name" : "John Miller",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "South Africa",
+    "wa" : "A",
+    "best_yards" : 42
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Potch Big Backyard Ultra",
+    "name" : "Rob Hamilton",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - RSA",
+    "name" : "Rapelang Kgaje",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "South Africa",
+    "wa" : "W",
+    "best_yards" : 32
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Suffolk Backyard Ultra Festival",
+    "name" : "Wade, Adam",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "31/01/2026",
+    "race" : "Leopard’s Hill Back Yard Ultra",
+    "name" : "Kgomotso Moyo",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "South Africa",
+    "wa" : "W",
+    "best_yards" : 31
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - RSA",
+    "name" : "Thembinkosi Sojola",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "South Africa",
+    "wa" : "A",
+    "best_yards" : 31
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Sydney's Backyard Ultra",
+    "name" : "Christopher Stobbs",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "26/06/2026",
+    "race" : "Kent Backyard Ultra – Bedgebury",
+    "name" : "Jacques Smit",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "South Africa",
+    "wa" : "A",
+    "best_yards" : 29
+  }, {
+    "date" : "16/08/2025",
+    "race" : "Van Gaalen Backyard Ultra",
+    "name" : "Etienne Louw",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "South Africa",
+    "wa" : "A",
+    "best_yards" : 27
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - RSA",
+    "name" : "Fergus O'Brien",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Van Gaalen Backyard Ultra",
+    "name" : "lloyd Sithole",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "South Africa",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Living Colour Backyard Ultra",
+    "name" : "William Barrett",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "South Africa",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "18/07/2026",
+    "race" : "Brandberg Backyard Ultra",
+    "name" : "Kim Sonntag",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "South Africa",
+    "wa" : "A",
+    "best_yards" : 25
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - RSA",
+    "name" : "Jaco Ebertsohn",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - RSA",
+    "name" : "Riaan Barnard",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - RSA",
+    "name" : "Riaan Ludick",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Potch Big Backyard Ultra",
+    "name" : "Ian Smith",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "10/05/2025",
+    "race" : "Best Dam Backyard Ultra",
+    "name" : "Sebastian Potgieter",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Sydney's Backyard Ultra",
+    "name" : "Jason Rademan",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "15/05/2026",
+    "race" : "No Time To Die Frontyard Ultra",
+    "name" : "James Naughton",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "South Africa",
+    "wa" : "",
+    "best_yards" : 24
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Sean Sandiford",
+    "manager_email" : "sean@wannado.co.za"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

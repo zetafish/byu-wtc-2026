@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Germany",
+  "rows" : [ {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Hendrik Boury",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 100,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 100
+  }, {
+    "date" : "14/08/2026",
+    "race" : "Last Soul Ultra",
+    "name" : "Norman Mascher-Aspensjoe",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 80,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 80
+  }, {
+    "date" : "14/08/2026",
+    "race" : "Last Soul Ultra",
+    "name" : "Martin Stiller",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 66,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 66
+  }, {
+    "date" : "11/07/2026",
+    "race" : "O-SEE Backyard Ultra",
+    "name" : "Niko Langner",
+    "rank" : 4,
+    "status" : "Silver Ticket",
+    "yards" : 61,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 61
+  }, {
+    "date" : "11/07/2026",
+    "race" : "O-SEE Backyard Ultra",
+    "name" : "Markus Habermann",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 59,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 59
+  }, {
+    "date" : "14/08/2026",
+    "race" : "Last Soul Ultra",
+    "name" : "Dennis Musche",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 54
+  }, {
+    "date" : "13/06/2026",
+    "race" : "Biber Backyard Ultra",
+    "name" : "Jannik Giesen",
+    "rank" : 7,
+    "status" : "Silver Ticket",
+    "yards" : 53,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 53
+  }, {
+    "date" : "14/08/2026",
+    "race" : "Last Soul Ultra",
+    "name" : "Adrian Groeschner",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 53,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 53
+  }, {
+    "date" : "13/06/2026",
+    "race" : "Biber Backyard Ultra",
+    "name" : "Philip Mete",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 52,
+    "country" : "Germany",
+    "wa" : "A",
+    "best_yards" : 52
+  }, {
+    "date" : "12/09/2025",
+    "race" : "Bienwald Backyard Ultra",
+    "name" : "Marius Seith",
+    "rank" : 10,
+    "status" : "Silver Ticket",
+    "yards" : 49,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 49
+  }, {
+    "date" : "13/03/2026",
+    "race" : "Herdy’s Frontyard Ultra",
+    "name" : "Alexander Schult",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 49,
+    "country" : "Germany",
+    "wa" : "A",
+    "best_yards" : 49
+  }, {
+    "date" : "14/08/2026",
+    "race" : "Last Soul Ultra",
+    "name" : "Luis Vesely",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 49,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 49
+  }, {
+    "date" : "31/07/2026",
+    "race" : "Bienwald Backyard Ultra",
+    "name" : "Agca, Devin",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 45,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 45
+  }, {
+    "date" : "21/03/2026",
+    "race" : "Backyard Ultra I THE LAST LAP – Goldach (SG)",
+    "name" : "Matthias Voelkel",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Germany",
+    "wa" : "A",
+    "best_yards" : 42
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Katzwanger BACKYARD ULTRA aka “Der KUCKUCKSUHRESLAUF”",
+    "name" : "Jörn Schlag",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 30,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 30
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - GER",
+    "name" : "Andrea Mehner",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 42
+  }, {
+    "date" : "25/10/2025",
+    "race" : "Weserbergland Backyard Ultra",
+    "name" : "Adrian Rewig",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 41,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 41
+  }, {
+    "date" : "12/07/2025",
+    "race" : "Laufhaus Backyard Ultra",
+    "name" : "Ulrich Trodler",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 40,
+    "country" : "Germany",
+    "wa" : "W",
+    "best_yards" : 40
+  }, {
+    "date" : "25/10/2025",
+    "race" : "Weserbergland Backyard Ultra",
+    "name" : "Christian Jakl",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 40,
+    "country" : "Germany",
+    "wa" : "A",
+    "best_yards" : 40
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Last Rabbit Standing Backyard Ultra",
+    "name" : "Manfred Schott",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 40,
+    "country" : "Germany",
+    "wa" : "A",
+    "best_yards" : 40
+  }, {
+    "date" : "11/07/2026",
+    "race" : "O-SEE Backyard Ultra",
+    "name" : "Justus Fechner",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 40,
+    "country" : "Germany",
+    "wa" : "",
+    "best_yards" : 40
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Michael Schlamann",
+    "manager_email" : "biberbackyard@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

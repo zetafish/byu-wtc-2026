@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Mauritius",
+  "rows" : [ {
+    "date" : "05/06/2025",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Clement Deffrenne",
+    "rank" : 1,
+    "status" : "Silver Ticket",
+    "yards" : 26,
+    "country" : "Mauritius",
+    "wa" : "W",
+    "best_yards" : 26
+  }, {
+    "date" : "05/06/2025",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Bryan Martin",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "05/06/2025",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Allan parisot",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Dominique mootealoo",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "05/06/2025",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Daniel ricaud",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 14,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 14
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Guillaume Kiecken",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Kuldeep domun",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Raymond Kok Shun",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 11,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Desire Larosee",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 11,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "05/06/2025",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Johan Sury",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 11,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Nishant chavan",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 10,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Ashvin seewoolall",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 10,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Kenny etiennette",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 9,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 9
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Marieyanna prosper",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 9,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 9
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Yannick martin",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 9,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 9
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Nathalie jauffret",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 5,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 5
+  }, {
+    "date" : "05/09/2025",
+    "race" : "The Loop Backyard Ultra Mauritius",
+    "name" : "Jean-Marc Rivet",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 14,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 14
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Christophe debaritault",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 8,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 8
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Julien lafrésière",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 8,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 8
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Theo thomas",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 8,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 8
+  }, {
+    "date" : "05/06/2026",
+    "race" : "Hug The Backyard Ultra Mauritius",
+    "name" : "Tony ngchit",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 8,
+    "country" : "Mauritius",
+    "wa" : "",
+    "best_yards" : 8
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Jean-Marc Rivet",
+    "manager_email" : "jmrivet70@yahoo.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

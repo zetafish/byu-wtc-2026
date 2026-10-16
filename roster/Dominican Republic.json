@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Dominican Republic",
+  "rows" : [ {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Livio Feliz",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "Dominican Republic",
+    "wa" : "W",
+    "best_yards" : 29
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Jorge Camilo",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 23,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 23
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Ivan Ortega",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 19,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 19
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Daiyi Shiguetome",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 18,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 18
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Cristian Minaya",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Carlos Ovalle",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Yeirys Soto",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Juan Perez",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Pedro Taveras",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Simon Cepeda",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Joan Gomez",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Jose Santos",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Rodrigo Farach Aldana",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Luis Antonio De León Encarnación",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Lucas Gaitán",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Bernardo De Jesús",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 12,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Esteban Gabriel Senna",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 7,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 7
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Randy Alexander Minaya Cubilete",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 0,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Ramón Torentino",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 0,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Cristhian Arroyo",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 0,
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Dominican Republic",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Cristian R. Arroyo López",
+    "manager_email" : "carroyo.cr@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

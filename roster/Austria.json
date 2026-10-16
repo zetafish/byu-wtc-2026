@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Austria",
+  "rows" : [ {
+    "date" : "30/05/2026",
+    "race" : "Austria Backyard Ultra – Loosdorf TRAIL",
+    "name" : "Stefan Wilfinger",
+    "rank" : 1,
+    "status" : "Silver Ticket",
+    "yards" : 27,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 75
+  }, {
+    "date" : "20/06/2026",
+    "race" : "Austria Backyard Ultra – Frankenmarkt",
+    "name" : "Sandra Gasser",
+    "rank" : 2,
+    "status" : "Silver Ticket",
+    "yards" : 41,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 41
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - AUT",
+    "name" : "Adrian Mirtl",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Austria",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "20/06/2026",
+    "race" : "Austria Backyard Ultra – Frankenmarkt",
+    "name" : "Kathrin Polke",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Austria",
+    "wa" : "A",
+    "best_yards" : 40
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - AUT",
+    "name" : "Markus Schieder",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Austria Backyard Ultra – Amstetten",
+    "name" : "Norbert Lüftenegger",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - AUT",
+    "name" : "Alexander Stummvoll",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Dolomites Last Loop",
+    "name" : " Stanic, Raphael",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "28/06/2025",
+    "race" : "Austria Backyard Ultra - Frankenmarkt",
+    "name" : "Klemens Huemer",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Austria Backyard Ultra – Amstetten",
+    "name" : "Fabio Tiani",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Austria",
+    "wa" : "A",
+    "best_yards" : 37
+  }, {
+    "date" : "31/05/2025",
+    "race" : "BackyardUltra Livata (Roma)",
+    "name" : "Angelika Huemer-Toff",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 37
+  }, {
+    "date" : "04/10/2025",
+    "race" : "Austria Backyard Ultra - Wagendorf",
+    "name" : "Kurt Steinhofer",
+    "rank" : 12,
+    "status" : "Silver Ticket",
+    "yards" : 32,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 35
+  }, {
+    "date" : "11/10/2025",
+    "race" : "Austria Backyard Ultra – Seekirchen am Wallersee",
+    "name" : "Bernhard Herzog",
+    "rank" : 13,
+    "status" : "Silver Ticket",
+    "yards" : 34,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 34
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Austria Backyard Ultra – Kirchdorf/Tyrol",
+    "name" : "Eva-Maria Putz",
+    "rank" : 14,
+    "status" : "Silver Ticket",
+    "yards" : 32,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 32
+  }, {
+    "date" : "15/05/2026",
+    "race" : "Austria Backyard Ultra – Ternberg TRAIL",
+    "name" : "Richard Reingruber",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 18,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "10/07/2026",
+    "race" : "Austria Backyard Ultra – Wagendorf/Styria",
+    "name" : "Stephan Kohlhauser",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 35,
+    "country" : "Austria",
+    "wa" : "A",
+    "best_yards" : 35
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Winter Bay Backyard Ultra",
+    "name" : "Patrick Schnitzer",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 33,
+    "country" : "Austria",
+    "wa" : "W",
+    "best_yards" : 33
+  }, {
+    "date" : "30/08/2025",
+    "race" : "Austria Backyard Ultra – Kirchschlag near Linz",
+    "name" : "Clemens Bodingbauer",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 32,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Austria Backyard Ultra – Kirchdorf/Tyrol",
+    "name" : "Martin Ladner",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Austria",
+    "wa" : "A",
+    "best_yards" : 31
+  }, {
+    "date" : "28/06/2025",
+    "race" : "Austria Backyard Ultra - Frankenmarkt",
+    "name" : "Angela Saurugg",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Austria Backyard Ultra – Amstetten",
+    "name" : "Christian Hofer",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Austria",
+    "wa" : "",
+    "best_yards" : 31
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Norbert Luftenegger",
+    "manager_email" : "austriabackyard@gmx.at"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

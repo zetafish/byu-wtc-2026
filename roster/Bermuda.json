@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Bermuda",
+  "rows" : [ {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Jason Williams",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 42
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Florin Teleman",
+    "rank" : 2,
+    "status" : "Silver Ticket",
+    "yards" : 28,
+    "country" : "Bermuda",
+    "wa" : "W",
+    "best_yards" : 28
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Philip Woollins",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Toby Derham",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 19,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 19
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Dave Courcy",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 18,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 18
+  }, {
+    "date" : "23/02/2025",
+    "race" : "Run Bermuda's Backyard",
+    "name" : "Katie Vanner",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 18,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 18
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "James Roberts",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Richard Howells",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Claire Gemmell",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Edward Ferrari-Willis",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Jonathan Chapman",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Michelle Bergsma",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "21/02/2026",
+    "race" : "Run Bermuda’s Backyard",
+    "name" : "Miles Smith",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "22/02/2026",
+    "race" : "Run Bermuda's Backyard",
+    "name" : "Hanah Cannon",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Mark Harris",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 13,
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Bermuda",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Andy McComb",
+    "manager_email" : "bdabackyardultra@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

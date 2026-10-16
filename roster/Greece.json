@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Greece",
+  "rows" : [ {
+    "date" : "17/01/2026",
+    "race" : "Cretan Backyard Ultra greece",
+    "name" : "Georgios Kougioumtzis",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Greece",
+    "wa" : "A",
+    "best_yards" : 38
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Ilias Tsaparelis",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Greece",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "17/01/2026",
+    "race" : "Cretan Backyard Ultra greece",
+    "name" : "Christos Mavrikios",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 37
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Grigorios Drakos",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Greece",
+    "wa" : "A",
+    "best_yards" : 36
+  }, {
+    "date" : "05/04/2025",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Georgios Zachariadis",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Greece",
+    "wa" : "W",
+    "best_yards" : 35
+  }, {
+    "date" : "04/04/2026",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Nikos Sfitis",
+    "rank" : 6,
+    "status" : "Silver Ticket",
+    "yards" : 34,
+    "country" : "Greece",
+    "wa" : "W",
+    "best_yards" : 34
+  }, {
+    "date" : "17/01/2026",
+    "race" : "Cretan Backyard Ultra greece",
+    "name" : "Anastasios Leonidis",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Spyros Chrysikopoulos",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Stefanos Daskalopoulos",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "04/04/2026",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Dionysios Kompothekras",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Kalliopi Passa",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "30/05/2026",
+    "race" : "Speedway Backyard Ultra",
+    "name" : "Ilias Gkrozos",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Greece",
+    "wa" : "A",
+    "best_yards" : 28
+  }, {
+    "date" : "04/04/2026",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Apostolos Salagkoudis",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "04/04/2026",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Ioannis Zacharatos",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "17/01/2026",
+    "race" : "Cretan Backyard Ultra greece",
+    "name" : "Paschalis Toumpis",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Anastasios Draganidis",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Polichronis Milonas",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "30/05/2026",
+    "race" : "Speedway Backyard Ultra",
+    "name" : "Antonis Gabas",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 27,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "05/04/2025",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Stamatios Vasilakis",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 26,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "04/04/2026",
+    "race" : "Kefalonia Backyard Ultra",
+    "name" : "Dimitrios Voutsinas",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 26,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Rodopi Backyard Ultra",
+    "name" : "Efstratios Violakis",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 26,
+    "country" : "Greece",
+    "wa" : "",
+    "best_yards" : 26
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "George Isaoui",
+    "manager_email" : "kefalonia.backyard.ultra@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Australia",
+  "rows" : [ {
+    "date" : "21/06/2025",
+    "race" : "Dead Cow Gully Backyard Ultra",
+    "name" : "Jonathan Ash",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 100,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 100
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Dan Camac",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 93,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 93
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Sydney’s Backyard Ultra Autumn",
+    "name" : "Tim Kacprzak",
+    "rank" : 3,
+    "status" : "Silver Ticket",
+    "yards" : 75,
+    "country" : "Australia",
+    "wa" : "W",
+    "best_yards" : 82
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - AUS",
+    "name" : "James Blanton",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 82,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 82
+  }, {
+    "date" : "15/05/2026",
+    "race" : "No Time To Die Frontyard Ultra",
+    "name" : "Scott Cameron",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 75,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 75
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Sydney’s Backyard Ultra Autumn",
+    "name" : "Jack Hanley",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 74,
+    "country" : "Australia",
+    "wa" : "A",
+    "best_yards" : 74
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Red’s Backyard Ultra",
+    "name" : "Barry Keem",
+    "rank" : 7,
+    "status" : "Silver Ticket",
+    "yards" : 73,
+    "country" : "Australia",
+    "wa" : "W",
+    "best_yards" : 73
+  }, {
+    "date" : "20/09/2025",
+    "race" : "GV Last Man Standing",
+    "name" : "Mathieu Dube",
+    "rank" : 8,
+    "status" : "Silver Ticket",
+    "yards" : 60,
+    "country" : "Australia",
+    "wa" : "W",
+    "best_yards" : 73
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Melbourne Frontyard Ultra",
+    "name" : "Ben Nicholls",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 72,
+    "country" : "Australia",
+    "wa" : "A",
+    "best_yards" : 72
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Red’s Backyard Ultra",
+    "name" : "Brandon-Lee Grech",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 72,
+    "country" : "Australia",
+    "wa" : "A",
+    "best_yards" : 72
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Melbourne Frontyard Ultra",
+    "name" : "Brady Nankervis",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 68,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 68
+  }, {
+    "date" : "14/08/2026",
+    "race" : "The Clint Eastwood Last One Standing",
+    "name" : "Jayden McCormack",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 68,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 68
+  }, {
+    "date" : "14/08/2026",
+    "race" : "The Clint Eastwood Last One Standing",
+    "name" : "Sam Christie",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 68,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 68
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Red’s Backyard Ultra",
+    "name" : "Jason Rantall",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 67,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 67
+  }, {
+    "date" : "13/03/2026",
+    "race" : "Herdy’s Frontyard Ultra",
+    "name" : "Colin Moulden",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 50,
+    "country" : "Australia",
+    "wa" : "W",
+    "best_yards" : 59
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - AUS",
+    "name" : "Rob Parsons",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 65,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 65
+  }, {
+    "date" : "14/08/2026",
+    "race" : "The Clint Eastwood Last One Standing",
+    "name" : "Yuko Sato",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 65,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 65
+  }, {
+    "date" : "14/08/2026",
+    "race" : "The Clint Eastwood Last One Standing",
+    "name" : "Joel Sexton",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 62,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 62
+  }, {
+    "date" : "21/06/2025",
+    "race" : "Dead Cow Gully Backyard Ultra",
+    "name" : "Holly Ranson",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 61,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 61
+  }, {
+    "date" : "14/08/2026",
+    "race" : "The Clint Eastwood Last One Standing",
+    "name" : "Jordan Nukunuku",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 61,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 61
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Melbourne Frontyard Ultra",
+    "name" : "Ross McLean",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 60,
+    "country" : "Australia",
+    "wa" : "",
+    "best_yards" : 60
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Red Barnett",
+    "manager_email" : "redsultraevents@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "France",
+  "rows" : [ {
+    "date" : "25/04/2026",
+    "race" : "Legends Backyard Belgium",
+    "name" : "Christophe Baud",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 100,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 100
+  }, {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Christophe Rouat",
+    "rank" : 2,
+    "status" : "Silver Ticket",
+    "yards" : 86,
+    "country" : "France",
+    "wa" : "W",
+    "best_yards" : 86
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - FRA",
+    "name" : "Ronan Pierre",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 80,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 80
+  }, {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Julien Pierlot",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 71,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 71
+  }, {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Thierry Grajdura",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 68,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 68
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Barjots Chatonnay",
+    "name" : "PIERRE AUBERY",
+    "rank" : 6,
+    "status" : "Silver Ticket",
+    "yards" : 67,
+    "country" : "France",
+    "wa" : "W",
+    "best_yards" : 67
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - FRA",
+    "name" : "Romain Sophys",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 67,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 67
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Barjots Chatonnay",
+    "name" : "Xuane Nguyen Tri Tuong",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 66,
+    "country" : "France",
+    "wa" : "A",
+    "best_yards" : 66
+  }, {
+    "date" : "19/06/2026",
+    "race" : "BACKYARD BACQUEVILLE EN CAUX ULTRA IN NORMANDIE",
+    "name" : "Sebastien Despas",
+    "rank" : 9,
+    "status" : "Silver Ticket",
+    "yards" : 34,
+    "country" : "France",
+    "wa" : "W",
+    "best_yards" : 65
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - FRA",
+    "name" : "Maxime Le Meitour",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 65,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 65
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Infinity Trail Backyard – Hossegor",
+    "name" : "Christophe Dagorette",
+    "rank" : 11,
+    "status" : "Silver Ticket",
+    "yards" : 63,
+    "country" : "France",
+    "wa" : "W",
+    "best_yards" : 63
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Infinity Trail Backyard – Hossegor",
+    "name" : "Fabrice Puaud",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 62,
+    "country" : "France",
+    "wa" : "A",
+    "best_yards" : 62
+  }, {
+    "date" : "25/04/2025",
+    "race" : "Infinity Trail Backyard - Hossegor",
+    "name" : "Benjamin Rascalou",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 61,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 61
+  }, {
+    "date" : "25/04/2025",
+    "race" : "Infinity Trail Backyard - Hossegor",
+    "name" : "Michaël Pinon",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 58,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 58
+  }, {
+    "date" : "31/10/2025",
+    "race" : "Chartreuse Backyard Ultra",
+    "name" : "Sonia Poutrel",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 47,
+    "country" : "France",
+    "wa" : "W",
+    "best_yards" : 47
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - FRA",
+    "name" : "Philippe Pollesel",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 53,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 53
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - FRA",
+    "name" : "Christian Mauduit",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 52,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 52
+  }, {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Xuane Nguyen",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 52,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 52
+  }, {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Xavier Messing",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 51,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 51
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Infinity Trail Backyard – Hossegor",
+    "name" : "Stephane Daudigeos",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 50,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 50
+  }, {
+    "date" : "02/10/2025",
+    "race" : "UTLMBY Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Justine Houteer-Magni",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 48,
+    "country" : "France",
+    "wa" : "",
+    "best_yards" : 48
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Benoit Laval",
+    "manager_email" : "triumvirat@chartreusebackyard.fr"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

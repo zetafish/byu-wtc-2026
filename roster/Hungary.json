@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Hungary",
+  "rows" : [ {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Fűrész Edit",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 76,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 76
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Szilard Fodor",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 59,
+    "country" : "Hungary",
+    "wa" : "A",
+    "best_yards" : 59
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Adam Kertesz",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 54
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Gurisatti Gábor",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 54
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Peter Geszti",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 54
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Sárosi Gyula",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 54
+  }, {
+    "date" : "14/06/2025",
+    "race" : "1-Way Ticket Run Backyard Ultra",
+    "name" : "Filep Ákos",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 50,
+    "country" : "Hungary",
+    "wa" : "A",
+    "best_yards" : 50
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Esztergom 2026",
+    "name" : "Keller Sándor",
+    "rank" : 8,
+    "status" : "Silver Ticket",
+    "yards" : 45,
+    "country" : "Hungary",
+    "wa" : "W",
+    "best_yards" : 45
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Esztergom 2026",
+    "name" : "Válent Sándor",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 44,
+    "country" : "Hungary",
+    "wa" : "A",
+    "best_yards" : 44
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Backyard Ultra Esztergom 2025",
+    "name" : "Nagykéri György",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Hungary",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Mihaly Blasko",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 41
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Backyard Ultra Esztergom 2025",
+    "name" : "Horváth Vilmos",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "14/06/2025",
+    "race" : "1-Way Ticket Run Backyard Ultra",
+    "name" : "Virág Pál",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "12/06/2026",
+    "race" : "1-Way Ticket Run Backyard Ultra",
+    "name" : "Győrffy András",
+    "rank" : 14,
+    "status" : "Silver Ticket",
+    "yards" : 37,
+    "country" : "Hungary",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "12/06/2026",
+    "race" : "1-Way Ticket Run Backyard Ultra",
+    "name" : "Stefán Beáta",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - HUN",
+    "name" : "Edina Hugyecz",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Esztergom 2026",
+    "name" : "Peter Nagy",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Esztergom 2026",
+    "name" : "Pócza Gábor",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Backyard Ultra Esztergom 2025",
+    "name" : "Varga Attila",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "14/06/2025",
+    "race" : "1-Way Ticket Run Backyard Ultra",
+    "name" : "Beda Szabolcs",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Ultra Esztergom 2026",
+    "name" : "Borbás Tibor Szabolcs",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Hungary",
+    "wa" : "",
+    "best_yards" : 30
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Tibor Posa",
+    "manager_email" : "esztergomitriatlon@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

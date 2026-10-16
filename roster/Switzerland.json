@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Switzerland",
+  "rows" : [ {
+    "date" : "14/05/2026",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Nima Javaheri",
+    "rank" : 1,
+    "status" : "Silver Ticket",
+    "yards" : 44,
+    "country" : "Switzerland",
+    "wa" : "W",
+    "best_yards" : 59
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SUI",
+    "name" : "Matteo Tenchio",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 58,
+    "country" : "Switzerland",
+    "wa" : "A",
+    "best_yards" : 58
+  }, {
+    "date" : "14/05/2026",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Ismael Röthlisberger",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "14/05/2026",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Marc Schneider",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SUI",
+    "name" : "Nicolas Lehmann",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "03/04/2026",
+    "race" : "Easter Backyard Ultra",
+    "name" : "Felix Stamm",
+    "rank" : 6,
+    "status" : "Silver Ticket",
+    "yards" : 37,
+    "country" : "Switzerland",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "14/05/2026",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Mona Winter",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "14/05/2026",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Doron De Wolf",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "14/08/2026",
+    "race" : "Last Soul Ultra",
+    "name" : "Pierre Biege",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "13/09/2025",
+    "race" : "Backyard Ultra I THE LAST LAP – Jegenstorf (BE)",
+    "name" : "Julian Schneckenburger",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Switzerland",
+    "wa" : "A",
+    "best_yards" : 32
+  }, {
+    "date" : "29/05/2025",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Andrea Pestoni",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "22/03/2025",
+    "race" : "Backyard Ultra Valais",
+    "name" : "Francois Gervaix",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Switzerland",
+    "wa" : "A",
+    "best_yards" : 30
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SUI",
+    "name" : "Daniel Schwitter",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - SUI",
+    "name" : "Jörg Desteffani",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "29/05/2025",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Sebastian Kopp",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "03/04/2026",
+    "race" : "Easter Backyard Ultra",
+    "name" : "Pascal Hertig",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Backyard Ultra I THE LAST LAP – Varen (VS)",
+    "name" : "Dan Sebestyen",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 29,
+    "country" : "Switzerland",
+    "wa" : "W",
+    "best_yards" : 29
+  }, {
+    "date" : "10/10/2024",
+    "race" : "Ultra Tour du Lac de Monteux Backyard Ultra",
+    "name" : "Christian Fatton",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 29,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "29/05/2025",
+    "race" : "Witiker Backyard Ultra",
+    "name" : "Xenia Braun",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 29,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "27/06/2026",
+    "race" : "Backyard Ultra I THE LAST LAP – Varen (VS)",
+    "name" : "Yves Biege",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 28,
+    "country" : "Switzerland",
+    "wa" : "A",
+    "best_yards" : 28
+  }, {
+    "date" : "13/09/2025",
+    "race" : "Backyard Ultra I THE LAST LAP – Jegenstorf (BE)",
+    "name" : "Florian Rochat",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 28,
+    "country" : "Switzerland",
+    "wa" : "",
+    "best_yards" : 28
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Carsten Drilling",
+    "manager_email" : "drilling@gmx.de"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

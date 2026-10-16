@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Brazil",
+  "rows" : [ {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Geovane Griesang",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 55,
+    "country" : "Brazil",
+    "wa" : "",
+    "best_yards" : 55
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Ate Cair As Pernas",
+    "name" : "Rafael Freitas Soares",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 54
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Ate Cair As Pernas",
+    "name" : "William Dias Touranca Ribeiro",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 53,
+    "country" : "Brazil",
+    "wa" : "A",
+    "best_yards" : 53
+  }, {
+    "date" : "31/10/2025",
+    "race" : "Vaca Backyard Ultra",
+    "name" : "Paulo Sérgio Andrade Oliveira",
+    "rank" : 4,
+    "status" : "Silver Ticket",
+    "yards" : 24,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 52
+  }, {
+    "date" : "15/08/2026",
+    "race" : "Valença-RJ Backyard Ultra",
+    "name" : "Alexsandro Pereira Alves",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 42
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Backyard da Moda S.C.C.",
+    "name" : "Altair Ferreira Lima",
+    "rank" : 6,
+    "status" : "Silver Ticket",
+    "yards" : 42,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 42
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Backyard da Moda S.C.C.",
+    "name" : "Adriana Vilela Alves da Silva",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Brazil",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "15/08/2026",
+    "race" : "Valença-RJ Backyard Ultra",
+    "name" : "DAVI RODRIGUES DOS PASSOS",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Brazil",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Backyard da Moda S.C.C.",
+    "name" : "Odilon de Jesus Leandro",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Brazil",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Backyard da Moda S.C.C.",
+    "name" : "Nauriene Brasiliano Melo Nunes",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Brazil",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "15/08/2026",
+    "race" : "Valença-RJ Backyard Ultra",
+    "name" : "Guilherme Bavaresco",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 39,
+    "country" : "Brazil",
+    "wa" : "",
+    "best_yards" : 39
+  }, {
+    "date" : "15/08/2026",
+    "race" : "Valença-RJ Backyard Ultra",
+    "name" : "LUIZ ANDRE COSTA VIANA",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 39,
+    "country" : "Brazil",
+    "wa" : "",
+    "best_yards" : 39
+  }, {
+    "date" : "13/06/2026",
+    "race" : "Backyard Ceará",
+    "name" : "Valmir Vieira Mendonça",
+    "rank" : 13,
+    "status" : "Silver Ticket",
+    "yards" : 31,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "14/03/2026",
+    "race" : "Resta 1 Backyard Ultra Pedro de Toledo-SP",
+    "name" : "David Mello de Almeida",
+    "rank" : 14,
+    "status" : "Silver Ticket",
+    "yards" : 37,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "01/05/2026",
+    "race" : "BRLos Itupeva",
+    "name" : "Osires Izaga Imenes Filho",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 28,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 34
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Palmas Backyard",
+    "name" : "Vander Melo Praxedes",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 38,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Backyard da Moda S.C.C.",
+    "name" : "Geraldo Vieira Alencar",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 38,
+    "country" : "Brazil",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "16/08/2025",
+    "race" : "Valença-RJ Backyard Ultra",
+    "name" : "Valdenir Jandosa Cordeiro",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 37,
+    "country" : "Brazil",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Palmas Backyard",
+    "name" : "Daniela Batista Alencar",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 37,
+    "country" : "Brazil",
+    "wa" : "A",
+    "best_yards" : 37
+  }, {
+    "date" : "14/03/2026",
+    "race" : "Resta 1 Backyard Ultra Pedro de Toledo-SP",
+    "name" : "Leandro Barbosa",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 36,
+    "country" : "Brazil",
+    "wa" : "A",
+    "best_yards" : 36
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Backyard da Moda S.C.C.",
+    "name" : "Antonio Marcos Paes",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 36,
+    "country" : "Brazil",
+    "wa" : "",
+    "best_yards" : 36
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Anderson",
+    "manager_email" : "asportsce@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

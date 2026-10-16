@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "United Kingdom",
+  "rows" : [ {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Sarah Perry",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 95,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 95
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Suffolk Backyard Ultra Festival",
+    "name" : "Phillips, Dave",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 65,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 65
+  }, {
+    "date" : "20/06/2026",
+    "race" : "Last One Standing Florence Court",
+    "name" : "Iain Bethune",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 64,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 64
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Suffolk Backyard Ultra Festival",
+    "name" : "Mayhew, Sam",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 64,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 64
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Matthew Blackburn",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 63,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 63
+  }, {
+    "date" : "15/05/2026",
+    "race" : "Red On Backyard Ultra",
+    "name" : "Jay Stapley",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 61,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 61
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Legends Backyard Belgium",
+    "name" : "Tal Taran",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 61,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 61
+  }, {
+    "date" : "15/05/2026",
+    "race" : "Red On Backyard Ultra",
+    "name" : "George Jones",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 60,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 60
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Scouts Honour Backyard Ultra",
+    "name" : "Rob Mallett",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 59,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 59
+  }, {
+    "date" : "18/07/2026",
+    "race" : "The Highlander Backyard, Scottish Championship.",
+    "name" : "Alex Sweet",
+    "rank" : 10,
+    "status" : "Silver Ticket",
+    "yards" : 44,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 58
+  }, {
+    "date" : "23/05/2026",
+    "race" : "God’s Own Backyard Ultra-Spring",
+    "name" : "Andrew Miles",
+    "rank" : 11,
+    "status" : "Silver Ticket",
+    "yards" : 58,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 58
+  }, {
+    "date" : "01/08/2026",
+    "race" : "Scouts Honour Backyard Ultra",
+    "name" : "James Luxton",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 58,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 58
+  }, {
+    "date" : "23/05/2026",
+    "race" : "God’s Own Backyard Ultra-Spring",
+    "name" : "Andy Wilson",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 57,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 57
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Portland Pig Backyard Ultra",
+    "name" : "Phil Marshall",
+    "rank" : 14,
+    "status" : "Silver Ticket",
+    "yards" : 46,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 46
+  }, {
+    "date" : "26/06/2026",
+    "race" : "The LONGBRIDGE 100 Backyard Ultra (Summer)",
+    "name" : "Alun Rose",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 25,
+    "country" : "United Kingdom",
+    "wa" : "W",
+    "best_yards" : 29
+  }, {
+    "date" : "23/05/2026",
+    "race" : "God’s Own Backyard Ultra-Spring",
+    "name" : "Kieron Day",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 57,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 57
+  }, {
+    "date" : "15/05/2026",
+    "race" : "Red On Backyard Ultra",
+    "name" : "Charlie Steward",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 54,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 54
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - GBR",
+    "name" : "Smith, Wayne",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 53,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 53
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Suffolk Backyard Ultra Festival",
+    "name" : "Rickwood, George",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 51,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 51
+  }, {
+    "date" : "01/03/2025",
+    "race" : "Rasselbock Backyard Ultra",
+    "name" : "Elizabeth Gatherer",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 50,
+    "country" : "United Kingdom",
+    "wa" : "A",
+    "best_yards" : 50
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Sydney’s Backyard Ultra Autumn",
+    "name" : "Darryl Tollett",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 50,
+    "country" : "United Kingdom",
+    "wa" : "",
+    "best_yards" : 50
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Eric Keeler",
+    "manager_email" : "eric@rasselbock.co.uk"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

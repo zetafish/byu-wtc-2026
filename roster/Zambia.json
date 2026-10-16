@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Zambia",
+  "rows" : [ {
+    "date" : "25/01/2025",
+    "race" : "Leopard’s Hill Back Yard Ultra",
+    "name" : "Winstone Mwale",
+    "rank" : 1,
+    "status" : "Silver Ticket",
+    "yards" : 12,
+    "country" : "Zambia",
+    "wa" : "W",
+    "best_yards" : 30
+  }, {
+    "date" : "31/01/2026",
+    "race" : "Leopard’s Hill Back Yard Ultra",
+    "name" : "Alick Mashowo",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Cosmas Bwalya",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 23,
+    "country" : "Zambia",
+    "wa" : "W",
+    "best_yards" : 23
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Trevour Muyunda",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Clifford Mwale",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 20,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 20
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Limpo Mubita",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Daniel Mwansa",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Michael Haambayi",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Yuval Cohen",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Joseph Mumba",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Maaka Sihulumi",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Bernie Smith",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 12,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 12
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Clayton Kachamba",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 10,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Eric Chapili",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 10,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Mike Kannini",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 10,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Bernard Mpundu",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Big Dog’s Satellite Championships: Team Zambia",
+    "name" : "Daniel Mwaba",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Edward Mwale",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : 10
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Zambia",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Richard Shannon",
+    "manager_email" : "rapshannon@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

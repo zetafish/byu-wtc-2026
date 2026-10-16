@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Latvia",
+  "rows" : [ {
+    "date" : "11/07/2026",
+    "race" : "O-SEE Backyard Ultra",
+    "name" : "Ritvars Kalniņš",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 60,
+    "country" : "Latvia",
+    "wa" : "A",
+    "best_yards" : 60
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "Aleksejs Bute",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Latvia",
+    "wa" : "A",
+    "best_yards" : 38
+  }, {
+    "date" : "01/03/2025",
+    "race" : "Rasselbock Backyard Ultra",
+    "name" : "Inara Jerina",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 36
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "Arturs Krumins",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - LAT",
+    "name" : "Kristaps Kanna",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Latvia",
+    "wa" : "A",
+    "best_yards" : 31
+  }, {
+    "date" : "27/09/2025",
+    "race" : "Swampman Backyard Ultra",
+    "name" : "Juris Riekstins",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - LAT",
+    "name" : "Valdis Nilovs",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "Mihails Kohanovics",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "Armands Arins",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "Janis Grikis",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "07/06/2025",
+    "race" : "Blended's Backyard Ultra",
+    "name" : "Sergejs Malins",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Latvia",
+    "wa" : "W",
+    "best_yards" : 27
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - LAT",
+    "name" : "Rihards Abolins",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Backyard Ultra \"Lusa Pedas\"",
+    "name" : "Ritvars Lerme",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - LAT",
+    "name" : "Rudolfs Auzbikis",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Backyard Ultra \"Lusa Pedas\"",
+    "name" : "Rihards Brigis",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Backyard Ultra \"Lusa Pedas\"",
+    "name" : "Aigars Opincans",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Backyard Ultra \"Lusa Pedas\"",
+    "name" : "Liga Rusina",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Backyard Ultra \"Lusa Pedas\"",
+    "name" : "Rolands Degro",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Backyard Ultra “Lusa Pedas”",
+    "name" : "Edgars Lapins",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Latvia",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Rudolfs Bondars",
+    "manager_email" : "rufus433@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

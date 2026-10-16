@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Ukraine",
+  "rows" : [ {
+    "date" : "17/04/2026",
+    "race" : "TTR BACKYARD ULTRA",
+    "name" : "Ievgen Nesterets",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 63,
+    "country" : "Ukraine",
+    "wa" : "A",
+    "best_yards" : 63
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - UKR",
+    "name" : "Viktoriia Nikolaienko",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Ukraine",
+    "wa" : "W",
+    "best_yards" : 33
+  }, {
+    "date" : "17/04/2026",
+    "race" : "Big Bear’s Backyard Ultra",
+    "name" : "Dmytro Storozhyk",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "31/05/2025",
+    "race" : "2. Stražunsko dvoriščkanje Backyard ultra",
+    "name" : "Stanislav Frenkel",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "17/07/2026",
+    "race" : "Backyard Ultra Polska – First & Original",
+    "name" : "Oleksii Alekseienko",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "26/06/2026",
+    "race" : "Kent Backyard Ultra – Bedgebury",
+    "name" : "Ozgur Yalcici",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 6,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - UKR",
+    "name" : "Ramina Dadasheva",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 17,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 17
+  }, {
+    "date" : "08/05/2026",
+    "race" : "Czechia Backyard Ultra Run",
+    "name" : "Andrii Klatsunov",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Anatolii Verbivskyi",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Kseniia Svyrydova",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Serhii Bilyi",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Mykhailo Maistrenko",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Serhii Melnychuk",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Tetiana Hramatikova-Bono",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Vitalii Vladychenko",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 0,
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : 0
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Ukraine",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Viktoriia Nikolaienko",
+    "manager_email" : "brvvika@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

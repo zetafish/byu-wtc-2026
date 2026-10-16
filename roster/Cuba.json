@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Cuba",
+  "rows" : [ {
+    "date" : "19/06/2026",
+    "race" : "II Backyard Valdetorres “El reto”",
+    "name" : "RAMON ARCEO RODRIGUEZ",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Jan Carlos Nunez Garcia",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Cuba",
+    "wa" : "W",
+    "best_yards" : 22
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Luis Edel Iglesias Calzadillas",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Cuba",
+    "wa" : "A",
+    "best_yards" : 21
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Eduardo Rodriguez Rodriguez",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Cuba",
+    "wa" : "A",
+    "best_yards" : 21
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Marcel Iglesias Llorens",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 18,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 18
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Yayabo’s Backyard",
+    "name" : "Dirvan Duarte Rodriguez",
+    "rank" : 6,
+    "status" : "Silver Ticket",
+    "yards" : 15,
+    "country" : "Cuba",
+    "wa" : "W",
+    "best_yards" : 17
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Omar Mendoza de Lara",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Guillermo David Pelayo Miller",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 16,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 16
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Jorge Enrique Meneses Bernal",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Higinio Contrera Zuniga",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Chavely Calero Gonzalez",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Juan Alberto Trisa Bustamante",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Duniesky Suarez Porte",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 15,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 15
+  }, {
+    "date" : "05/12/2025",
+    "race" : "Yayabo’s Backyard",
+    "name" : "Leandro Carreño Rojas",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 14,
+    "country" : "Cuba",
+    "wa" : "A",
+    "best_yards" : 14
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Daylon Guerra Ramos",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 14,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 14
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard",
+    "name" : "Yamir Carmenate Beoto",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 14,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 14
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "German Barroso Abreu",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 13,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "20/09/2024",
+    "race" : "I Yayabo’s Backyard",
+    "name" : "Julio Pelaez Díaz",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 13,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 13
+  }, {
+    "date" : "24/04/2026",
+    "race" : "Havana Backyard Ultra",
+    "name" : "Marcos Rodríguez",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 11,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "20/09/2024",
+    "race" : "I Yayabo’s Backyard",
+    "name" : "Gil Ricardo López Seijo",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 11,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 11
+  }, {
+    "date" : "20/09/2024",
+    "race" : "I Yayabo’s Backyard",
+    "name" : "Juan Ramón Martínez Padrón",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 10,
+    "country" : "Cuba",
+    "wa" : "",
+    "best_yards" : 10
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Jorge Enrique Meneses Bernal",
+    "manager_email" : "jorgee.meneses1968@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

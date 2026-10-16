@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Poland",
+  "rows" : [ {
+    "date" : "26/04/2025",
+    "race" : "Legends Backyard Belgium",
+    "name" : "Łukasz Wróbel",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 116,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 116
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Tomasz Cyganski",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 72,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 72
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - POL",
+    "name" : "Pawel Pszczolkowski",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 67,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 67
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Michał Sitarek",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 67,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 67
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Sebastian Sikora",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 67,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 67
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Bartosz Fudali",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 61,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 61
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Sowi BackYard Ultra",
+    "name" : "Mateusz Tatara",
+    "rank" : 7,
+    "status" : "Silver Ticket",
+    "yards" : 48,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 57
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Backyard Ultra Piekielki",
+    "name" : "Grzegorz Sułek",
+    "rank" : 8,
+    "status" : "Silver Ticket",
+    "yards" : 52,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 56
+  }, {
+    "date" : "17/07/2026",
+    "race" : "Backyard Ultra Polska – First & Original",
+    "name" : "Aleksander Kowalik",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 56,
+    "country" : "Poland",
+    "wa" : "A",
+    "best_yards" : 56
+  }, {
+    "date" : "18/07/2025",
+    "race" : "Backyard Ultra Polska",
+    "name" : "Andrzej Pawlak",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 55,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 55
+  }, {
+    "date" : "17/07/2026",
+    "race" : "Backyard Ultra Polska – First & Original",
+    "name" : "Mateusz Bucholc",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 55,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 55
+  }, {
+    "date" : "18/07/2025",
+    "race" : "Backyard Ultra Polska",
+    "name" : "Jarosław Gil",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Poland",
+    "wa" : "A",
+    "best_yards" : 54
+  }, {
+    "date" : "20/03/2026",
+    "race" : "Backyard Ultra Warmia",
+    "name" : "Piotr Szymański",
+    "rank" : 13,
+    "status" : "Silver Ticket",
+    "yards" : 53,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 53
+  }, {
+    "date" : "20/03/2026",
+    "race" : "Backyard Ultra Warmia",
+    "name" : "Krzysztof Kowalski",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 52,
+    "country" : "Poland",
+    "wa" : "A",
+    "best_yards" : 52
+  }, {
+    "date" : "15/05/2026",
+    "race" : "Backyard Ultra Jablonna",
+    "name" : "Norbert Marczuk",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 51,
+    "country" : "Poland",
+    "wa" : "A",
+    "best_yards" : 51
+  }, {
+    "date" : "06/06/2026",
+    "race" : "Backyard Ultra Piekielki",
+    "name" : "Mariusz Michno",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 51,
+    "country" : "Poland",
+    "wa" : "A",
+    "best_yards" : 51
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - POL",
+    "name" : "Wincenty Korczak",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 48,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 48
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Sowi BackYard Ultra",
+    "name" : "Maciej Rauer",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 47,
+    "country" : "Poland",
+    "wa" : "A",
+    "best_yards" : 47
+  }, {
+    "date" : "01/05/2026",
+    "race" : "Sowi BackYard Ultra",
+    "name" : "Marta Witke-Orlikowska",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 45,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 45
+  }, {
+    "date" : "18/07/2025",
+    "race" : "Backyard Ultra Polska",
+    "name" : "Kornel Miszczak",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 44,
+    "country" : "Poland",
+    "wa" : "",
+    "best_yards" : 44
+  }, {
+    "date" : "27/09/2024",
+    "race" : "Backyard Ultra Rospuda",
+    "name" : "Piotr Łuszcz",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "Poland",
+    "wa" : "W",
+    "best_yards" : 42
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Pawel Zuk",
+    "manager_email" : "pawel.zuk1@op.pl"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

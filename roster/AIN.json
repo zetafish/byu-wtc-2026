@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "AIN",
+  "rows" : [ {
+    "date" : "25/07/2025",
+    "race" : "Backyard Biotropika Ultra Trail",
+    "name" : "Ivan Zaborsky",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 106,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 106
+  }, {
+    "date" : "25/07/2025",
+    "race" : "Backyard Biotropika Ultra Trail",
+    "name" : "Michael Zaruba",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 94,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 94
+  }, {
+    "date" : "25/07/2025",
+    "race" : "Backyard Biotropika Ultra Trail",
+    "name" : "Alexey Belousov",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 86,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 86
+  }, {
+    "date" : "25/07/2025",
+    "race" : "Backyard Biotropika Ultra Trail",
+    "name" : "Vadim Sharkov",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 85,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 85
+  }, {
+    "date" : "07/03/2026",
+    "race" : "Mari Forest Run: March",
+    "name" : "Viktor Mynza",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 83,
+    "country" : "AIN",
+    "wa" : "A",
+    "best_yards" : 83
+  }, {
+    "date" : "13/09/2025",
+    "race" : "Derzhis v Derzhavino",
+    "name" : "Dmitry Sheremet",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 81,
+    "country" : "AIN",
+    "wa" : "A",
+    "best_yards" : 81
+  }, {
+    "date" : "30/05/2026",
+    "race" : "St.Petersburg Backyard Ultra",
+    "name" : "Dimitrii Romanyuk",
+    "rank" : 7,
+    "status" : "Silver Ticket",
+    "yards" : 78,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 78
+  }, {
+    "date" : "30/05/2026",
+    "race" : "St.Petersburg Backyard Ultra",
+    "name" : "Vadim Kniazev",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 70,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 70
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Mari Forest Run: May",
+    "name" : "Kirill Bykov",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 66,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 66
+  }, {
+    "date" : "13/09/2025",
+    "race" : "Derzhis v Derzhavino",
+    "name" : "Vera Chekalina",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 64,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 64
+  }, {
+    "date" : "25/07/2025",
+    "race" : "Backyard Biotropika Ultra Trail",
+    "name" : "Evgeniy Golubchikov",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 58,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 58
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Mari Forest Run: May",
+    "name" : "Evgeniy Odnorog",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 58,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 58
+  }, {
+    "date" : "16/05/2026",
+    "race" : "Ural Backyard Ultra",
+    "name" : "Vitaliy Pushkarev",
+    "rank" : 13,
+    "status" : "Silver Ticket",
+    "yards" : 27,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 53
+  }, {
+    "date" : "23/08/2025",
+    "race" : "Backyard Ultra Istra",
+    "name" : "Andrei Chernyakov",
+    "rank" : 14,
+    "status" : "Silver Ticket",
+    "yards" : 49,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 49
+  }, {
+    "date" : "06/12/2025",
+    "race" : "Ural Backyard Ultra Зима",
+    "name" : "Ildar Kamaletdinov",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 45,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 45
+  }, {
+    "date" : "15/08/2026",
+    "race" : "Derzhis v Derzhavino",
+    "name" : "Nikolai Ianalov",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 45,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 45
+  }, {
+    "date" : "15/08/2026",
+    "race" : "Derzhis v Derzhavino",
+    "name" : "Vladimir Petiakov",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 44,
+    "country" : "AIN",
+    "wa" : "A",
+    "best_yards" : 44
+  }, {
+    "date" : "28/09/2024",
+    "race" : "Moscow Backyard Ultra",
+    "name" : "Ilia Goman",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 42
+  }, {
+    "date" : "08/03/2025",
+    "race" : "Backyard Ultra-Mari Forest Run",
+    "name" : "Vladimir Bystrov",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "AIN",
+    "wa" : "W",
+    "best_yards" : 42
+  }, {
+    "date" : "07/03/2026",
+    "race" : "Mari Forest Run: March",
+    "name" : "Nikolay Isaev",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 42
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Mari Forest Run: May",
+    "name" : "Dmitry Shilov",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "AIN",
+    "wa" : "",
+    "best_yards" : 42
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "",
+    "manager_email" : ""
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

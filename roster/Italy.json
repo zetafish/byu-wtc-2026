@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Italy",
+  "rows" : [ {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ITA",
+    "name" : "Vito Intini",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "Italy",
+    "wa" : "A",
+    "best_yards" : 54
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ITA",
+    "name" : "Vittorio Silva",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 46,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 46
+  }, {
+    "date" : "25/10/2025",
+    "race" : "L’immortale",
+    "name" : "alessandro Gomiero",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "25/10/2025",
+    "race" : "L’immortale",
+    "name" : "Elsie Cargniel Bergamasco",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "14/03/2026",
+    "race" : "L’Ultimo Sopravvissuto – Castellaneta",
+    "name" : "Massimiliano Imperi",
+    "rank" : 5,
+    "status" : "Silver Ticket",
+    "yards" : 38,
+    "country" : "Italy",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "23/05/2026",
+    "race" : "Dolomites Last Loop",
+    "name" : " Matteazzi, Marco",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "01/08/2026",
+    "race" : "THE LAST BEACH",
+    "name" : "Edoardo Crisostomi",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Italy",
+    "wa" : "A",
+    "best_yards" : 37
+  }, {
+    "date" : "01/08/2026",
+    "race" : "THE LAST BEACH",
+    "name" : "Giuseppe Matteucci",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Italy",
+    "wa" : "A",
+    "best_yards" : 37
+  }, {
+    "date" : "30/05/2026",
+    "race" : "BackyardUltra Livata (Roma)",
+    "name" : "Giuliano Zaccaria",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 37
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Francigena",
+    "name" : "Andrea Amato",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Italy",
+    "wa" : "W",
+    "best_yards" : 36
+  }, {
+    "date" : "30/05/2026",
+    "race" : "BackyardUltra Livata (Roma)",
+    "name" : "Antea Pellegrino",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 36
+  }, {
+    "date" : "30/05/2026",
+    "race" : "BackyardUltra Livata (Roma)",
+    "name" : "FABIO CATTELAN",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 36
+  }, {
+    "date" : "26/10/2024",
+    "race" : "Backyard L'Immortale Monselice",
+    "name" : "Giancarlo Racca",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Italy",
+    "wa" : "W",
+    "best_yards" : 35
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Backyard Francigena",
+    "name" : "Alex Giovannetti",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Italy",
+    "wa" : "A",
+    "best_yards" : 35
+  }, {
+    "date" : "25/10/2025",
+    "race" : "L’immortale",
+    "name" : "Cesare Mauri",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "25/10/2025",
+    "race" : "L’immortale",
+    "name" : "Davide Giribaldi",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 35,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "26/10/2024",
+    "race" : "Backyard L'Immortale Monselice",
+    "name" : " Marzorati, Roldano",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 34,
+    "country" : "Italy",
+    "wa" : "A",
+    "best_yards" : 34
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ITA",
+    "name" : "Matteo Pieri",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 34,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 34
+  }, {
+    "date" : "25/10/2025",
+    "race" : "L’immortale",
+    "name" : "CORRADI FRANCESCO",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 33,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - ITA",
+    "name" : "Mattia Colzada",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 32,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "26/10/2024",
+    "race" : "Backyard L'Immortale Monselice",
+    "name" : "Davide Conardi",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 32,
+    "country" : "Italy",
+    "wa" : "",
+    "best_yards" : 32
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Demetrio Galante",
+    "manager_email" : "ggalante7208@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

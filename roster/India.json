@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "India",
+  "rows" : [ {
+    "date" : "13/09/2025",
+    "race" : "BigFoot BackYard Ultra Chandigarh",
+    "name" : "Sunil Sharma",
+    "rank" : 1,
+    "status" : "Silver Ticket",
+    "yards" : 21,
+    "country" : "India",
+    "wa" : "W",
+    "best_yards" : 52
+  }, {
+    "date" : "28/03/2026",
+    "race" : "Swarajya Backyard Ultra (स्वराज्य BU)",
+    "name" : "Ankit Sharma",
+    "rank" : 2,
+    "status" : "Silver Ticket",
+    "yards" : 32,
+    "country" : "India",
+    "wa" : "W",
+    "best_yards" : 51
+  }, {
+    "date" : "07/02/2026",
+    "race" : "India Backyard Ultra",
+    "name" : "Mitesh Vijayvargiy ",
+    "rank" : 3,
+    "status" : "Silver Ticket",
+    "yards" : 38,
+    "country" : "India",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "07/02/2026",
+    "race" : "India Backyard Ultra",
+    "name" : "Ankit Panwar",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "India",
+    "wa" : "A",
+    "best_yards" : 37
+  }, {
+    "date" : "07/02/2026",
+    "race" : "India Backyard Ultra",
+    "name" : "Ankit Kumar",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "28/03/2026",
+    "race" : "Swarajya Backyard Ultra (स्वराज्य BU)",
+    "name" : "Manoj Sundaram",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "India",
+    "wa" : "A",
+    "best_yards" : 31
+  }, {
+    "date" : "13/12/2025",
+    "race" : "BigFoot BackYard Ultra Banglore | Karnataka India",
+    "name" : "Sudipto Chowdhury",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "India",
+    "wa" : "A",
+    "best_yards" : 30
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - IND",
+    "name" : "Rajneesh Kumar",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "22/03/2025",
+    "race" : "Coimbatore Backyard Ultra",
+    "name" : "Soma Jagan Mohan Reddy",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "18/04/2026",
+    "race" : "Sydney’s Backyard Ultra Autumn",
+    "name" : "Sreekant Nair",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "07/02/2026",
+    "race" : "India Backyard Ultra",
+    "name" : "Laishram Singh",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 29
+  }, {
+    "date" : "22/03/2025",
+    "race" : "Coimbatore Backyard Ultra",
+    "name" : "Velayutham Marimuthu",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "07/02/2026",
+    "race" : "India Backyard Ultra",
+    "name" : "Ajay Kumar Agarwal",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "04/10/2025",
+    "race" : "BigFoot BackYard Ultra Pune | Maharashtra, India",
+    "name" : "PULKIT JAIN",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "India",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "28/03/2026",
+    "race" : "Swarajya Backyard Ultra (स्वराज्य BU)",
+    "name" : "Umesh Kumar",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "21/09/2024",
+    "race" : "Lavasa Backyard Ultra",
+    "name" : "Ankamma Rao Pola",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "India",
+    "wa" : "A",
+    "best_yards" : 24
+  }, {
+    "date" : "04/10/2025",
+    "race" : "BigFoot BackYard Ultra Pune | Maharashtra, India",
+    "name" : "PULKIT VERMA",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "India",
+    "wa" : "A",
+    "best_yards" : 24
+  }, {
+    "date" : "04/10/2025",
+    "race" : "Chennai Runners Bigs Backyard Ultra",
+    "name" : "Manikandan M",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "India",
+    "wa" : "A",
+    "best_yards" : 24
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - IND",
+    "name" : "Praveen Kaushik",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "22/03/2025",
+    "race" : "Coimbatore Backyard Ultra",
+    "name" : "Aravindh Ekambram",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "09/08/2025",
+    "race" : "The Clint Eastwood Last One Standing",
+    "name" : "Ullas Narayana",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "India",
+    "wa" : "",
+    "best_yards" : 24
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Lalita Sharma",
+    "manager_email" : "lalitasharma02@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

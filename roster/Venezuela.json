@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Venezuela",
+  "rows" : [ {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Juan Pacheco",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Venezuela",
+    "wa" : "W",
+    "best_yards" : 34
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Valle del Fuego",
+    "name" : "Angel Gonzáles",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Venezuela",
+    "wa" : "W",
+    "best_yards" : 33
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Gregorio Feijoo",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Venezuela",
+    "wa" : "A",
+    "best_yards" : 33
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Valle del Fuego",
+    "name" : "Harry Diaz",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Venezuela",
+    "wa" : "A",
+    "best_yards" : 32
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Valle del Fuego",
+    "name" : "José Ortega",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Venezuela",
+    "wa" : "A",
+    "best_yards" : 32
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Moises Lopez",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Valle del Fuego",
+    "name" : "Enmanuel Zambrano",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 30,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "13/09/2025",
+    "race" : "Backyard Ultra Barquisimeto",
+    "name" : "Jose Hurtado",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 29,
+    "country" : "Venezuela",
+    "wa" : "W",
+    "best_yards" : 29
+  }, {
+    "date" : "24/01/2026",
+    "race" : "Backyard Ultra Santo Domingo",
+    "name" : "Walter Parra",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Venezuela",
+    "wa" : "A",
+    "best_yards" : 28
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Luis Rojas",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 28,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 28
+  }, {
+    "date" : "05/12/2025",
+    "race" : "BackyardUltra Paraguana",
+    "name" : "Robert Alejandro Zambrano",
+    "rank" : 11,
+    "status" : "Silver Ticket",
+    "yards" : 26,
+    "country" : "Venezuela",
+    "wa" : "W",
+    "best_yards" : 27
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Lialbert Marrufo",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Marynels Morales",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - VEN",
+    "name" : "Carlos Hernandez",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 25,
+    "country" : "Venezuela",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "16/05/2025",
+    "race" : "Backyard Ultra Paraguana",
+    "name" : "Jose Hugas",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 21,
+    "country" : "Venezuela",
+    "wa" : "W",
+    "best_yards" : 25
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Valle del Fuego",
+    "name" : "Jourdi Lugo",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 25,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 25
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - VEN",
+    "name" : "Juancarlos De Jesus Stringer Ventura",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Venezuela",
+    "wa" : "A",
+    "best_yards" : 24
+  }, {
+    "date" : "05/10/2024",
+    "race" : "Garden City Backyard Ultra",
+    "name" : "Roberto Garcia",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Valle del Fuego",
+    "name" : "Alex Vazquez",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Rosana Gonzales",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "14/05/2026",
+    "race" : "BYUNEXPO Backyard Ultra Barquisimeto",
+    "name" : "Yorman Arias",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 24,
+    "country" : "Venezuela",
+    "wa" : "",
+    "best_yards" : 24
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Miguel Davila",
+    "manager_email" : "descubriendoparaguana@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

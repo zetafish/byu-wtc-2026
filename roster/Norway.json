@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Norway",
+  "rows" : [ {
+    "date" : "25/04/2026",
+    "race" : "Legends Backyard Belgium",
+    "name" : "Eivind Svellingen",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 66,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 66
+  }, {
+    "date" : "31/05/2025",
+    "race" : "BackyardUltra Livata (Roma)",
+    "name" : "Jon Asphjell",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 59,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 59
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Muruvik Backyard Ultra",
+    "name" : "Borje Cato Moen",
+    "rank" : 3,
+    "status" : "Silver Ticket",
+    "yards" : 48,
+    "country" : "Norway",
+    "wa" : "W",
+    "best_yards" : 55
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Muruvik Backyard Ultra",
+    "name" : "Nora Kojen Stubbe",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 47,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 47
+  }, {
+    "date" : "29/03/2026",
+    "race" : "Ekeberg Backyard Ultra",
+    "name" : "Joakim Melby Olsen",
+    "rank" : 5,
+    "status" : "Silver Ticket",
+    "yards" : 44,
+    "country" : "Norway",
+    "wa" : "W",
+    "best_yards" : 44
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - NOR",
+    "name" : "Harald Bjerke",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 44,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 44
+  }, {
+    "date" : "29/03/2026",
+    "race" : "Ekeberg Backyard Ultra",
+    "name" : "Knut Jensvold",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 43,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 43
+  }, {
+    "date" : "25/07/2026",
+    "race" : "Rondane Backyard Ultra",
+    "name" : "Anders Johnsen",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Norway",
+    "wa" : "W",
+    "best_yards" : 42
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Hell Backyard Ultra",
+    "name" : "Jan-Erik Steen",
+    "rank" : 9,
+    "status" : "Silver Ticket",
+    "yards" : 42,
+    "country" : "Norway",
+    "wa" : "W",
+    "best_yards" : 42
+  }, {
+    "date" : "20/09/2025",
+    "race" : "Muruvik Backyard Ultra",
+    "name" : "Arild Moen",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 42
+  }, {
+    "date" : "25/04/2026",
+    "race" : "Hell Backyard Ultra",
+    "name" : "Anette Devik Bomo",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "25/07/2026",
+    "race" : "Rondane Backyard Ultra",
+    "name" : "Tone Klevan",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 41,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 41
+  }, {
+    "date" : "12/04/2025",
+    "race" : "Sydney's Backyard Ultra",
+    "name" : "Liv Compton",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 40
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Hell Backyard Ultra",
+    "name" : "Geir Hansen",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 39,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 39
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Hagemann’s Backyard",
+    "name" : "Glenn Hjortefot Jørgensen",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 36,
+    "country" : "Norway",
+    "wa" : "W",
+    "best_yards" : 36
+  }, {
+    "date" : "21/09/2024",
+    "race" : "Muruvik Backyard Ultra",
+    "name" : "Else Overvik",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 38,
+    "country" : "Norway",
+    "wa" : "W",
+    "best_yards" : 38
+  }, {
+    "date" : "29/03/2026",
+    "race" : "Ekeberg Backyard Ultra",
+    "name" : "Henning Hanssen",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 37,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 37
+  }, {
+    "date" : "02/05/2026",
+    "race" : "Hagemann’s Backyard",
+    "name" : "Hilmar Kraakenes",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 35,
+    "country" : "Norway",
+    "wa" : "A",
+    "best_yards" : 35
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Hell Backyard Ultra",
+    "name" : "Morten Auset",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 35,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "29/03/2026",
+    "race" : "Ekeberg Backyard Ultra",
+    "name" : "Tiril Lindberg",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 35,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 35
+  }, {
+    "date" : "29/03/2026",
+    "race" : "Ekeberg Backyard Ultra",
+    "name" : "Erik Martensson",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 34,
+    "country" : "Norway",
+    "wa" : "",
+    "best_yards" : 34
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Jon Asphjell",
+    "manager_email" : "jonnyaspen@gmail.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "New Zealand",
+  "rows" : [ {
+    "date" : "21/06/2025",
+    "race" : "Dead Cow Gully Backyard Ultra",
+    "name" : "Sam Harvey",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 118,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 118
+  }, {
+    "date" : "21/06/2025",
+    "race" : "Dead Cow Gully Backyard Ultra",
+    "name" : "Simon Mclean",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 90,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 90
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - NZL",
+    "name" : "John Bayne",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 72,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 72
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - NZL",
+    "name" : "Jeremy Pelvin",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 65,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 65
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Alexandra Airport Carousel BYU",
+    "name" : "Kieran Philip",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 56,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 56
+  }, {
+    "date" : "17/01/2026",
+    "race" : "M*A*S*H Backyard Ultra",
+    "name" : "Macee Latimer",
+    "rank" : 6,
+    "status" : "Silver Ticket",
+    "yards" : 55,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 55
+  }, {
+    "date" : "11/04/2026",
+    "race" : "Alexandra Airport Carousel BYU",
+    "name" : "Brion Matthews",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 55,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 55
+  }, {
+    "date" : "17/01/2026",
+    "race" : "M*A*S*H Backyard Ultra",
+    "name" : "Daniel Beswick",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 54,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 54
+  }, {
+    "date" : "21/06/2025",
+    "race" : "Dead Cow Gully Backyard Ultra",
+    "name" : "Jane McAlpine",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 53,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 53
+  }, {
+    "date" : "17/01/2026",
+    "race" : "M*A*S*H Backyard Ultra",
+    "name" : "Anthony Kerr-Taylor",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 52,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 52
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - NZL",
+    "name" : "Julia Chamberlain",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 51,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 51
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Best Dam Backyard Ultra",
+    "name" : "Tom Turtle",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 45,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 45
+  }, {
+    "date" : "11/07/2026",
+    "race" : "Krayzie Midwinter Backyard Ultra",
+    "name" : "Milan Chick",
+    "rank" : 13,
+    "status" : "Silver Ticket",
+    "yards" : 43,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 43
+  }, {
+    "date" : "28/03/2026",
+    "race" : "The Riverhead Backyard ReLaps Ultra",
+    "name" : "Matt Radford",
+    "rank" : 14,
+    "status" : "Silver Ticket",
+    "yards" : 37,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "14/02/2026",
+    "race" : "Pigs Backyard Ultra",
+    "name" : "Theo Atkinson",
+    "rank" : 15,
+    "status" : "Silver Ticket",
+    "yards" : 29,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 30
+  }, {
+    "date" : "09/11/2024",
+    "race" : "Arrowtown Backyard Ultra",
+    "name" : "Josh Hastie",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 44,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 44
+  }, {
+    "date" : "05/07/2025",
+    "race" : "Krayzie Midwinter Backyard Ultra",
+    "name" : "Connor Aldridge",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 43,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 43
+  }, {
+    "date" : "19/10/2024",
+    "race" : "Backyard Ultra - World Team Championship 2024 - NZL",
+    "name" : "Chris Taylor",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 43,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 43
+  }, {
+    "date" : "09/05/2026",
+    "race" : "Best Dam Backyard Ultra",
+    "name" : "Hunter Wight",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 43,
+    "country" : "New Zealand",
+    "wa" : "",
+    "best_yards" : 43
+  }, {
+    "date" : "05/07/2025",
+    "race" : "Krayzie Midwinter Backyard Ultra",
+    "name" : "Jono Pinckney",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 42,
+    "country" : "New Zealand",
+    "wa" : "A",
+    "best_yards" : 42
+  }, {
+    "date" : "31/05/2025",
+    "race" : "Kings Backyard Ultra",
+    "name" : "Troy Field",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 40,
+    "country" : "New Zealand",
+    "wa" : "W",
+    "best_yards" : 40
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Shaun Collins",
+    "manager_email" : "shaun@lacticturkey.co.nz"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

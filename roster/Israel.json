@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Israel",
+  "rows" : [ {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Dudu Dano",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 40,
+    "country" : "Israel",
+    "wa" : "W",
+    "best_yards" : 40
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Mikhail Oshurkov",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 39,
+    "country" : "Israel",
+    "wa" : "A",
+    "best_yards" : 39
+  }, {
+    "date" : "17/04/2026",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Ido Dassa",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Israel",
+    "wa" : "A",
+    "best_yards" : 38
+  }, {
+    "date" : "11/07/2026",
+    "race" : "O-SEE Backyard Ultra",
+    "name" : "Shine Bar",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 38,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 38
+  }, {
+    "date" : "26/04/2025",
+    "race" : "Backyard Ultra Esztergom 2025",
+    "name" : "Ariel Rozenfeld",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "17/04/2026",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Asaf Ayalon",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "17/04/2026",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Eliyahu Talker",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 27,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 27
+  }, {
+    "date" : "11/07/2026",
+    "race" : "O-SEE Backyard Ultra",
+    "name" : "Yair Raman",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 26,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 26
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Pavel Gontsov",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 24,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 24
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Eyal Zamir",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Ohad Israel",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 22,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 22
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Ofer Regev",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 21
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Oren Nehbas",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 21
+  }, {
+    "date" : "25/09/2025",
+    "race" : "HOLYLAND BACKYARD ULTRA",
+    "name" : "Oren Nogradi",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 21,
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : 21
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "Stas Khalepski",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  }, {
+    "date" : "",
+    "race" : "",
+    "name" : "",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : "",
+    "country" : "Israel",
+    "wa" : "",
+    "best_yards" : ""
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Yair Raman Adv",
+    "manager_email" : "yair@raman.co.il"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}

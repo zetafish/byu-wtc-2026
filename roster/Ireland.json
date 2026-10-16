@@ -1,0 +1,223 @@
+{
+  "countries" : [ "Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bermuda", "Bolivia", "Brazil", "Brunei", "Bulgaria", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Czechia", "Côte d’Ivoire", "Denmark", "Dominican Republic", "Ecuador", "Estonia", "Finland", "France", "Germany", "Greece", "Guatemala", "Hungary", "Iceland", "India", "Ireland", "Israel", "Italy", "Japan", "Kenya", "Latvia", "Lithuania", "Malaysia", "Malta", "Mauritius", "Mexico", "Morocco", "Namibia", "Nepal", "Netherlands", "New Zealand", "Norway", "Pakistan", "Paraguay", "Philippines", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland", "Taipei", "Tajikistan", "Turkey", "Ukraine", "United Kingdom", "United States of America", "Uruguay", "Venezuela", "Zambia", "AIN" ],
+  "country" : "Ireland",
+  "rows" : [ {
+    "date" : "20/06/2026",
+    "race" : "Last One Standing Florence Court",
+    "name" : "Wayne McGuigan",
+    "rank" : 1,
+    "status" : "At Large List",
+    "yards" : 50,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 50
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Peter Johnston",
+    "rank" : 2,
+    "status" : "At Large List",
+    "yards" : 42,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 42
+  }, {
+    "date" : "22/02/2025",
+    "race" : "Florence Court Last One Standing",
+    "name" : "Patrick Gallagher",
+    "rank" : 3,
+    "status" : "At Large List",
+    "yards" : 37,
+    "country" : "Ireland",
+    "wa" : "W",
+    "best_yards" : 37
+  }, {
+    "date" : "18/10/2025",
+    "race" : "Big Dog\\'s Backyard Individual World Championship",
+    "name" : "Jivee Tolentino",
+    "rank" : 4,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 36
+  }, {
+    "date" : "20/06/2026",
+    "race" : "Last One Standing Florence Court",
+    "name" : "Joey Feery",
+    "rank" : 5,
+    "status" : "At Large List",
+    "yards" : 36,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 36
+  }, {
+    "date" : "30/05/2026",
+    "race" : "Western Yards Backyard Ultra",
+    "name" : "Colin Dockery",
+    "rank" : 6,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Ireland",
+    "wa" : "W",
+    "best_yards" : 35
+  }, {
+    "date" : "04/04/2026",
+    "race" : "Hellevation Last One Standing",
+    "name" : "Lonan O Farrell",
+    "rank" : 7,
+    "status" : "At Large List",
+    "yards" : 35,
+    "country" : "Ireland",
+    "wa" : "A",
+    "best_yards" : 35
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Kenneth Crinnion",
+    "rank" : 8,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Ireland",
+    "wa" : "A",
+    "best_yards" : 34
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Vincent McMath",
+    "rank" : 9,
+    "status" : "At Large List",
+    "yards" : 34,
+    "country" : "Ireland",
+    "wa" : "A",
+    "best_yards" : 34
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Diarmuid O Shea",
+    "rank" : 10,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Stephen Patterson",
+    "rank" : 11,
+    "status" : "At Large List",
+    "yards" : 33,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 33
+  }, {
+    "date" : "28/03/2026",
+    "race" : "Rasselbock BYU: Sherwood Pines",
+    "name" : "Anne Crawford",
+    "rank" : 12,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Cian Nugent",
+    "rank" : 13,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "30/05/2026",
+    "race" : "Dead Cow Gully Backyard Ultra",
+    "name" : "Stephen Machale",
+    "rank" : 14,
+    "status" : "At Large List",
+    "yards" : 32,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 32
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Kelly Ryan",
+    "rank" : 15,
+    "status" : "At Large List",
+    "yards" : 31,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Michael McSweeney",
+    "rank" : 16,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Sam Hand",
+    "rank" : 17,
+    "status" : "Reserve",
+    "yards" : 31,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 31
+  }, {
+    "date" : "14/03/2026",
+    "race" : "I’m Still Standing Sydney",
+    "name" : "Mark Johnston",
+    "rank" : 18,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "30/05/2026",
+    "race" : "Western Yards Backyard Ultra",
+    "name" : "John Gordon",
+    "rank" : 19,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "20/06/2026",
+    "race" : "Last One Standing Florence Court",
+    "name" : "David Murphy",
+    "rank" : 20,
+    "status" : "Reserve",
+    "yards" : 30,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 30
+  }, {
+    "date" : "08/08/2026",
+    "race" : "All Ireland Backyard Championship",
+    "name" : "Stephan Perry",
+    "rank" : 21,
+    "status" : "Reserve",
+    "yards" : 29,
+    "country" : "Ireland",
+    "wa" : "",
+    "best_yards" : 29
+  } ],
+  "late_rows" : [ ],
+  "meta" : {
+    "manager_name" : "Sammy Daye",
+    "manager_email" : "sammydaye@live.com"
+  },
+  "build" : "2026-10-12-tidy-b39",
+  "cache_ttl" : 0,
+  "error" : ""
+}
