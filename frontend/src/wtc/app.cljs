@@ -198,7 +198,7 @@
          [:input {:type "checkbox" :checked show-out?
                   :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
          (str "Show eliminated (" n-out ")")])]
-     [:div.table-wrap
+     [:div.table-wrap.full
       [:table
        [:thead [:tr [:th "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"] [:th "Status"]]]
        [:tbody

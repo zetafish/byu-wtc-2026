@@ -184,6 +184,7 @@ svg rect[tabindex]:focus-visible { outline: 2px solid var(--accent); }
 
 /* --- tables --- */
 .table-wrap { overflow-x: auto; max-height: 560px; overflow-y: auto; }
+.table-wrap.full { max-height: none; overflow-y: visible; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th {
   text-align: left; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
