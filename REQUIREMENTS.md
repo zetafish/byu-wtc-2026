@@ -110,7 +110,7 @@ With two runners left (A and B):
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
 - A **left menu** to switch views: Countries, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
-- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter and "★ only", and the "show eliminated" toggles. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
+- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the "★ only" toggles, and the "show eliminated" toggles. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
 ### Countries view: ranking and comparison charts
@@ -123,10 +123,11 @@ With two runners left (A and B):
   - "★ Favourites" replaces it with the favourite countries, the 8 best-ranked if there are more. It's hidden when there are no favourites. [decided]
   - "Clear" empties it. [decided]
   - Countries that stay compared after "Top 8" or "★ Favourites" keep their colour. [decided]
-- **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites only feed the search box and the "★ Favourites" button. [decided]
+- **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites feed the search box and the "★ Favourites" button. [decided]
+  - A "★ only" toggle in the table head shows only favourite countries, eliminated ones included. "Show eliminated" is hidden while it's on. With no favourites, the table says how to add some. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]
-- **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared countries stay visible. After the finish, everything is shown. [decided]
+- **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared and favourite countries stay visible. After the finish, everything is shown. [decided]
 - The table always shows every row, without an inner scroll. [decided]
 - **Charts** work like Grafana: the backend serves visualisations as standard JSON in a Prometheus-like shape. The frontend draws them generically, so adding a chart is cheap. [brief] The charts are:
   - **comparison:** runners starting each lap, and team score per lap, one line per compared country. Team score has two views:

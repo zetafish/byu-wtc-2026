@@ -13,6 +13,7 @@
                      :favourites #{}  ; favourite country codes
                      :runner-filter #{} ; leaderboard: only these countries (empty = all)
                      :starred-only? false
+                     :favourites-only? false ; countries table: only favourites
                      :query ""        ; leaderboard name search (not stored)
                      :expanded nil    ; country code whose runners are shown in the table
                      :show-out? false ; list eliminated countries too
@@ -39,6 +40,7 @@
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
                                                              :starred-only (:starred-only? @db)
+                                                             :favourites-only (:favourites-only? @db)
                                                              :variant (:variant @db)})))
        (catch :default _ nil)))
 
@@ -355,53 +357,65 @@
        (str "Show " name " in the runner leaderboard →")]]]))
 
 (defn- countries-table []
-  (let [{:keys [countries selected favourites show-out? expanded]} @db
+  (let [{:keys [countries selected favourites favourites-only? show-out? expanded]} @db
         lead (reduce max 0 (map :total-laps countries))
-        n-out (count (filter out? countries))
-        ;; compared countries stay visible, like the charts they're in
+        fav? #(contains? favourites (:code %))
+        candidates (cond->> countries favourites-only? (filter fav?))
+        n-out (count (filter out? candidates))
+        ;; compared and favourite countries stay visible, so they can still be unstarred
         show-out? (or show-out? (finished?))
-        shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %))) countries)]
+        shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %)) (fav? %)) candidates)]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
-       [:p.sub "Ranked by team score. Star your favourite countries. Click a row for its runners."]]
-      (when (and (pos? n-out) (not (finished?)))
-        [:label.toggle
-         [:input {:type "checkbox" :checked show-out?
-                  :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
-         (str "Show eliminated (" n-out ")")])]
-     [:div.table-wrap.full
-      [:table
-       [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
-                [:th.num {:title "Laps behind the leading country's team score"} "Gap"]
-                [:th "Status"] [:th]]]
-       [:tbody
-        (for [{:keys [code name rank active runners total-laps eliminated-after winner] :as c} shown
-              :let [fav? (contains? favourites code)
-                    open? (= expanded code)
-                    toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
-          ^{:key code}
-          [:<>
-           [:tr.clickable {:class [(when (contains? selected code) "selected") (when eliminated-after "out")]
-                           :on-click toggle-open}
-            [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
-                                :aria-pressed fav?
-                                :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
-                  (if fav? "★" "☆")]]
-            [:td.num rank]
-            [:td.name name " " [:span.muted code]]
-            [:td.num active " / " runners]
-            [:td.num total-laps]
-            [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
-            [:td (cond
-                   winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
-                   eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
-                   :else
-                   [:span.pill.in [:span.dot.in] "in race"])]
-            [:td [:button.expand {:aria-expanded open? :aria-label (str "Runners of " name)
-                                  :on-click (fn [e] (.stopPropagation e) (toggle-open))}
-                  (if open? "▾" "▸")]]]
-           (when open? [country-runners c])])]]]]))
+       [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for its runners."]]
+      ;; "★ only" last: right-aligned, it stays put when "Show eliminated" hides
+      [:div.head-actions
+       (when (and (pos? n-out) (not favourites-only?) (not (finished?)))
+         [:label.toggle
+          [:input {:type "checkbox" :checked show-out?
+                   :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
+          (str "Show eliminated (" n-out ")")])
+       [:label.toggle
+        [:input {:type "checkbox" :checked favourites-only?
+                 :on-change #(do (swap! db update :favourites-only? not) (save-prefs!))}]
+        "★ only"]]]
+     (if (empty? shown)
+       [:div.empty (if favourites-only?
+                     "No favourite countries yet. Untick \"★ only\" and star (☆) a country to add it."
+                     "No countries to show")]
+       [:div.table-wrap.full
+        [:table
+         [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
+                  [:th.num {:title "Laps behind the leading country's team score"} "Gap"]
+                  [:th "Status"] [:th]]]
+         [:tbody
+          (for [{:keys [code name rank active runners total-laps eliminated-after winner] :as c} shown
+                :let [fav? (contains? favourites code)
+                      open? (= expanded code)
+                      toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
+            ^{:key code}
+            [:<>
+             [:tr.clickable {:class [(when (contains? selected code) "selected") (when eliminated-after "out")]
+                             :on-click toggle-open}
+              [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
+                                  :aria-pressed fav?
+                                  :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
+                    (if fav? "★" "☆")]]
+              [:td.num rank]
+              [:td.name name " " [:span.muted code]]
+              [:td.num active " / " runners]
+              [:td.num total-laps]
+              [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
+              [:td (cond
+                     winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
+                     eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+                     :else
+                     [:span.pill.in [:span.dot.in] "in race"])]
+              [:td [:button.expand {:aria-expanded open? :aria-label (str "Runners of " name)
+                                    :on-click (fn [e] (.stopPropagation e) (toggle-open))}
+                    (if open? "▾" "▸")]]]
+             (when open? [country-runners c])])]]])]))
 
 ;; --- runner leaderboard ---
 
@@ -692,7 +706,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only variant]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant]} (load-prefs)]
     (swap! db assoc
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
@@ -700,6 +714,7 @@
            :favourites (set favourites)
            :runner-filter (set runner-filter)
            :starred-only? (true? starred-only)
+           :favourites-only? (true? favourites-only)
            :show-out? (true? show-out)
            :show-out-runners? (true? show-out-runners)))
   (swap! db assoc :view (hash-view))
