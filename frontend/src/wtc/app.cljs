@@ -11,6 +11,7 @@
 (defonce db (r/atom {:selected {}     ; country code -> color slot 1..8
                      :starred #{}
                      :show-out? false ; list eliminated countries too
+                     :show-out-runners? false ; list eliminated runners too
                      :results {}      ; panel id -> query result
                      :open nil}))      ; runner id with the detail chart open
 
@@ -24,7 +25,8 @@
   (try (js/localStorage.setItem "wtc-prefs"
                                 (js/JSON.stringify (clj->js {:selected (:selected @db)
                                                              :starred (vec (:starred @db))
-                                                             :show-out (:show-out? @db)})))
+                                                             :show-out (:show-out? @db)
+                                                             :show-out-runners (:show-out-runners? @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -216,18 +218,30 @@
                          :y-zero? false :fmt-y mmss :x-label "lap" :y-label "lap time"}]]]))
 
 (defn- runners-table []
-  (let [{:keys [runners selected starred open lap-times]} @db
-        shown (->> runners
-                   (filter #(or (contains? selected (:country %)) (contains? starred (:id %))))
-                   (sort-by (juxt #(if (contains? starred (:id %)) 0 1)
-                                  #(if (= "running" (:status %)) 0 1)
+  (let [{:keys [runners selected starred open lap-times show-out-runners?]} @db
+        starred? #(contains? starred (:id %))
+        candidates (filter #(or (contains? selected (:country %)) (starred? %)) runners)
+        out-runner? #(not= "running" (:status %))
+        n-out (count (filter out-runner? candidates))
+        ;; starred runners stay visible so they can still be unstarred
+        shown (->> candidates
+                   (filter #(or show-out-runners? (not (out-runner? %)) (starred? %)))
+                   (sort-by (juxt #(if (starred? %) 0 1)
+                                  #(if (out-runner? %) 1 0)
                                   (comp - :laps))))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Runners"]
-       [:p.sub "Starred runners and the selected countries. Click a row for the lap times."]]]
+       [:p.sub "Starred runners and the selected countries. Click a row for the lap times."]]
+      (when (pos? n-out)
+        [:label.toggle
+         [:input {:type "checkbox" :checked show-out-runners?
+                  :on-change #(do (swap! db update :show-out-runners? not) (save-prefs!))}]
+         (str "Show eliminated (" n-out ")")])]
      (if (empty? shown)
-       [:div.empty "Select a country or star a runner"]
+       [:div.empty (if (seq candidates)
+                     "Everyone here is out. Tick \"Show eliminated\" to see them."
+                     "Select a country or star a runner")]
        [:div.table-wrap
         [:table
          [:thead [:tr [:th] [:th "Runner"] [:th "Country"] [:th.num "Laps"]
@@ -268,11 +282,12 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred show-out]} (load-prefs)]
+  (when-let [{:keys [selected starred show-out show-out-runners]} (load-prefs)]
     (swap! db assoc
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
            :starred (set starred)
-           :show-out? (true? show-out)))
+           :show-out? (true? show-out)
+           :show-out-runners? (true? show-out-runners)))
   (render)
   (refresh!)
   (js/setInterval refresh! poll-ms))
