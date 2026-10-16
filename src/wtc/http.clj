@@ -41,7 +41,8 @@
                (json (-> (select-keys d [:start :now :current-lap :settled-lap :final-lap :race-laps :phase])
                          (assoc :runners (count (:runners d))
                                 :running (count (filter #(= :running (:status %)) (vals (:runners d))))
-                                :fetches (:fetches @state))))))
+                                :fetches (:fetches @state))
+                         (cond-> (:simulation @state) (assoc :simulation (:simulation @state)))))))
      :countries (fn [_] (json (sort-by :rank (vals (:countries (derived))))))
      :runners (fn [{{:strs [country history]} :query-params}]
                 (json (->> (vals (:runners (derived)))

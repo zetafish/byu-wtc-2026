@@ -34,6 +34,16 @@
            :anchor (some-> (env "CLOCK_ANCHOR") Instant/parse)}
    :sources (edn/read-string (env "SOURCES" "[{:id :mock :type :mock :priority 0}]"))})
 
+(defn simulation
+  "What's simulated, for the site to show: a demo clock and/or mock data.
+  nil when it's the real race."
+  [{:keys [clock sources]}]
+  (let [clock? (or (:start clock) (not= 1.0 (double (:speed clock 1))))
+        mock? (some #(= :mock (:type %)) sources)]
+    (when (or clock? mock?)
+      {:clock-speed (when clock? (:speed clock 1))
+       :mock-data (boolean mock?)})))
+
 (defn start [cfg]
   (let [store (if-let [url (:database-url cfg)]
                 (pg/postgres-store url)
@@ -45,7 +55,8 @@
              :clock (ingest/make-clock (:clock cfg))
              :roster-info (roster/runner-info)
              :sources (mapv #(assoc % :impl (source/create %)) (:sources cfg))
-             :state (atom {:datasets datasets :persisted datasets})}
+             :state (atom {:datasets datasets :persisted datasets
+                           :simulation (simulation cfg)})}
         _ (ingest/refresh! sys)
         scheduler (ingest/start-scheduler sys)
         stop-http (http-kit/run-server (http/app (:state sys)) {:port (:port cfg)})]

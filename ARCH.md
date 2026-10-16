@@ -125,7 +125,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | Route | Returns |
 |---|---|
 | `/api/health` | `{:ok :fetches}` |
-| `/api/race` | `start now phase current-lap settled-lap final-lap race-laps runners running fetches` |
+| `/api/race` | `start now phase current-lap settled-lap final-lap race-laps runners running fetches simulation` (`simulation` = `{clock-speed, mock-data}`, only when the demo clock or the mock source is on; the header then shows a Simulation notice and the brand badge reads "Sim") |
 | `/api/countries` | countries sorted by rank |
 | `/api/runners?country=NED&history=true` | runners by laps; `history` adds the per-lap history |
 | `/api/runners/:id` | one runner, with history |

@@ -224,6 +224,16 @@
             [:span.chip (str "★ " (get by-status "finished") " country winners")])
           [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries "
                            (if (= "finished" (:phase race)) "done" "eliminated"))]]))
+     (when-let [{:keys [clock-speed mock-data]} (:simulation race)]
+       [:p.notice.simulation [:span.icon.info "◎"]
+        [:b "Simulation. "]
+        (str/join " " (remove nil?
+                              [(when mock-data "Mock data, not real results.")
+                               (when clock-speed
+                                 (str "Simulated clock" (when (not= 1 clock-speed) (str " at " clock-speed "×"))
+                                      ", now " (.toLocaleString (js/Date. (:now race)) js/undefined
+                                                                #js {:weekday "short" :hour "2-digit" :minute "2-digit"})
+                                      "."))]))])
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
         (str "The race starts "
@@ -236,10 +246,9 @@
          [:div.finished
           [:h2 (str "Race finished after " (:race-laps race) " laps")]
           [:ol.podium
-           (for [{:keys [code name rank total-laps winner]} podium]
+           (for [{:keys [code name rank total-laps]} podium]
              ^{:key code}
-             [:li [:span.pos (str rank ".")] [:b name] [:span (str total-laps " laps")]
-              (when winner [:span.muted (str "★ " (:name winner))])])]]))
+             [:li [:span.pos (str rank ".")] [:b name] [:span (str total-laps " laps")]])]]))
      (when (or error (seq failing))
        [:p.notice [:span.icon "⚠"]
         (if error
@@ -620,7 +629,7 @@
 (defn- nav []
   (let [view (:view @db)]
     [:nav.menu {:aria-label "Views"}
-     [:div.brand "WTC 2026" [:span "Live"]]
+     [:div.brand "WTC 2026" [:span (if (get-in @db [:race :simulation]) "Sim" "Live")]]
      [:ul
       (for [{:keys [id label]} views]
         ^{:key id}

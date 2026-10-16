@@ -173,6 +173,7 @@ h1 small {
 }
 .notice .icon { color: var(--warning); margin-right: 8px; }
 .notice .icon.info { color: var(--series-1); }
+.notice.simulation { border-left: 4px solid var(--warning); }
 
 .finished {
   background: var(--surface-1); border: 1px solid var(--line); border-left: 4px solid var(--accent);
