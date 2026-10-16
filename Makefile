@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run run-mem repl up down logs reset db-up db-down psql uber image clean web-deps web-dev web-build web-deploy dev roster roster-refresh
+.PHONY: help test run run-mem repl up down logs reset db-up db-down psql uber image clean web-deps web-dev web-build web-deploy roster roster-refresh
 
 PORT ?= 8090
 LOCAL_DB := postgres://wtc:wtc@localhost:55432/wtc
@@ -33,22 +33,18 @@ run-mem: ## Run the backend on the JVM with the in-memory store
 repl: ## Start nREPL on 7888 (then (user/start))
 	clojure -M:dev:nrepl
 
-up: ## Build and run the full stack (Postgres + app + web) in Docker
+up: ## Build and run the full stack in Docker (Postgres, app, web, web-dev)
 	docker compose up --build -d
-	@echo "site: http://localhost:8091   api: http://localhost:$(PORT)/api/race"
-
-dev: ## Full stack in Docker plus hot-reload frontend on :8092
-	docker compose --profile dev up --build -d
-	@echo "hot reload: http://localhost:8092   built site: http://localhost:8091"
+	@echo "site: http://localhost:8091   hot reload: http://localhost:8092   api: http://localhost:$(PORT)/api/race"
 
 down: ## Stop the stack (keeps the data)
-	docker compose --profile dev down
+	docker compose down
 
 logs: ## Follow the app and web logs
 	docker compose logs -f app web
 
 reset: ## Stop the stack and delete the database volume
-	docker compose --profile dev down -v
+	docker compose down -v
 
 db-up: ## Start only Postgres
 	docker compose up -d --wait db

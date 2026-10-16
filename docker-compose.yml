@@ -39,9 +39,8 @@ services:
     ports:
       - "${WEB_PORT:-8091}:80"
 
-  # Hot reload: `make dev`. Edits in frontend/src reload in the browser.
+  # Hot reload on :8092. Edits in frontend/src reload in the browser.
   web-dev:
-    profiles: ["dev"]
     build:
       context: ./frontend
       target: deps
