@@ -108,6 +108,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `team_score_gap`: team score minus the leader's at each lap; the leader is taken over all countries, so a line doesn't move when others are compared
   - `attrition`
   - `lap_time_seconds`
+  - `lap_time_median_seconds`: the field's median lap time per lap (the runner dialog's dashed line)
   - `countries_by_active_runners`
 
   **The shape of an entry:** `"name" {:doc "…" :x "lap" :fn (fn [derived params] …)}`.

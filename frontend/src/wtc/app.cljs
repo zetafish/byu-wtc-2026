@@ -24,7 +24,9 @@
                      :results {}      ; [panel id, metric] -> query result
                      :variant {}      ; panel id -> index into the panel's :variants
                      :zoom nil        ; panel id shown big in the zoom dialog
-                     :open nil}))      ; runner id with the detail chart open
+                     :open nil        ; runner id shown in the runner dialog
+                     :history {}      ; runner id -> lap history, for the runner dialog
+                     :median nil}))   ; the field's median lap time per lap [[lap s] ...]
 
 ;; --- persistence of viewer preferences (best effort) ---
 
@@ -100,16 +102,22 @@
                             (into {} (map (fn [s] [(get-in s [:metric :runner]) (:values s)])) series))))))
         (.catch #(js/console.warn %)))))
 
-(defn- fetch-lap-times! [id]
-  (-> (get-json (str "/api/runners/" (js/encodeURIComponent id)) {})
-      (.then (fn [r] (swap! db assoc-in [:lap-times id]
-                            (into [] (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])))
-                                  (:history r)))))
+(defn- fetch-runner-detail!
+  "The runner dialog's data: the runner's lap history and the field median."
+  [id]
+  (-> (js/Promise.all
+       (clj->js [(get-json (str "/api/runners/" (js/encodeURIComponent id)) {})
+                 (get-json "/api/query" {:metric "lap_time_median_seconds"})]))
+      (.then (fn [[r m]]
+               (swap! db #(-> %
+                              (assoc-in [:history id] (:history r))
+                              (assoc :median (get-in m [:data :result 0 :values]))))))
       (.catch #(js/console.warn %))))
 
 (defn refresh! []
   ;; charts load alongside the rest instead of after it, so they don't pop in late
   (fetch-panels!)
+  (some-> (:open @db) fetch-runner-detail!)
   (-> (js/Promise.all (clj->js [(get-json "/api/race" {})
                                 (get-json "/api/countries" {})
                                 (get-json "/api/runners" {})]))
@@ -524,12 +532,96 @@
 
 ;; --- runner leaderboard ---
 
-(defn- runner-detail [{:keys [id name]}]
-  (let [values (get-in @db [:lap-times id])]
-    [:tr.detail
-     [:td {:col-span 11}
-      [chart/line-chart {:series [{:key id :label name :color "var(--series-1)" :values values}]
-                         :y-zero? false :fmt-y mmss :x-label "lap" :y-label "lap time"}]]]))
+;; a backyard lap: 4.167 miles
+(def ^:private lap-km 6.7056)
+
+(defn- hm [s] (when s (str (quot s 3600) "h " (.padStart (str (quot (mod s 3600) 60)) 2 "0") "m")))
+
+(defn- runner-stats
+  "Figures for the runner dialog, from the timed laps of a lap history."
+  [history]
+  (let [timed (filterv :seconds history)
+        secs (mapv :seconds timed)
+        fastest (when (seq timed) (apply min-key :seconds (rseq timed)))
+        rests (mapv #(- 3600 %) secs)]
+    {:fastest fastest
+     :last (peek timed)
+     :average (when (seq secs) (js/Math.round (/ (reduce + secs) (count secs))))
+     :margin (when (seq rests) (let [l3 (take-last 3 rests)] (js/Math.round (/ (reduce + l3) (count l3)))))
+     :rest (reduce + rests)}))
+
+(defn- stat-tile [label value sub]
+  [:div.rstat [:span.rstat-label label] [:b value] (when sub [:span.rstat-sub sub])])
+
+(defn- runner-dialog
+  "One runner's figures, lap-time chart and lap table in a modal <dialog>.
+  Esc, ✕ or a click on the backdrop closes it."
+  [_ _]
+  (let [el (atom nil)
+        close #(some-> @el .close)]
+    (r/create-class
+     {:component-did-mount #(some-> @el .showModal)
+      :reagent-render
+      (fn [{:keys [id name country laps pos] :as runner} n-runners]
+        (let [{:keys [history median]} @db
+              hist (get history id)
+              {:keys [fastest last average margin rest]} (runner-stats hist)
+              values (into [] (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds]))) hist)
+              median-by-lap (into {} median)
+              median-values (filterv #(<= (first %) (or (first (peek values)) 0)) median)]
+          [:dialog.zoom {:ref #(reset! el %)
+                         :on-close #(swap! db assoc :open nil)
+                         :on-click #(when (= (.-target %) @el) (close))}
+           [:div.zoom-body
+            [:button.close {:aria-label "Close" :on-click close} "✕"]
+            [:section.card.runner-card
+             [:div.card-head
+              [:div [:h2 name]
+               [:p.sub (str (or (country-name country) country) " · seat " (:rank runner)
+                            (when (:bib runner) (str " · bib " (:bib runner))) " ")
+                [status-badge runner]]]]
+             (if-not hist
+               [:div.loading "Loading…"]
+               [:<>
+                [:div.rstats
+                 [stat-tile "Laps" laps]
+                 [stat-tile "Distance" (str (.toFixed (* laps lap-km) 1) " km")]
+                 [stat-tile "Fastest lap" (mmss (:seconds fastest)) (some->> (:lap fastest) (str "lap "))]
+                 [stat-tile "Average lap" (mmss average)
+                  (when average (str (mmss (js/Math.round (/ average lap-km))) " /km"))]
+                 [stat-tile "Last lap" (mmss (:seconds last)) (some->> (:lap last) (str "lap "))]
+                 [stat-tile "Margin" (mmss margin) "rest per lap, average of the last 3"]
+                 [stat-tile "Total rest" (hm rest) "between finishing and the next start"]
+                 [stat-tile "Position" [:<> pos [:small (str " / " n-runners)]] "on the leaderboard"]]
+                [chart/line-chart
+                 {:series [{:key id :label name :color "var(--series-1)" :values values :dots? true}
+                           {:key "median" :label "field median" :color "var(--text-muted)"
+                            :values median-values :dash? true}]
+                  :refs [{:y 3600 :label "limit 60:00"}]
+                  :marks (when fastest [{:x (:lap fastest) :y (:seconds fastest)
+                                         :color "var(--good)" :label "fastest"}])
+                  :legend? false :direct-labels? false
+                  :y-zero? false :y-step 300 :fmt-y mmss :x-label "lap" :y-label "lap time" :size :wide}]
+                [:ul.legend.runner-legend
+                 [:li [:span.key-line {:style {:background "var(--series-1)"}}] name]
+                 [:li [:span.key-line.dash] "field median"]
+                 [:li [:span.key-line.dash.limit] "limit 60:00"]
+                 [:li [:span.dot {:style {:background "var(--good)"}}] "fastest lap"]]
+                [:details.all-laps
+                 [:summary "All laps"]
+                 [:div.table-wrap
+                  [:table
+                   [:thead [:tr [:th.num "Lap"] [:th.num "Time"] [:th.num "Rest"]
+                            [:th.num "Field median"] [:th.num "vs median"]]]
+                   [:tbody
+                    (for [{:keys [lap seconds]} (reverse hist)
+                          :let [med (median-by-lap lap)
+                                d (when (and seconds med) (- seconds med))]]
+                      ^{:key lap}
+                      [:tr [:td.num lap] [:td.num (or (mmss seconds) "–")]
+                       [:td.num (some->> seconds (- 3600) mmss)]
+                       [:td.num (mmss med)]
+                       [:td.num (when d (str (if (neg? d) "−" "+") (mmss (js/Math.abs d))))]])]]]]])]]]))})))
 
 (defn- runner-filters [n-out show-out?]
   (let [{:keys [countries runner-filter starred-only? query]} @db]
@@ -567,11 +659,13 @@
         show-out? (or show-out-runners? (finished?))
         n-out (count (filter out-runner? candidates))
         ;; starred runners stay visible so they can still be unstarred
-        shown (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)]
+        shown (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)
+        open-runner (when open (some #(when (= open (:id %)) %) (ranked runners)))]
     [:section.card.wide
+     (when open-runner ^{:key open} [runner-dialog open-runner (count runners)])
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
-       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the lap-time chart."]]]
+       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the runner's figures and lap times."]]]
      [runner-filters n-out show-out?]
      (if (empty? shown)
        [:div.empty (cond
@@ -593,27 +687,25 @@
           (for [{:keys [id name country laps pos] :as runner} shown
                 :let [times (get lap-times id)]]
             ^{:key id}
-            [:<>
-             [:tr.clickable {:class (when (out-runner? runner) "out")
-                             :on-click (fn []
-                                         (when-not (contains? lap-times id) (fetch-lap-times! id))
-                                         (swap! db update :open (fn [o] (when-not (= o id) id))))}
-              [:td.num pos]
-              [:td.name [:button.star {:aria-label (if (starred? runner) "Unstar" "Star")
-                                       :aria-pressed (starred? runner)
-                                       :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
-                         (if (starred? runner) "★" "☆")]
-               name]
-              [:td country]
-              [:td.num (:rank runner)]
-              [:td.num laps]
-              [:td.num (or (:best-yards runner) "–")]
-              [:td [status-badge runner]]
-              [:td.num (mmss (:last-seconds runner))]
-              [:td.num (mmss (:fastest-seconds runner))]
-              [:td.num (hmmss (:total-seconds runner))]
-              [:td (when times [chart/sparkline times])]]
-             (when (= open id) [runner-detail runner])])]]])]))
+            [:tr.clickable {:class (when (out-runner? runner) "out")
+                            :on-click (fn []
+                                        (fetch-runner-detail! id)
+                                        (swap! db assoc :open id))}
+             [:td.num pos]
+             [:td.name [:button.star {:aria-label (if (starred? runner) "Unstar" "Star")
+                                      :aria-pressed (starred? runner)
+                                      :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
+                        (if (starred? runner) "★" "☆")]
+              name]
+             [:td country]
+             [:td.num (:rank runner)]
+             [:td.num laps]
+             [:td.num (or (:best-yards runner) "–")]
+             [:td [status-badge runner]]
+             [:td.num (mmss (:last-seconds runner))]
+             [:td.num (mmss (:fastest-seconds runner))]
+             [:td.num (hmmss (:total-seconds runner))]
+             [:td (when times [chart/sparkline times])]])]]])]))
 
 ;; --- seat ranking ---
 ;; Every runner has a seat (1-15, their roster rank in the team). All runners

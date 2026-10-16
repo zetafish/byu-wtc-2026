@@ -256,6 +256,11 @@ text.direct { fill: var(--text-secondary); font: 700 12px var(--display); letter
 path.line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 line.crosshair { stroke: var(--text-primary); stroke-width: 1; opacity: .35; }
 circle.dot { stroke: var(--surface-1); stroke-width: 2; }
+circle.pt { pointer-events: none; }
+path.line.dash { stroke-width: 1.5; stroke-dasharray: 5 4; }
+line.ref { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 6 5; }
+text.ref-label { fill: var(--critical); font: 600 12px var(--body); }
+text.mark-label { fill: var(--good); font: 600 12px var(--body); }
 svg rect[tabindex]:focus { outline: none; }
 svg rect[tabindex]:focus-visible { outline: 2px solid var(--accent); }
 
@@ -291,6 +296,25 @@ button.close:hover { color: var(--text-primary); }
   aspect-ratio: 640 / 240; display: grid; place-items: center; text-align: center;
   color: var(--text-muted); padding: 0 16px;
 }
+/* runner dialog */
+.runner-card h2 { font-size: 40px; line-height: 1; }
+.runner-card .card-head .sub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.rstats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 24px;
+  padding: 16px 0 20px; margin-bottom: 8px; border-top: 1px solid var(--line);
+}
+@media (max-width: 760px) { .rstats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rstat { display: grid; align-content: start; gap: 2px; }
+.rstat-label { font-size: 13px; color: var(--text-muted); }
+.rstat b { font: 800 34px/1.05 var(--display); font-variant-numeric: tabular-nums; }
+.rstat b small { font-size: 18px; color: var(--text-muted); }
+.rstat-sub { font-size: 13px; color: var(--text-muted); }
+.runner-legend { margin-top: 8px; }
+.key-line.dash { background: none; height: 0; border-top: 2px dashed var(--text-muted); }
+.key-line.dash.limit { border-top-color: var(--critical); }
+details.all-laps { margin-top: 16px; }
+details.all-laps summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+details.all-laps .table-wrap { max-height: 360px; margin-top: 8px; }
 .loading { color: var(--text-muted); padding: 120px 0; text-align: center; font-weight: 600; }
 
 /* --- tables --- */

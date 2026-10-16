@@ -79,6 +79,10 @@
         (is (every? #(and (map? (:metric %)) (vector? (:values %))) (get-in r [:data :result])) m)))
     (is (= [1 1033] (first (get-in (metrics/query d "runners_started" {}) [:data :result 0 :values]))))
     (is (= "error" (:status (metrics/query d "nope" {}))))
+    (testing "the median lap time sits between the fastest and slowest of that lap"
+      (let [[lap m] (first (get-in (metrics/query d "lap_time_median_seconds" {}) [:data :result 0 :values]))
+            times (keep #(some (fn [h] (when (= lap (:lap h)) (:seconds h))) (:history %)) (vals (:runners d)))]
+        (is (<= (apply min times) m (apply max times)))))
     (testing "gap to leader: the leader is at 0, everyone else at or below"
       (let [gaps (get-in (metrics/query d "team_score_gap" {}) [:data :result])
             last-ys (map (comp second peek :values) gaps)]

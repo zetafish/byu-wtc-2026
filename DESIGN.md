@@ -75,7 +75,7 @@ Charts follow the dataviz method: pick the form first, colour last, and validate
   - Line charts have a crosshair and a tooltip with all series.
   - Bar charts have a tooltip per bar. Stacked bars follow the given order.
   - Every chart has a Chart/Table toggle.
-- **Sparklines** in the runner table are muted strokes with no axes. Clicking a row opens the full lap-time chart, with a y-axis in mm:ss that doesn't start at zero.
+- **Sparklines** in the runner table are muted strokes with no axes. Clicking a row opens the runner dialog (`dialog.zoom` with a `.runner-card`): a 4-column grid of figures (2 columns on phones), then the lap-time chart with a y-axis in mm:ss on whole 5 minutes that doesn't start at zero. The runner is `--series-1` with dots, the field median a muted dashed line, the 60:00 limit a dashed `--critical` line labelled "limit 60:00", and the fastest lap a `--good` point labelled "fastest". A text legend below names all four.
 
 ## Stability: no flicker, no jumping
 

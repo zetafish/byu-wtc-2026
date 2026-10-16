@@ -12,7 +12,7 @@
 
 ;; viewBox sizes; text scales with the svg, so a big chart gets a bigger
 ;; viewBox rather than a stretched small one
-(def sizes {:normal [W H] :big [1100 520]})
+(def sizes {:normal [W H] :big [1100 520] :wide [1100 400]})
 
 (defn- nice-step [span n]
   (let [raw (/ span n)
@@ -22,9 +22,9 @@
 
 (defn- ticks
   "Nice ticks from below lo. With cover? the last tick is >= hi (y axes),
-  otherwise ticks stop at hi (x axes)."
-  [lo hi n integer? cover?]
-  (let [s (cond-> (nice-step (max 1e-9 (- hi lo)) n) integer? (max 1))
+  otherwise ticks stop at hi (x axes). `step` fixes the tick distance."
+  [lo hi n integer? cover? & [step]]
+  (let [s (or step (cond-> (nice-step (max 1e-9 (- hi lo)) n) integer? (max 1)))
         start (* s (js/Math.floor (/ lo s)))
         limit (if cover? (+ hi (* s 0.999)) (+ hi 1e-9))]
     (vec (take-while #(<= % limit) (iterate #(+ % s) start)))))
@@ -32,16 +32,17 @@
 (defn- scale [[d0 d1] [r0 r1]]
   (fn [v] (+ r0 (* (- r1 r0) (if (= d0 d1) 0.5 (/ (- v d0) (- d1 d0)))))))
 
-(defn- y-axis [series {:keys [y-zero?] :or {y-zero? true}} stacked?]
-  (let [ys (if stacked?
-             (vals (apply merge-with + (map #(into {} (:values %)) series)))
-             (mapcat #(map second (:values %)) series))
+(defn- y-axis [series {:keys [y-zero? refs y-step] :or {y-zero? true}} stacked?]
+  (let [ys (concat (if stacked?
+                     (vals (apply merge-with + (map #(into {} (:values %)) series)))
+                     (mapcat #(map second (:values %)) series))
+                   (map :y refs))
         y-max (if (seq ys) (reduce max ys) 0)
         y-min (if (seq ys) (reduce min ys) 0)
         ;; y-zero? keeps 0 inside the axis, from below (counts) or above (gaps)
         lo (if y-zero? (min 0 y-min) y-min)
         hi (let [h (if y-zero? (max 0 y-max) y-max)] (if (<= h lo) (+ lo 1) h))
-        ts (ticks lo hi 4 false true)]
+        ts (ticks lo hi 4 false true y-step)]
     {:ticks ts :domain [(first ts) (max (last ts) hi)]}))
 
 (defn- xs-of [series] (vec (sort (distinct (mapcat #(map first (:values %)) series)))))
@@ -109,10 +110,15 @@
         px (* (- (.-clientX e) (.-left rect)) (/ (- (:w m) (:l m) (:r m)) (.-width rect)))]
     (+ (:l m) px)))
 
-(defn line-chart [_]
+(defn line-chart
+  "Options beyond the series: `:refs` [{:y :label}] dashed horizontal lines,
+  `:marks` [{:x :y :label :color}] labelled points, `:direct-labels? false`,
+  `:y-step` a fixed y tick distance.
+  A series can have `:dash? true` and `:dots? true`."
+  [_]
   (let [hover (r/atom nil)]
-    (fn [{:keys [series fmt-y fmt-x x-label y-label] :as opts}]
-      (let [labels? (<= 1 (count series) 4)
+    (fn [{:keys [series fmt-y fmt-x x-label y-label refs marks] :as opts}]
+      (let [labels? (and (:direct-labels? opts true) (<= 1 (count series) 4))
             [w h] (sizes (:size opts :normal))
             m {:l 44 :r (if labels? 44 12) :t 24 :b 30 :w w :h h}
             xs (xs-of series)
@@ -130,10 +136,23 @@
             [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
                      :x-ticks (ticks (first xs) (last xs) 8 true false) :x-label x-label :y-label y-label}]
-             (for [{:keys [key color values]} series]
+             (for [{:keys [y label]} refs]
+               ^{:key (str "ref" y)}
+               [:g [:line.ref {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (sy y) :y2 (sy y)}]
+                (when label [:text.ref-label {:x (- (:w m) (:r m)) :y (- (sy y) 6) :text-anchor "end"} label])])
+             (for [{:keys [key color values dash? dots?]} series]
                ^{:key key}
-               [:path.line {:d (str "M" (str/join "L" (map (fn [[x y]] (str (sx x) "," (sy y))) values)))
-                            :stroke color}])
+               [:g
+                [:path.line {:class (when dash? "dash")
+                             :d (str "M" (str/join "L" (map (fn [[x y]] (str (sx x) "," (sy y))) values)))
+                             :stroke color}]
+                (when dots?
+                  (for [[x y] values]
+                    ^{:key x} [:circle.pt {:cx (sx x) :cy (sy y) :r 2.5 :fill color}]))])
+             (for [{:keys [x y label color]} marks]
+               ^{:key (str "mark" x)}
+               [:g [:circle.dot {:cx (sx x) :cy (sy y) :r 5 :fill color}]
+                (when label [:text.mark-label {:x (sx x) :y (+ (sy y) 18) :text-anchor "middle"} label])])
              (when labels? [direct-labels series sx sy])
              (when hx
                [:g [:line.crosshair {:x1 (sx hx) :x2 (sx hx) :y1 (:t m) :y2 (- (:h m) (:b m))}]

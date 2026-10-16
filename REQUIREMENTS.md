@@ -147,7 +147,12 @@ With two runners left (A and B):
   - "Show eliminated (n)". [decided]
 - **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
 - **Sparklines** of the lap times are always shown. Unfiltered, that means fetching every runner's lap times (~480 KB, ~140 KB gzipped late in the race) per refresh; accepted. [decided]
-- Clicking a row opens a lap-time chart for that runner. [brief]
+- **Clicking a row opens a runner dialog** (modelled on the one Upfront showed): [decided]
+  - the name, country, seat, bib and status;
+  - figures: laps; distance (laps × 6.7056 km); fastest lap and which lap; average lap and its pace per km; last lap; margin (rest per lap, average of the last 3); total rest (between finishing a lap and the next start); position on the leaderboard;
+  - a lap-time chart with the runner's laps as dots, the field's median lap time dashed, the 60:00 limit, and the fastest lap marked and labelled;
+  - "All laps", a collapsed table of every lap: time, rest, field median and the difference to it.
+  - Position is the leaderboard position, not the position within the lap. [assumed]
 - **Runners who are out** are hidden by default, behind the "Show eliminated" toggle. Starred runners stay visible. Country winners count as still shown. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]
 
@@ -185,5 +190,6 @@ With two runners left (A and B):
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).
 - [ ] **Fewer than 2 runners of a country start lap 1.** The general team rule applies for now.
 - [ ] What the roster's `wa` field means. It's unused.
+- [ ] **Runner dialog position** [assumed]: the leaderboard position for now. Should it be the position within the current lap (by lap time), as Upfront shows?
 - [ ] Show the "too fast" flag in the site, for example as a marker in the runner's lap-time chart. It's only in the data for now.
 - [ ] **Minor:** direct line labels can crowd near the x-axis when several series end at 0.
