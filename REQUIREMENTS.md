@@ -188,7 +188,7 @@ With two runners left (A and B):
 ## 9. Open questions and to do
 
 - [x] **Real data adapters:** `wtc.source.official` (the one in use) and `wtc.source.sheet` (manual fallback).
-- [ ] **Late countries:** with the sheet, a country that reports late shows as out until it reports (`GRACE_SECONDS`, default 15 min). What grace fits hourly manual entry?
+- [x] **Late countries:** a runner without a result counts as out only 45 min after the lap's bell (`GRACE_SECONDS = 2700` in `fly.prod.toml`; the default is 15 min), so a country that reports late isn't shown as out meanwhile. [decided]
 - [ ] **Deploy:**
   - set up the Fly.io apps `bigs-live` and `bigs-live-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.

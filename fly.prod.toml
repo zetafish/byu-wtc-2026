@@ -4,7 +4,12 @@
 app = "bigs-live"
 primary_region = "fra"  # next to Neon (eu-central-1)
 
-# No CLOCK_START: real time. SOURCES, if any, as a secret or here in [env].
+# No CLOCK_START: real time.
+[env]
+  # The official site's feed only (see wtc.source.official).
+  SOURCES = '[{:id :official :type :official :priority 10}]'
+  # A country that reports up to 45 min after the bell isn't shown as out meanwhile.
+  GRACE_SECONDS = "2700"
 
 [http_service]
   internal_port = 8080
