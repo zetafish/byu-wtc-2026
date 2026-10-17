@@ -165,7 +165,7 @@ With two runners left (A and B):
 
 ## 7. Hosting [decided]
 
-- **Backend:** one always-on container on **Caasify**, which is free until 31 Dec 2026, so it covers the race.
+- **Backend:** one always-on machine on **Fly.io** per deployment. [decided] Caasify, the earlier choice, built too slowly.
 - **Two deployments**, each with its own backend, database branch and site: **prod** (the real race) and **demo** (a demo race on mock data, with the simulation panel). [decided]
 - **Database:** **Neon** Postgres.
 - **Frontend:** **Vercel**. `/api/*` is rewritten to the backend, so the browser stays same-origin and Vercel's CDN caches the API responses.
@@ -176,7 +176,7 @@ With two runners left (A and B):
 |---|---|---|
 | Redis cache to offload the database | No Redis. The API serves from memory, with CDN cache headers. | There's a single backend instance, the data changes at most a few times per hour, and the CDN absorbs the worldwide traffic. Postgres is only for durability and statistics. |
 | An external 1-minute ping triggers fetching | An in-process scheduler with timeouts, retries and backoff | More robust, and needs no external cron. |
-| "Vercel or maybe others" | Caasify + Neon + Vercel | A free always-on JVM container for the race period. |
+| "Vercel or maybe others" | Fly.io + Neon + Vercel | An always-on JVM container, cheap for the race week. |
 | Data from a results page or a Google doc | Pluggable adapters, mock for now | The source is still unknown. |
 | Live trackers, position in loop | Dropped | No GPX, and every country has its own loop. |
 
@@ -184,7 +184,7 @@ With two runners left (A and B):
 
 - [ ] **Real data adapter(s).** The source is still unknown. Candidates: the official results page, a Google doc, or per-country feeds.
 - [ ] **Deploy:**
-  - set up Neon branches for prod and demo, the Caasify containers `wtc-prod` and `wtc-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
+  - set up Neon branches for prod and demo, the Fly.io apps `byu-wtc-prod` and `byu-wtc-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.
 - [ ] **Seat = roster rank** [assumed]: confirm.
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).

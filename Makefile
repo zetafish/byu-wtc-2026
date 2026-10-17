@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run demo-reset demo-off run-mem repl up down logs psql db-reset uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh release
+.PHONY: help test run demo-reset demo-off run-mem repl up down logs psql db-reset uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy
 
 PORT ?= 8090
 NEON_BRANCH ?= demo
@@ -83,18 +83,20 @@ web-dev: .web-deps ## Frontend hot reload on the host (:8092), proxies /api to :
 web-build: .web-deps ## Release build of the frontend into frontend/public
 	cd frontend && npx shadow-cljs release app
 
-# Two sites, demo and prod: each is the Vercel project wtc-<SITE>, with /api
+# Two sites: prod is the Vercel project bigs-live (bigs-live.vercel.app), demo
+# is bigs-live-demo (bigs-live-demo.vercel.app). Each has /api
 # proxied to its own backend, PROD_BACKEND_HOST or DEMO_BACKEND_HOST (the
-# Caasify domains, set in .env). Each site is staged in frontend/.deploy/<SITE>,
+# Fly.io domains, set in .env). Each site is staged in frontend/.deploy/<SITE>,
 # which keeps its Vercel link.
 SITE ?= demo
+vercel-project = $(if $(filter prod,$(SITE)),bigs-live,bigs-live-demo)
 backend-host = $(if $(filter prod,$(SITE)),$(PROD_BACKEND_HOST),$(if $(filter demo,$(SITE)),$(DEMO_BACKEND_HOST),$(error SITE must be demo or prod)))
 web-deploy: web-build ## Deploy the frontend to Vercel: SITE=demo (default) or SITE=prod
 	@test -n "$(backend-host)" || { echo "Set $(if $(filter prod,$(SITE)),PROD,DEMO)_BACKEND_HOST in .env"; exit 1; }
 	mkdir -p frontend/.deploy/$(SITE)
 	rsync -a --delete --exclude js/cljs-runtime --exclude js/manifest.edn frontend/public/ frontend/.deploy/$(SITE)/public/
 	sed 's/BACKEND_HOST/$(backend-host)/' frontend/vercel.json > frontend/.deploy/$(SITE)/vercel.json
-	cd frontend/.deploy/$(SITE) && { test -d .vercel || npx vercel link --yes --project wtc-$(SITE); } && npx vercel deploy --prod
+	cd frontend/.deploy/$(SITE) && { test -d .vercel || npx vercel link --yes --project $(vercel-project); } && npx vercel deploy --prod
 
 roster: ## Build resources/roster/wtc-2026.edn from roster/*.json
 	bb scripts/fetch_roster.clj resources/roster/wtc-2026.edn
@@ -105,18 +107,9 @@ roster-refresh: ## Re-fetch + build the whole roster (~2min)
 clean: ## Remove build output
 	rm -rf target .cpcache frontend/public/js frontend/.shadow-cljs
 
-# Caasify (Launch) builds deploy/Dockerfile, which only pulls the image this
-# pins, so its builds take seconds. Point both apps (wtc-prod, wtc-demo) at the
-# root directory deploy/. `make release` builds and pushes the image tagged
-# with the commit, pins it there, commits and pushes; that push makes Caasify
-# redeploy. Log in to GHCR once:
-#   gh auth token | docker login ghcr.io -u zetafish --password-stdin
-IMAGE ?= ghcr.io/zetafish/byu-wtc-2026
-release: ## Build + push the image, pin it in deploy/Dockerfile, push to Git (Caasify redeploys)
-	@git diff --quiet && git diff --cached --quiet || { echo "Commit your changes first"; exit 1; }
-	$(eval TAG := $(shell git rev-parse --short HEAD))
-	docker build --platform linux/amd64 -t $(IMAGE):$(TAG) .
-	docker push $(IMAGE):$(TAG)
-	echo "FROM $(IMAGE):$(TAG)" > deploy/Dockerfile
-	git commit -m "Deploy $(TAG)" deploy/Dockerfile
-	git push
+# Two backends on Fly.io, byu-wtc-demo and byu-wtc-prod, configured in
+# fly.<SITE>.toml. Fly's remote builder builds the Dockerfile. --ha=false keeps
+# it at one machine: the scheduler and the state are in-process.
+fly-deploy: ## Deploy the backend to Fly.io: SITE=demo (default) or SITE=prod
+	@test -f fly.$(SITE).toml || { echo "SITE must be demo or prod"; exit 1; }
+	fly deploy -c fly.$(SITE).toml --ha=false

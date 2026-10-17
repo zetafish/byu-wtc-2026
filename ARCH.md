@@ -15,7 +15,7 @@ sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-
                                        │
                         in-memory derived state ──▶ /api/* (JSON, CDN cache headers)
                                                          │
-                       Vercel CDN (rewrite /api/* → Caasify) ──▶ ClojureScript SPA
+                       Vercel CDN (rewrite /api/* → Fly.io) ──▶ ClojureScript SPA
 ```
 
 - **Backend:** Clojure (`deps.edn`), one process, which also runs the scheduler. Libraries:
@@ -202,12 +202,12 @@ There are two deployments, **prod** and **demo**, built from the same image and 
 
 | | prod | demo |
 |---|---|---|
-| Caasify container | `wtc-prod` | `wtc-demo` |
+| Fly.io app | `byu-wtc-prod` (`fly.prod.toml`) | `byu-wtc-demo` (`fly.demo.toml`) |
 | Neon branch (`DATABASE_URL`) | production | its own branch (not the `demo` branch that local development resets) |
 | `CLOCK_START` | unset (real time) | set, e.g. `2026-10-18T18:00:00Z` |
 | `SOURCES` | the real sources | unset (mock) |
-| Vercel project | `wtc-prod` | `wtc-demo` |
+| Vercel project | `bigs-live` (bigs-live.vercel.app) | `bigs-live-demo` (bigs-live-demo.vercel.app) |
 
-- **Backend:** the `Dockerfile` image, run as an always-on container on Caasify, one per deployment. Caasify's Launch only builds from Git, so both apps use the root directory `deploy/`, whose `Dockerfile` just pulls a prebuilt image from GHCR. `make release` builds and pushes the image tagged with the commit, pins that tag in `deploy/Dockerfile`, commits and pushes; the push makes Caasify redeploy both apps. Container port 8080, health check `GET /api/health`. **Run exactly one instance of each (min = max = 1, no scale to zero)**, because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart puts it back at `CLOCK_START`.
+- **Backend:** the `Dockerfile` image on Fly.io, one app per deployment in `fra` (next to Neon's `eu-central-1`), deployed with `make fly-deploy SITE=demo|prod`. Fly's remote builder builds the image. Port 8080, health check `GET /api/health`, 1 GB shared CPU. `DATABASE_URL` (and `SOURCES` for prod) are Fly secrets; the demo's `CLOCK_START` is in `fly.demo.toml`. **Run exactly one machine per app, always on** (`--ha=false`, `auto_stop_machines = "off"`), because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart or deploy puts it back at `CLOCK_START`.
 - **Database:** Neon Postgres, via `DATABASE_URL`. The migrations run on start and expect an empty branch.
-- **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy SITE=demo|prod`. That stages `frontend/public` in `frontend/.deploy/<SITE>`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `DEMO_BACKEND_HOST` or `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `wtc-<SITE>` (linked on the first deploy).
+- **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy SITE=demo|prod`. That stages `frontend/public` in `frontend/.deploy/<SITE>`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `DEMO_BACKEND_HOST` or `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `bigs-live` (prod) or `bigs-live-demo` (demo), linked on the first deploy.
