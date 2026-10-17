@@ -26,7 +26,7 @@ make web-build | web-deploy        # frontend release build | deploy prebuilt to
 make run DEMO=1                    # app on the JVM against the compose Postgres (port 8090)
 make run-mem                       # app on the JVM, in-memory store, no Docker
 make repl                          # nREPL on 7888, then (user/start) / (user/restart)
-make psql | logs | down | reset    # reset also deletes the DB volume
+make psql | logs | down | db-reset # db-reset empties the DB and brings the stack back up
 make uber | image                  # target/wtc.jar | production image `wtc`
 make roster                        # build resources/roster/wtc-2026.edn from roster/*.json; fetches only uncached countries
 make roster-refresh                # re-fetch every roster/*.json from the official endpoint (~2 min), then build
