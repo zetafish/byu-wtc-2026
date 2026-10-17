@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run demo-reset demo-off run-mem repl up down logs psql uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh
+.PHONY: help test run demo-reset demo-off run-mem repl up down logs psql db-reset uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh
 
 PORT ?= 8090
+NEON_BRANCH ?= demo
 
 # DEMO=1 runs a demo race: it stands at CLOCK_START (default lap 31) until
 # the site's simulation panel moves it (step, jump, play). It's saved in
@@ -59,6 +60,10 @@ demo-off: ## Back to the real-time clock
 
 logs: ## Follow the app and web logs
 	docker compose logs -f app web
+
+db-reset: ## Reset the Neon branch NEON_BRANCH (default demo) to its parent, then restart the app
+	npx -y neonctl branches reset $(NEON_BRANCH) --parent $(if $(NEON_PROJECT_ID),--project-id $(NEON_PROJECT_ID))
+	-docker compose restart app
 
 psql: ## Open psql on DATABASE_URL (Neon); needs a local psql
 	$(need-db)psql "$$DATABASE_URL"

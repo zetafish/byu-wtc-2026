@@ -23,7 +23,7 @@
       (is (zero? (:rejected (model/sanitize snap))))
       (testing "runs the team members of the real roster"
         (is (= 1033 (count (:runners snap))))
-        (is (some #(= "NED-kanter-eefting" (:id %)) (:runners snap))))))
+        (is (some #(= "NED-01" (:id %)) (:runners snap))))))
   (testing ":countries limits the roster"
     (is (= #{"NED" "BEL"} (set (map :country (:runners (fetch {:countries ["NED" "BEL"]} 1)))))))
   (testing "reveals more as time passes"
@@ -97,7 +97,7 @@
   (let [info (roster/runner-info)
         sys (assoc (system {:id :mock :type :mock :countries ["NED"]}) :roster-info info)
         d (ingest/tick! sys)]
-    (is (= 54 (get-in d [:runners "NED-kanter-eefting" :best-yards])))
+    (is (= 54 (get-in d [:runners "NED-01" :best-yards])))
     (testing "source fields win over roster info"
       (is (= "x" (get-in (roster/enrich {:runners {"a" {:id "a" :bib "x"}}} {"a" {:bib "y" :best-yards 3}})
                          [:runners "a" :bib]))))))

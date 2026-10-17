@@ -87,7 +87,7 @@
   {"At Large List" :at-large "Silver Ticket" :silver-ticket "Reserve" :reserve})
 
 (defn- runner [code {:keys [rank status wa name best_yards yards race date]}]
-  (cond-> {:id (str code "-" (slug name))
+  (cond-> {:id (format "%s-%02d" code rank)
            :name (str/trim name)
            :rank rank
            :role (if (<= rank team-size) :team :reserve)
@@ -136,9 +136,10 @@
                              ;; The roster sometimes lists one person twice (e.g.
                              ;; with and without an accent); keep the best rank.
                              {kept false dupes true} (group-by (let [seen (volatile! #{})]
-                                                                 (fn [{:keys [id]}]
-                                                                   (let [dup? (contains? @seen id)]
-                                                                     (vswap! seen conj id)
+                                                                 (fn [{:keys [name]}]
+                                                                   (let [k (slug name)
+                                                                         dup? (contains? @seen k)]
+                                                                     (vswap! seen conj k)
                                                                      dup?)))
                                                                runners)]
                          {:country {:code code :name (display-names c c) :runners (vec kept)}
@@ -156,7 +157,7 @@
              :notes ["Ranks 1-15 are the team (:role :team), 16+ are reserves."
                      "Empty slots are dropped, so some countries have fewer runners."
                      ":wa is copied verbatim from the roster's W/A column; its meaning isn't documented there."
-                     ":id is <country code>-<slugged name>; real-time adapters should produce the same ids."
+                     ":id is <country code>-<seat>, the seat being the two-digit roster rank (NED-01); real-time adapters should produce the same ids."
                      "Runners listed twice in one country keep their best rank; the others are in :dropped-duplicates."]
              :dropped-duplicates (into [] (comp (mapcat :dupes)
                                                 (map #(select-keys % [:id :name :rank])))

@@ -34,9 +34,9 @@ sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-
 Every adapter must produce this shape. A source returns a full **snapshot**, never a delta.
 
 - **Country:** `{:code "NED" :name "Netherlands"}`.
-- **Runner:** `{:id "NED-jan-jansen" :name … :country "NED" :bib …}`.
+- **Runner:** `{:id "NED-01" :name … :country "NED" :bib …}`.
   - Ids must be the same across sources, because merging is per `[runner-id lap]`.
-  - Using the roster's ids (`<IOC code>-<slug>`) gets roster enrichment for free.
+  - Using the roster's ids (`<IOC code>-<seat>`) gets roster enrichment for free.
 - **Lap:** `{:runner-id :lap :status :finished|:dnf :seconds}`. Lap n runs from start+(n−1) h to start+n h.
 
 `sanitize` drops invalid rows, never the whole snapshot. `merge-datasets` merges the per-source datasets; the higher `:priority` wins per `[runner-id lap]`.
@@ -53,8 +53,8 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 | No result yet (for example a blank cell) → **no lap row at all**, never a placeholder | |
 
 **Runner ids:**
-- The roster ids are `<IOC code>-<slug of the name>`. The slug function lives in `scripts/fetch_roster.clj`, which is babashka, so it isn't on the JVM classpath.
-- An adapter should resolve names against the roster EDN rather than re-slugging. Copy `slug` into `wtc.roster` if it needs it.
+- The roster ids are `<IOC code>-<seat>`, the seat being the roster rank as two digits (`NED-01`, reserves `NED-16` and up). They follow the seat, so they rely on seat = roster rank.
+- An adapter must resolve each runner to its id through the roster EDN, by country and name or bib. The name `slug` function in `scripts/fetch_roster.clj` (babashka, not on the JVM classpath) helps match names; copy it into `wtc.roster` if needed.
 - The IOC code map for country names is `codes` in the same script.
 - A runner whose id isn't in the roster still works, but gets no `:rank` or `:best-yards`.
 
@@ -98,7 +98,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `refresh!` merges, enriches and derives.
   - `make-clock` provides real time, or the fixed moment of a demo race: state `:sim` `{at end-lap}`, there only when `CLOCK_START` is set. A demo race stands still until `control-sim` moves it (jump to a lap, or step k laps), always to a moment with the previous lap settled. `sim-end-lap` works out the demo race's last lap once at boot (the sources fetched as if a month had passed), for the slider. In a demo every API response is `Cache-Control: no-store`. The position lives in memory only, so an app restart puts the race back at `CLOCK_START`.
 - **`wtc.store`:** the `Store` protocol, plus `MemoryStore`. **`wtc.store.postgres`** creates its tables on start:
-  - `countries`, `runners` and `laps`, all keyed by `source`;
+  - `countries`, `runners` and `laps`, all keyed by `source` plus the adapters' ids (`ISL`, `ISL-01`), with foreign keys `laps (source, runner_id)` → `runners` and `runners (source, country)` → `countries`;
   - `fetches`, a log of every fetch with its duration, ok/error, laps and rejected rows.
 
   The API never reads from Postgres.
@@ -166,7 +166,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 - **Cache:** `roster/` is a read-through cache, with `_.json` for the country list and one `<Country>.json` per country. `make roster` fetches only missing countries; `make roster-refresh` re-fetches all of them (~2 min).
 - **Output:**
   - Ranks 1–15 are `:role :team`, 16 and up `:reserve`.
-  - Ids are `<IOC code>-<slug>`; CJK names keep their characters.
+  - Ids are `<IOC code>-<two-digit rank>`. Duplicate people in one country are found by name slug (CJK names keep their characters).
   - `display-names` overrides the shown name of a country; for now only AIN → "Individual Neutral Athletes (Russia)".
   - Duplicate names in a country keep the best rank, and the others go to `:dropped-duplicates`.
   - `:fetched-at` is the newest raw file's modification time.
@@ -190,7 +190,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - `app`: the backend on :8090.
   - `web`: the nginx-served release build on :8091. It uses `resolver 127.0.0.11` with a variable upstream, so a backend restart doesn't leave a stale IP.
   - `web-dev`: `shadow-cljs watch` with hot reload on :8092, and the shadow-cljs UI on :9630.
-- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at a Neon branch (e.g. `demo`, never the production branch); compose and `make run` refuse to start without it. "Reset from parent" in the Neon console resets the branch. `make run-mem` uses the in-memory store.
+- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at a Neon branch (e.g. `demo`, never the production branch); compose and `make run` refuse to start without it. `make db-reset` resets the branch to its parent with `neonctl` (or use "Reset from parent" in the Neon console). `make run-mem` uses the in-memory store.
 - **Ports** avoid 8080 and 8787, which local `bb` servers often use.
 - **`DEMO=1`** writes `CLOCK_START` (default `2026-10-18T18:00:00Z`, lap 31) to `.env`, which compose reads, so a plain `docker compose up` is a demo too. A restart puts the race back at `CLOCK_START`.
 - **REPL:** `make repl` starts nREPL on 7888; then run `(user/start)` or `(user/restart)` from `dev/user.clj`.

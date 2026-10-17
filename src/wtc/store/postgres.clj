@@ -15,12 +15,23 @@
    "create table if not exists runners (
       source text not null, id text not null, name text not null,
       country text not null, bib text,
-      primary key (source, id))"
+      primary key (source, id),
+      constraint runners_country_fkey
+        foreign key (source, country) references countries (source, code))"
    "create table if not exists laps (
       source text not null, runner_id text not null, lap int not null,
       status text not null, seconds int,
       updated_at timestamptz not null default now(),
-      primary key (source, runner_id, lap))"
+      primary key (source, runner_id, lap),
+      constraint laps_runner_fkey
+        foreign key (source, runner_id) references runners (source, id))"
+   ;; Tables created before the foreign keys existed get them here.
+   "do $$ begin
+      alter table runners add constraint runners_country_fkey foreign key (source, country) references countries (source, code);
+    exception when duplicate_object then null; end $$"
+   "do $$ begin
+      alter table laps add constraint laps_runner_fkey foreign key (source, runner_id) references runners (source, id);
+    exception when duplicate_object then null; end $$"
    "create table if not exists fetches (
       id bigserial primary key, source text not null,
       started_at timestamptz not null, duration_ms int not null,
