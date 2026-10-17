@@ -98,8 +98,8 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `refresh!` merges, enriches and derives.
   - `make-clock` provides real time, or the fixed moment of a demo race: state `:sim` `{at end-lap}`, there only when `CLOCK_START` is set. A demo race stands still until `control-sim` moves it (jump to a lap, or step k laps), always to a moment with the previous lap settled. `sim-end-lap` works out the demo race's last lap once at boot (the sources fetched as if a month had passed), for the slider. In a demo every API response is `Cache-Control: no-store`. The position lives in memory only, so an app restart puts the race back at `CLOCK_START`.
 - **`wtc.store`:** the `Store` protocol, plus `MemoryStore`. **`wtc.store.postgres`** creates its tables on start:
-  - `countries`, `runners` and `laps`, all keyed by `source` plus the adapters' ids (`ISL`, `ISL-01`), with foreign keys `laps (source, runner_id)` → `runners` and `runners (source, country)` → `countries`;
-  - `fetches`, a log of every fetch with its duration, ok/error, laps and rejected rows.
+  - `country`, `runner` and `lap` (table names are singular), all keyed by `source` plus the adapters' ids (`ISL`, `ISL-01`), with foreign keys `lap (source, runner_id)` → `runner` and `runner (source, country)` → `country`;
+  - `fetch_log`, a log of every fetch with its duration, ok/error, laps and rejected rows.
 
   The API never reads from Postgres.
 - **`wtc.metrics`:** visualisation queries, in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The current entries:

@@ -9,30 +9,30 @@
            (java.sql Timestamp)))
 
 (def ^:private schema
-  ["create table if not exists countries (
+  [;; The plural tables of earlier versions. The data ones only hold a copy
+   ;; of what the sources serve, so the next fetch refills them; the fetch
+   ;; log is kept.
+   "drop table if exists laps, runners, countries"
+   "do $$ begin
+      if to_regclass('fetches') is not null and to_regclass('fetch_log') is null then
+        alter table fetches rename to fetch_log;
+      end if;
+    end $$"
+   "create table if not exists country (
       source text not null, code text not null, name text not null,
       primary key (source, code))"
-   "create table if not exists runners (
+   "create table if not exists runner (
       source text not null, id text not null, name text not null,
       country text not null, bib text,
       primary key (source, id),
-      constraint runners_country_fkey
-        foreign key (source, country) references countries (source, code))"
-   "create table if not exists laps (
+      foreign key (source, country) references country (source, code))"
+   "create table if not exists lap (
       source text not null, runner_id text not null, lap int not null,
       status text not null, seconds int,
       updated_at timestamptz not null default now(),
       primary key (source, runner_id, lap),
-      constraint laps_runner_fkey
-        foreign key (source, runner_id) references runners (source, id))"
-   ;; Tables created before the foreign keys existed get them here.
-   "do $$ begin
-      alter table runners add constraint runners_country_fkey foreign key (source, country) references countries (source, code);
-    exception when duplicate_object then null; end $$"
-   "do $$ begin
-      alter table laps add constraint laps_runner_fkey foreign key (source, runner_id) references runners (source, id);
-    exception when duplicate_object then null; end $$"
-   "create table if not exists fetches (
+      foreign key (source, runner_id) references runner (source, id))"
+   "create table if not exists fetch_log (
       id bigserial primary key, source text not null,
       started_at timestamptz not null, duration_ms int not null,
       ok boolean not null, error text, laps int, rejected int)"])
@@ -62,9 +62,9 @@
   store/Store
   (load-datasets [_]
     (let [q #(group-by :source (jdbc/execute! ds [%] opts))
-          countries (q "select * from countries")
-          runners (q "select * from runners")
-          laps (q "select * from laps")]
+          countries (q "select * from country")
+          runners (q "select * from runner")
+          laps (q "select * from lap")]
       (into {}
             (for [src (distinct (concat (keys countries) (keys runners)))]
               [(keyword src)
@@ -81,21 +81,21 @@
   (save-dataset! [_ source-id {:keys [countries runners laps]}]
     (let [src (name source-id)]
       (jdbc/with-transaction [tx ds]
-        (batch! tx "insert into countries (source, code, name) values (?, ?, ?)
+        (batch! tx "insert into country (source, code, name) values (?, ?, ?)
                     on conflict (source, code) do update set name = excluded.name"
                 (map (fn [c] [src (:code c) (:name c)]) (vals countries)))
-        (batch! tx "insert into runners (source, id, name, country, bib) values (?, ?, ?, ?, ?)
+        (batch! tx "insert into runner (source, id, name, country, bib) values (?, ?, ?, ?, ?)
                     on conflict (source, id) do update set name = excluded.name,
                     country = excluded.country, bib = excluded.bib"
                 (map (fn [r] [src (:id r) (:name r) (:country r) (:bib r)]) (vals runners)))
-        (batch! tx "insert into laps (source, runner_id, lap, status, seconds) values (?, ?, ?, ?, ?)
+        (batch! tx "insert into lap (source, runner_id, lap, status, seconds) values (?, ?, ?, ?, ?)
                     on conflict (source, runner_id, lap) do update set status = excluded.status,
                     seconds = excluded.seconds, updated_at = now()
-                    where (laps.status, laps.seconds) is distinct from (excluded.status, excluded.seconds)"
+                    where (lap.status, lap.seconds) is distinct from (excluded.status, excluded.seconds)"
                 (map (fn [l] [src (:runner-id l) (:lap l) (name (:status l)) (:seconds l)]) (vals laps))))))
 
   (record-fetch! [_ {:keys [source started-at duration-ms ok error laps rejected]}]
-    (jdbc/execute! ds ["insert into fetches (source, started_at, duration_ms, ok, error, laps, rejected)
+    (jdbc/execute! ds ["insert into fetch_log (source, started_at, duration_ms, ok, error, laps, rejected)
                         values (?, ?, ?, ?, ?, ?, ?)"
                        (name source) (Timestamp/from started-at) duration-ms ok error laps rejected]))
 
