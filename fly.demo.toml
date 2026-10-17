@@ -1,7 +1,7 @@
 # The demo backend. DATABASE_URL (its own Neon branch) is a secret:
-#   fly secrets set -a byu-wtc-demo DATABASE_URL='postgres://…'
+#   fly secrets set -a bigs-live-demo DATABASE_URL='postgres://…'
 # Deploy with `make fly-deploy SITE=demo`.
-app = "byu-wtc-demo"
+app = "bigs-live-demo"
 primary_region = "fra"  # next to Neon (eu-central-1)
 
 [env]

@@ -184,7 +184,7 @@ With two runners left (A and B):
 
 - [ ] **Real data adapter(s).** The source is still unknown. Candidates: the official results page, a Google doc, or per-country feeds.
 - [ ] **Deploy:**
-  - set up the Fly.io apps `byu-wtc-prod` and `byu-wtc-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
+  - set up the Fly.io apps `bigs-live` and `bigs-live-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.
 - [ ] **Seat = roster rank** [assumed]: confirm.
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).

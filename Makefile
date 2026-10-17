@@ -2,8 +2,8 @@
 .PHONY: help test run demo-reset demo-off run-mem repl up down logs psql db-reset uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy
 
 PORT ?= 8090
-# Local development and `make db-reset` only touch the Neon project byu-wtc-demo,
-# never the production project byu-wtc-2026.
+# Local development and `make db-reset` only touch the Neon project bigs-live-demo,
+# never the production project bigs-live.
 NEON_PROJECT_ID ?= winter-leaf-48380451
 NEON_BRANCH ?= local
 
@@ -14,7 +14,7 @@ NEON_BRANCH ?= local
 # real time.
 #
 # The database is always Neon: put DATABASE_URL (the branch `local` of the
-# Neon project byu-wtc-demo)
+# Neon project bigs-live-demo)
 # in .env. Only `make run-mem` and the tests work without it.
 -include .env
 ifdef DEMO
@@ -111,7 +111,7 @@ roster-refresh: ## Re-fetch + build the whole roster (~2min)
 clean: ## Remove build output
 	rm -rf target .cpcache frontend/public/js frontend/.shadow-cljs
 
-# Two backends on Fly.io, byu-wtc-demo and byu-wtc-prod, configured in
+# Two backends on Fly.io, bigs-live-demo and bigs-live, configured in
 # fly.<SITE>.toml. Fly's remote builder builds the Dockerfile. --ha=false keeps
 # it at one machine: the scheduler and the state are in-process.
 fly-deploy: ## Deploy the backend to Fly.io: SITE=demo (default) or SITE=prod

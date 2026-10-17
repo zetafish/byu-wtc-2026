@@ -1,7 +1,7 @@
 # The prod backend. DATABASE_URL (its own Neon branch) is a secret:
-#   fly secrets set -a byu-wtc-prod DATABASE_URL='postgres://…'
+#   fly secrets set -a bigs-live DATABASE_URL='postgres://…'
 # Deploy with `make fly-deploy SITE=prod`.
-app = "byu-wtc-prod"
+app = "bigs-live"
 primary_region = "fra"  # next to Neon (eu-central-1)
 
 # No CLOCK_START: real time. SOURCES, if any, as a secret or here in [env].

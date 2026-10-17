@@ -190,7 +190,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - `app`: the backend on :8090.
   - `web`: the nginx-served release build on :8091. It uses `resolver 127.0.0.11` with a variable upstream, so a backend restart doesn't leave a stale IP.
   - `web-dev`: `shadow-cljs watch` with hot reload on :8092, and the shadow-cljs UI on :9630.
-- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at the branch `local` of the Neon project `byu-wtc-demo`, never at the production project; compose and `make run` refuse to start without it. `make db-reset` resets `local` to its parent `main` (the hosted demo's data) with `neonctl`, and only ever in `byu-wtc-demo` (`NEON_PROJECT_ID`). `make run-mem` uses the in-memory store.
+- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at the branch `local` of the Neon project `bigs-live-demo`, never at the production project; compose and `make run` refuse to start without it. `make db-reset` resets `local` to its parent `main` (the hosted demo's data) with `neonctl`, and only ever in `bigs-live-demo` (`NEON_PROJECT_ID`). `make run-mem` uses the in-memory store.
 - **Ports** avoid 8080 and 8787, which local `bb` servers often use.
 - **`DEMO=1`** writes `CLOCK_START` (default `2026-10-18T18:00:00Z`, lap 31) to `.env`, which compose reads, so a plain `docker compose up` is a demo too. A restart puts the race back at `CLOCK_START`.
 - **REPL:** `make repl` starts nREPL on 7888; then run `(user/start)` or `(user/restart)` from `dev/user.clj`.
@@ -202,8 +202,8 @@ There are two deployments, **prod** and **demo**, built from the same image and 
 
 | | prod | demo |
 |---|---|---|
-| Fly.io app | `byu-wtc-prod` (`fly.prod.toml`) | `byu-wtc-demo` (`fly.demo.toml`) |
-| Neon (`DATABASE_URL`) | project `byu-wtc-2026`, branch `production` | project `byu-wtc-demo`, branch `main` (local development uses its child `local`) |
+| Fly.io app | `bigs-live` (`fly.prod.toml`) | `bigs-live-demo` (`fly.demo.toml`) |
+| Neon (`DATABASE_URL`) | project `bigs-live`, branch `main` | project `bigs-live-demo`, branch `main` (local development uses its child `local`) |
 | `CLOCK_START` | unset (real time) | set, e.g. `2026-10-18T18:00:00Z` |
 | `SOURCES` | the real sources | unset (mock) |
 | Vercel project | `bigs-live` (bigs-live.vercel.app) | `bigs-live-demo` (bigs-live-demo.vercel.app) |
