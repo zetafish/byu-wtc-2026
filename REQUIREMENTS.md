@@ -79,8 +79,13 @@ With two runners left (A and B):
 
 ## 4. Data
 
-- **The live data source is unknown and can't be influenced.** The site works against its own data model, with pluggable adapters per source. It runs on mock data until a real source is known. [decided]
-- Assume minimal data: per runner, per lap, a time or a DNF. Some countries may have their own feeds with more detail or better accuracy. Several sources can run side by side, and the source with the higher priority wins per runner and lap. [brief]
+- **The live data source can't be influenced.** The site works against its own data model, with pluggable adapters per source. [decided]
+- **The real sources** [decided]:
+  - the official site's results feed (`/api/results`, adapter `wtc.source.official`): full names, lap times, stop reasons, read from the organisers' master sheet. It's the feed the official site's own pages poll, not a promised API.
+  - not merged with anything: a second source would overrule the organisers' corrections (a removed yard lives on in the other source).
+  - manual fallback, only if the feed is gone for good: the published leaderboard Google Sheet (tab `Lite2`, adapter `wtc.source.sheet`): yards only, no times, no DNFs, and Google serves stale copies.
+- Assume minimal data: per runner, per lap, finished or DNF. **A lap time is optional:** Big's Backyard Ultra has never required one, and a contending team may publish only finished/not finished to keep its rivals guessing. Expect the times to be missing most often at the front, late in the race. Everything that ranks or decides (yards, team rule, seats) must work without times; lap-time views show "time not recorded" for a finished lap without one, and never treat it as 0. [decided]
+- Some countries may have their own feeds with more detail or better accuracy. Several sources can run side by side, and the source with the higher priority wins per runner and lap. [brief]
 - Each source delivers a full snapshot, not changes. Late or corrected data must fix the site on the next refresh. [decided]
 - Data is fetched every 60 s. A failed or slow fetch must never take the site down: the last good data stays live, and the site shows a notice that the source has a problem. [brief]
 - **Who reports the results:** the official overall feed is fed by each country's race director, who submits their runners' results to the organisation every hour. The organisation then updates the overall data, possibly by aggregating a Google Sheet. Race directors know exactly when a runner DNFs, so in the official feed **a DNF is reported as a DNF, and turn-backs don't occur**. [decided]
@@ -182,7 +187,8 @@ With two runners left (A and B):
 
 ## 9. Open questions and to do
 
-- [ ] **Real data adapter(s).** The source is still unknown. Candidates: the official results page, a Google doc, or per-country feeds.
+- [x] **Real data adapters:** `wtc.source.official` (the one in use) and `wtc.source.sheet` (manual fallback).
+- [ ] **Late countries:** with the sheet, a country that reports late shows as out until it reports (`GRACE_SECONDS`, default 15 min). What grace fits hourly manual entry?
 - [ ] **Deploy:**
   - set up the Fly.io apps `bigs-live` and `bigs-live-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.

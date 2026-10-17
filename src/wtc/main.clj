@@ -8,6 +8,8 @@
             [wtc.ingest :as ingest]
             [wtc.source :as source]
             [wtc.source.mock]
+            [wtc.source.official]
+            [wtc.source.sheet]
             [wtc.store :as store]
             [wtc.store.postgres :as pg])
   (:import (java.time Instant)

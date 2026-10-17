@@ -1,0 +1,2196 @@
+{
+ "generatedAt": "2026-10-17T14:58:29.074Z",
+ "raceStart": "2026-10-17T12:00:00Z",
+ "mode": "fixture",
+ "nations": [
+  {
+   "code": "NLD",
+   "name": "Netherlands",
+   "iso2": "NL",
+   "division": "AAA",
+   "qualScore": 669,
+   "site": "Leersum, Utrecht",
+   "utcOffset": 2,
+   "managers": [
+    "Chris van Beem"
+   ],
+   "reportedThrough": 2,
+   "issues": []
+  },
+  {
+   "code": "PRT",
+   "name": "Portugal",
+   "iso2": "PT",
+   "division": "AAA",
+   "qualScore": 575,
+   "site": "Ansião, Leiria",
+   "utcOffset": 1,
+   "managers": [
+    "Tiago Borges Costa"
+   ],
+   "reportedThrough": 2,
+   "issues": []
+  },
+  {
+   "code": "TWN",
+   "name": "Taipei",
+   "iso2": "TW",
+   "division": "AA",
+   "qualScore": 421,
+   "site": "Nantou, Taiwan",
+   "utcOffset": 8,
+   "managers": [
+    "Tomasz Hasinski"
+   ],
+   "reportedThrough": 2,
+   "issues": []
+  },
+  {
+   "code": "DZA",
+   "name": "Algeria",
+   "iso2": "DZ",
+   "division": "A",
+   "qualScore": 373,
+   "site": "In Salah, Algeria",
+   "utcOffset": 1,
+   "managers": [
+    "Lies Makhlouf"
+   ],
+   "reportedThrough": 3,
+   "issues": [
+    "Master: Madjid Bentalha (Algeria) yard 1 \"0.03563657407\" is not a valid time"
+   ]
+  },
+  {
+   "code": "MUS",
+   "name": "Mauritius",
+   "iso2": "MU",
+   "division": "A",
+   "qualScore": 202,
+   "site": "La Valée de Ferney",
+   "utcOffset": 4,
+   "managers": [
+    "Jean-Marc Rivet"
+   ],
+   "reportedThrough": 0,
+   "issues": []
+  }
+ ],
+ "runners": [
+  {
+   "id": "PRT-paulo-moreira",
+   "nation": "PRT",
+   "name": "Paulo Moreira",
+   "gender": "M",
+   "age": 57,
+   "dns": false,
+   "qual": {
+    "yards": 40,
+    "race": "Backyard Trilho dos Cágados VCO",
+    "date": null,
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2652,
+    2636,
+    2589
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-francisco-gomes",
+   "nation": "PRT",
+   "name": "Francisco Gomes",
+   "gender": "M",
+   "age": 30,
+   "dns": false,
+   "qual": {
+    "yards": 38,
+    "race": "Lisboa Backyard Ultra",
+    "date": null,
+    "status": "Silver Ticket",
+    "wa": "W"
+   },
+   "laps": [
+    2652,
+    2637,
+    2590
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-filipe-silva",
+   "nation": "PRT",
+   "name": "Filipe Silva",
+   "gender": "M",
+   "age": 48,
+   "dns": false,
+   "qual": {
+    "yards": 37,
+    "race": "Lisboa Backyard Ultra",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    2652,
+    2637,
+    2590
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-antonio-pinto",
+   "nation": "PRT",
+   "name": "António Pinto",
+   "gender": "M",
+   "age": 58,
+   "dns": false,
+   "qual": {
+    "yards": 40,
+    "race": "Bracarvs Backyard Ultra Vila Verde",
+    "date": "2026-06-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3040,
+    2900,
+    2590
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-adriano-furtado",
+   "nation": "PRT",
+   "name": "Adriano Furtado",
+   "gender": "M",
+   "age": 50,
+   "dns": false,
+   "qual": {
+    "yards": 37,
+    "race": "Madeira Backyard Ultra",
+    "date": null,
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2853,
+    2901,
+    2867
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-sergio-freitas",
+   "nation": "PRT",
+   "name": "Sergio Freitas",
+   "gender": "M",
+   "age": 52,
+   "dns": false,
+   "qual": {
+    "yards": 36,
+    "race": "Madeira Backyard Ultra",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    2854,
+    2901,
+    2867
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-antonio-quaresma",
+   "nation": "PRT",
+   "name": "Antonio Quaresma",
+   "gender": "M",
+   "age": 49,
+   "dns": false,
+   "qual": {
+    "yards": 37,
+    "race": "Backyard Ultra - World Team Championship 2024 - POR",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3021,
+    2956,
+    2867
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-jose-goncalves",
+   "nation": "PRT",
+   "name": "Jose Goncalves",
+   "gender": "M",
+   "age": 29,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Bracarvs Backyard Ultra Vila Verde",
+    "date": "2026-06-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3023,
+    3170,
+    2867
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-alexandre-silva",
+   "nation": "PRT",
+   "name": "Alexandre Silva",
+   "gender": "M",
+   "age": 46,
+   "dns": false,
+   "qual": {
+    "yards": 37,
+    "race": "Backyard Ultra Ansião",
+    "date": null,
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    3040,
+    3291,
+    3378
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-samuel-vidinha",
+   "nation": "PRT",
+   "name": "Samuel Vidinha",
+   "gender": "M",
+   "age": 36,
+   "dns": false,
+   "qual": {
+    "yards": 44,
+    "race": "Bracarvs Backyard Ultra Vila Verde",
+    "date": "2026-06-06",
+    "status": "Silver Ticket",
+    "wa": "W"
+   },
+   "laps": [
+    3226,
+    3291,
+    3204
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-joao-espiguinha",
+   "nation": "PRT",
+   "name": "João Espiguinha",
+   "gender": "M",
+   "age": 51,
+   "dns": false,
+   "qual": {
+    "yards": 30,
+    "race": "Feirense Backyard Ultra",
+    "date": null,
+    "status": "Silver Ticket",
+    "wa": "W"
+   },
+   "laps": [
+    3041,
+    3359,
+    3394
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-ana-pereira",
+   "nation": "PRT",
+   "name": "Ana Pereira",
+   "gender": "F",
+   "age": 46,
+   "dns": false,
+   "qual": {
+    "yards": 37,
+    "race": "BACKYARD BY DECATHLON – PONTA DELGADA",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    3320,
+    3387,
+    3427
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-tiago-borges-da-costa",
+   "nation": "PRT",
+   "name": "Tiago Borges da Costa",
+   "gender": "M",
+   "age": 43,
+   "dns": false,
+   "qual": {
+    "yards": 41,
+    "race": "Legends Backyard Belgium",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3025,
+    3292
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-mickael-reis",
+   "nation": "PRT",
+   "name": "Mickael Reis",
+   "gender": "M",
+   "age": 37,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Backyard Trilho dos Cágados VCO",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    3320,
+    3360
+   ],
+   "stop": null
+  },
+  {
+   "id": "PRT-hugo-alves",
+   "nation": "PRT",
+   "name": "Hugo Alves",
+   "gender": "M",
+   "age": 44,
+   "dns": true,
+   "qual": {
+    "yards": 42,
+    "race": "Backyard Ultra - World Team Championship 2024 - POR",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "TWN-",
+   "nation": "TWN",
+   "name": "李銘峰",
+   "gender": "M",
+   "age": 45,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2020,
+    2141
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-xing-guo-cai",
+   "nation": "TWN",
+   "name": "Xing-Guo Cai",
+   "gender": "M",
+   "age": 54,
+   "dns": false,
+   "qual": {
+    "yards": 29,
+    "race": "Backyard Ultra Taipei",
+    "date": "2025-11-01",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2490,
+    2479
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN--2",
+   "nation": "TWN",
+   "name": "林捷如",
+   "gender": "F",
+   "age": 51,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2492,
+    2494
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN--3",
+   "nation": "TWN",
+   "name": "莊俊凱",
+   "gender": "M",
+   "age": 50,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2694,
+    2492
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-ming-chih-liu",
+   "nation": "TWN",
+   "name": "Ming-Chih Liu",
+   "gender": "M",
+   "age": 57,
+   "dns": false,
+   "qual": {
+    "yards": 29,
+    "race": "Backyard Ultra Taipei",
+    "date": "2025-11-01",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2720,
+    2602
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-tieh-cheng-chueh",
+   "nation": "TWN",
+   "name": "Tieh-Cheng Chueh",
+   "gender": null,
+   "age": 56,
+   "dns": false,
+   "qual": {
+    "yards": 29,
+    "race": "Backyard Ultra Taipei",
+    "date": "2025-11-01",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2720,
+    2607
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN--4",
+   "nation": "TWN",
+   "name": "高正治",
+   "gender": "M",
+   "age": 51,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2720,
+    2610
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-shun-yuan-cheng",
+   "nation": "TWN",
+   "name": "Shun-Yuan Cheng",
+   "gender": null,
+   "age": 51,
+   "dns": false,
+   "qual": {
+    "yards": 26,
+    "race": "Backyard Ultra Taipei",
+    "date": "2025-11-01",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2733,
+    2605
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN--5",
+   "nation": "TWN",
+   "name": "林慶華",
+   "gender": "M",
+   "age": 48,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2694,
+    2782
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-hungpin-lee",
+   "nation": "TWN",
+   "name": "Hungpin Lee",
+   "gender": "M",
+   "age": 46,
+   "dns": false,
+   "qual": {
+    "yards": 24,
+    "race": "Backyard Ultra - World Team Championship 2024 - TPE",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    2733,
+    2782
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-kai-ping-jiang",
+   "nation": "TWN",
+   "name": "Kai Ping Jiang",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 21,
+    "race": null,
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2765,
+    2830
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-wen-ya-tsai",
+   "nation": "TWN",
+   "name": "Wen Ya Tsai",
+   "gender": "F",
+   "age": 57,
+   "dns": false,
+   "qual": {
+    "yards": 37,
+    "race": "Backyard Ultra Taipei",
+    "date": "2025-11-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2909,
+    2747
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN--6",
+   "nation": "TWN",
+   "name": "李昱賢",
+   "gender": "M",
+   "age": 49,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2822,
+    2868
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN--7",
+   "nation": "TWN",
+   "name": "范榮墀",
+   "gender": "F",
+   "age": 58,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Taiwan Backyard Ultra",
+    "date": "2026-10-01",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2905,
+    2826
+   ],
+   "stop": null
+  },
+  {
+   "id": "TWN-chia-hung-wei",
+   "nation": "TWN",
+   "name": "Chia-Hung Wei",
+   "gender": "M",
+   "age": 52,
+   "dns": false,
+   "qual": {
+    "yards": 30,
+    "race": "Backyard Ultra Taipei",
+    "date": "2025-11-01",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3360,
+    3253
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-salim-zaouia",
+   "nation": "DZA",
+   "name": "Salim Zaouia",
+   "gender": "M",
+   "age": 41,
+   "dns": false,
+   "qual": {
+    "yards": 30,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2849,
+    2814,
+    2194
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-naim-selloum",
+   "nation": "DZA",
+   "name": "Naim Selloum",
+   "gender": "M",
+   "age": 45,
+   "dns": false,
+   "qual": {
+    "yards": 33,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2851,
+    2793,
+    2782
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-ghiles-khati",
+   "nation": "DZA",
+   "name": "Ghiles Khati",
+   "gender": "M",
+   "age": 24,
+   "dns": false,
+   "qual": {
+    "yards": 26,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2850,
+    2860,
+    2841
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-mazouz-hanane",
+   "nation": "DZA",
+   "name": "Mazouz Hanane",
+   "gender": "F",
+   "age": 37,
+   "dns": false,
+   "qual": {
+    "yards": 19,
+    "race": "Mezghena Backyard",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2849,
+    2858,
+    2856
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-dahdah-nabyl",
+   "nation": "DZA",
+   "name": "Dahdah Nabyl",
+   "gender": "M",
+   "age": 36,
+   "dns": false,
+   "qual": {
+    "yards": 20,
+    "race": "Mexghena Backyard",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2901,
+    2857,
+    2855
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-farouk-azib",
+   "nation": "DZA",
+   "name": "Farouk Azib",
+   "gender": "M",
+   "age": 38,
+   "dns": false,
+   "qual": {
+    "yards": 25,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2901,
+    2859,
+    2856
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-djebrouni-zohra",
+   "nation": "DZA",
+   "name": "Djebrouni Zohra",
+   "gender": "F",
+   "age": 49,
+   "dns": false,
+   "qual": {
+    "yards": 22,
+    "race": "Mezghena Backyard",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2902,
+    2924,
+    2794
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-seri-momamed-reda",
+   "nation": "DZA",
+   "name": "Seri Momamed Reda",
+   "gender": "M",
+   "age": 55,
+   "dns": false,
+   "qual": {
+    "yards": 0,
+    "race": "Mezghena Backyard",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2850,
+    2911,
+    2915
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-imessaoudene-mahrez-aghiles",
+   "nation": "DZA",
+   "name": "Imessaoudene Mahrez Aghiles",
+   "gender": "M",
+   "age": 32,
+   "dns": false,
+   "qual": {
+    "yards": 22,
+    "race": "Mezghena Backyard",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2904,
+    2904,
+    2922
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-kerbouche-bilal",
+   "nation": "DZA",
+   "name": "Kerbouche Bilal",
+   "gender": "M",
+   "age": 38,
+   "dns": false,
+   "qual": {
+    "yards": 22,
+    "race": "Mezghena Backyard",
+    "date": "2025-02-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2904,
+    2911,
+    2915
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-madjid-bentalha",
+   "nation": "DZA",
+   "name": "Madjid Bentalha",
+   "gender": "M",
+   "age": 35,
+   "dns": false,
+   "qual": {
+    "yards": 33,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    null,
+    2943,
+    2856
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-malek-leroul",
+   "nation": "DZA",
+   "name": "Malek Leroul",
+   "gender": "M",
+   "age": 39,
+   "dns": false,
+   "qual": {
+    "yards": 33,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3078,
+    2951,
+    2958
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-saddek-mouloua",
+   "nation": "DZA",
+   "name": "Saddek Mouloua",
+   "gender": "M",
+   "age": 30,
+   "dns": false,
+   "qual": {
+    "yards": 33,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3078,
+    3016,
+    2981
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-othmane-hamidi",
+   "nation": "DZA",
+   "name": "Othmane Hamidi",
+   "gender": "M",
+   "age": 45,
+   "dns": false,
+   "qual": {
+    "yards": 27,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3077,
+    3077,
+    2980
+   ],
+   "stop": null
+  },
+  {
+   "id": "DZA-lotfi-mazouz",
+   "nation": "DZA",
+   "name": "Lotfi Mazouz",
+   "gender": "M",
+   "age": 44,
+   "dns": false,
+   "qual": {
+    "yards": 28,
+    "race": "Mezghena Backyard Ultra",
+    "date": "2025-05-12",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3077,
+    3077,
+    2981
+   ],
+   "stop": null
+  },
+  {
+   "id": "MUS-clement-deffrenne",
+   "nation": "MUS",
+   "name": "Clement Deffrenne",
+   "gender": "M",
+   "age": 27,
+   "dns": true,
+   "qual": {
+    "yards": 26,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2025-05-06",
+    "status": "Silver Ticket",
+    "wa": "W"
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-bryan-martin",
+   "nation": "MUS",
+   "name": "Bryan Martin",
+   "gender": "M",
+   "age": 43,
+   "dns": true,
+   "qual": {
+    "yards": 22,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2025-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-allan-parisot",
+   "nation": "MUS",
+   "name": "Allan parisot",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 20,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2025-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-dominique-mootealoo",
+   "nation": "MUS",
+   "name": "Dominique mootealoo",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 16,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-daniel-ricaud",
+   "nation": "MUS",
+   "name": "Daniel ricaud",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 14,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2025-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-guillaume-kiecken",
+   "nation": "MUS",
+   "name": "Guillaume Kiecken",
+   "gender": null,
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 12,
+    "race": null,
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-kuldeep-domun",
+   "nation": "MUS",
+   "name": "Kuldeep domun",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 12,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-raymond-kok-shun",
+   "nation": "MUS",
+   "name": "Raymond Kok Shun",
+   "gender": "M",
+   "age": 65,
+   "dns": true,
+   "qual": {
+    "yards": 11,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-desire-larosee",
+   "nation": "MUS",
+   "name": "Desire Larosee",
+   "gender": "M",
+   "age": 41,
+   "dns": true,
+   "qual": {
+    "yards": 11,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-johan-sury",
+   "nation": "MUS",
+   "name": "Johan Sury",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 11,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2025-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-nishant-chavan",
+   "nation": "MUS",
+   "name": "Nishant chavan",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 10,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-ashvin-seewoolall",
+   "nation": "MUS",
+   "name": "Ashvin seewoolall",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 10,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-kenny-etiennette",
+   "nation": "MUS",
+   "name": "Kenny etiennette",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 9,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-marieyanna-prosper",
+   "nation": "MUS",
+   "name": "Marieyanna prosper",
+   "gender": "F",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 9,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "MUS-yannick-martin",
+   "nation": "MUS",
+   "name": "Yannick martin",
+   "gender": "M",
+   "age": null,
+   "dns": true,
+   "qual": {
+    "yards": 9,
+    "race": "Hug The Backyard Ultra Mauritius",
+    "date": "2026-05-06",
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [],
+   "stop": null
+  },
+  {
+   "id": "NLD-kanter-eefting",
+   "nation": "NLD",
+   "name": "Kanter Eefting",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 54,
+    "race": "Backyard Ultra - World Team Championship 2024 - NED",
+    "date": null,
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    2695,
+    2682,
+    2852,
+    2748,
+    2806,
+    2786,
+    2888,
+    2866,
+    2814,
+    2908,
+    2812,
+    2738,
+    2809,
+    2777,
+    2825,
+    2737,
+    2809,
+    2778,
+    2822,
+    2754,
+    2760,
+    2815,
+    2785,
+    2833,
+    2930,
+    2818,
+    3054,
+    3075,
+    3107,
+    2974,
+    3015,
+    3043,
+    3227,
+    3113,
+    3178,
+    3227,
+    3268,
+    3166,
+    3321,
+    3369,
+    3390,
+    3440
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-nick-leeuwenhoek",
+   "nation": "NLD",
+   "name": "Nick Leeuwenhoek",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 54,
+    "race": "Legends Backyard Belgium",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2437,
+    2487,
+    2531,
+    2589,
+    2454,
+    2567,
+    2420,
+    2519,
+    2451,
+    2453,
+    2471,
+    2344,
+    2379,
+    2428,
+    2448,
+    2506,
+    2493,
+    2445,
+    2466,
+    2481,
+    2511,
+    2531,
+    2455,
+    2494,
+    2400,
+    2394,
+    2589,
+    2585,
+    2665,
+    2592,
+    2659,
+    2602,
+    2541,
+    2682,
+    2586,
+    2551,
+    2647,
+    2643,
+    2597,
+    2607,
+    2568,
+    2611,
+    2689,
+    2754,
+    2783,
+    2756,
+    2723,
+    2751,
+    2732,
+    2818,
+    2872,
+    2940,
+    2890,
+    3054,
+    3006,
+    3004,
+    3084,
+    3159,
+    3076,
+    3121,
+    3118,
+    3143,
+    3159,
+    3308,
+    3354,
+    3339,
+    3287
+   ],
+   "stop": "OVER"
+  },
+  {
+   "id": "NLD-roman-packbier",
+   "nation": "NLD",
+   "name": "Roman Packbier",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 53,
+    "race": "Backyard Ultra - World Team Championship 2024 - NED",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    2613,
+    2680,
+    2804,
+    2677,
+    2789,
+    2746,
+    2746,
+    2761,
+    2726,
+    2753,
+    2683,
+    2690,
+    2591,
+    2697,
+    2609,
+    2593,
+    2711,
+    2665,
+    2657,
+    2624,
+    2587,
+    2702,
+    2697,
+    2652,
+    2725,
+    2700,
+    2729,
+    2737,
+    2832,
+    2754,
+    2758,
+    2904,
+    2853,
+    2800,
+    2898,
+    2831,
+    2726,
+    2807,
+    2816,
+    2776,
+    2825,
+    2868,
+    2958,
+    2869,
+    2958,
+    3011,
+    3063,
+    3067,
+    3104,
+    3022,
+    3200,
+    3213,
+    3309,
+    3278,
+    3292,
+    3248,
+    3354,
+    3425,
+    3398,
+    3367
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-gerben-oevermans",
+   "nation": "NLD",
+   "name": "Gerben Oevermans",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 50,
+    "race": "Dutch Backyard Ultra",
+    "date": null,
+    "status": "Silver Ticket",
+    "wa": "W"
+   },
+   "laps": [
+    2793,
+    2840,
+    2852,
+    2821,
+    2865,
+    2826,
+    2969,
+    2909,
+    2828,
+    2891,
+    2969,
+    2809,
+    2859,
+    2732,
+    2859,
+    2782,
+    2748,
+    2806,
+    2791,
+    2818,
+    2854,
+    2812,
+    2920,
+    2919,
+    2819,
+    2804,
+    3022,
+    2952,
+    2886,
+    3025,
+    2996,
+    2903,
+    3029,
+    3054,
+    3021,
+    2995,
+    2864,
+    2908,
+    2931,
+    3009,
+    2910,
+    2950,
+    3035,
+    2959,
+    3081,
+    3013,
+    2939,
+    2984,
+    3105,
+    2991,
+    3164,
+    3256,
+    3259,
+    3242,
+    3279,
+    3338,
+    3204,
+    3359,
+    3322,
+    3281,
+    3210,
+    3284,
+    3252,
+    3383,
+    3337,
+    3411
+   ],
+   "stop": "INC"
+  },
+  {
+   "id": "NLD-luciano-pappalettera",
+   "nation": "NLD",
+   "name": "Luciano Pappalettera",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 49,
+    "race": "Dutch Backyard Ultra",
+    "date": null,
+    "status": "At Large",
+    "wa": "A"
+   },
+   "laps": [
+    2639,
+    2674,
+    2831,
+    2797,
+    2837,
+    2889,
+    2864,
+    2828,
+    2753,
+    2788,
+    2849,
+    2709,
+    2652,
+    2753,
+    2768,
+    2770,
+    2746,
+    2782,
+    2711,
+    2728,
+    2851,
+    2790,
+    2885,
+    2910,
+    2848,
+    2943,
+    2921,
+    2969,
+    2950,
+    3122,
+    3038,
+    3024,
+    3113,
+    3087,
+    3156,
+    3095,
+    3116,
+    3142,
+    3196,
+    3293,
+    3314,
+    3343
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-hinke-schokker",
+   "nation": "NLD",
+   "name": "Hinke Schokker",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 48,
+    "race": "Backyard Ultra - World Team Championship 2024 - NED",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2787,
+    2700,
+    2860,
+    2881,
+    2834,
+    2865,
+    2737,
+    2839,
+    2739,
+    2898,
+    2865,
+    2798,
+    2762,
+    2731,
+    2822,
+    2834,
+    2671,
+    2739,
+    2733,
+    2676,
+    2738,
+    2780,
+    2755,
+    2791,
+    2820,
+    2759,
+    2807,
+    2905,
+    2806,
+    2923,
+    2874,
+    2802,
+    2814,
+    2973,
+    2844,
+    2749,
+    2921,
+    2935,
+    2901,
+    2799,
+    2889,
+    2943,
+    2850,
+    3001,
+    2857,
+    2906,
+    2959,
+    2925,
+    3002,
+    2959,
+    3118,
+    3055,
+    3145,
+    3064,
+    3132,
+    3114,
+    3230,
+    3241,
+    3333,
+    3173,
+    3187,
+    3154,
+    3203,
+    3331,
+    3255,
+    3272,
+    3440,
+    3401
+   ],
+   "stop": null
+  },
+  {
+   "id": "NLD-bernhard-scholing",
+   "nation": "NLD",
+   "name": "Bernhard Scholing",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 45,
+    "race": "Legends Backyard Belgium",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2608,
+    2654,
+    2725,
+    2848,
+    2747,
+    2842,
+    2858,
+    2828,
+    2721,
+    2742,
+    2768,
+    2768,
+    2713,
+    2764,
+    2872,
+    2818,
+    2853,
+    3014,
+    3059,
+    2997,
+    3125,
+    3220,
+    3213,
+    3353,
+    3312
+   ],
+   "stop": "INC"
+  },
+  {
+   "id": "NLD-jacob-hamburg",
+   "nation": "NLD",
+   "name": "Jacob Hamburg",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 41,
+    "race": "Last Soul Ultra",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    3214,
+    3225,
+    3154,
+    3242,
+    3267,
+    3149,
+    3219,
+    3302,
+    3322,
+    3273,
+    3207,
+    3181,
+    3090,
+    3134,
+    3185,
+    3172,
+    3279,
+    3191,
+    3296,
+    3265,
+    3326,
+    3259,
+    3261,
+    3216,
+    3252,
+    3265,
+    3449,
+    3382,
+    3521,
+    3558,
+    3455,
+    3488
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-steven-vegter",
+   "nation": "NLD",
+   "name": "Steven Vegter",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 41,
+    "race": "Legends Backyard Belgium",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2499,
+    2460,
+    2682,
+    2562,
+    2527,
+    2659,
+    2560,
+    2572,
+    2623,
+    2622,
+    2645,
+    2584,
+    2456,
+    2474,
+    2601,
+    2526,
+    2581,
+    2584,
+    2539,
+    2518,
+    2637,
+    2569,
+    2617,
+    2696,
+    2691,
+    2633,
+    2786,
+    2711,
+    2763,
+    2760,
+    2749,
+    2873,
+    2786,
+    2802,
+    2827,
+    2834,
+    2964,
+    2851,
+    2904,
+    3007,
+    3051,
+    3118,
+    3087,
+    3117,
+    3215,
+    3206,
+    3353,
+    3337,
+    3327
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-gaston-metselaar",
+   "nation": "NLD",
+   "name": "Gaston Metselaar",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 40,
+    "race": "Backyard Ultra - World Team Championship 2024 - NED",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2888,
+    3022,
+    3107,
+    3068,
+    2994,
+    3083,
+    3066,
+    2984,
+    3011,
+    3067,
+    3165,
+    2990,
+    3130,
+    3120,
+    3031,
+    3166,
+    3118,
+    3250,
+    3390,
+    3403,
+    3352
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-kram-maurice",
+   "nation": "NLD",
+   "name": "Kram Maurice",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 40,
+    "race": "Vloethemveld Backyard",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2858,
+    2831,
+    2928,
+    2814,
+    2901,
+    2818,
+    2912,
+    2950,
+    2886,
+    2930,
+    2970,
+    2738,
+    2839,
+    2885,
+    2891,
+    2817,
+    2833,
+    2829,
+    2782,
+    2893,
+    2858,
+    2885,
+    2804,
+    2815,
+    2892,
+    2861,
+    2879,
+    3053,
+    2893,
+    2936,
+    2935,
+    2963,
+    2979,
+    3072,
+    3012,
+    3038,
+    3012,
+    3012,
+    3101,
+    2984,
+    3032,
+    2995,
+    3123,
+    3100,
+    3081,
+    3184,
+    3211,
+    3177,
+    3309,
+    3277,
+    3438,
+    3373,
+    3474,
+    3500,
+    3409
+   ],
+   "stop": "INC"
+  },
+  {
+   "id": "NLD-mark-hessels",
+   "nation": "NLD",
+   "name": "Mark Hessels",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 40,
+    "race": "Dutch Backyard Ultra",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2498,
+    2504,
+    2529,
+    2593,
+    2474,
+    2630,
+    2520,
+    2577,
+    2565,
+    2653,
+    2529,
+    2467,
+    2492,
+    2577,
+    2635,
+    2681,
+    2694,
+    2702,
+    2770,
+    2867,
+    2849,
+    2896,
+    2968,
+    3010,
+    3052,
+    3125,
+    3318,
+    3524
+   ],
+   "stop": "INC"
+  },
+  {
+   "id": "NLD-ran-franken",
+   "nation": "NLD",
+   "name": "Ran Franken",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Hannover Backyard Ultra",
+    "date": "2026-08-08",
+    "status": "At Large",
+    "wa": "W"
+   },
+   "laps": [
+    3169,
+    3054,
+    3260,
+    3233,
+    3101,
+    3162,
+    3206,
+    3172,
+    3211,
+    3143,
+    3176,
+    3102,
+    3181,
+    3023,
+    3060,
+    3109,
+    3153,
+    3134,
+    3117,
+    3096,
+    3110,
+    3180,
+    3065,
+    3092,
+    3247,
+    3120,
+    3273,
+    3243,
+    3236,
+    3243,
+    3321,
+    3298,
+    3260,
+    3364,
+    3322,
+    3362,
+    3291,
+    3272,
+    3369,
+    3436,
+    3514,
+    3478
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-adriaan-pandelaers",
+   "nation": "NLD",
+   "name": "Adriaan Pandelaers",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 39,
+    "race": "Backyard Ultra - World Team Championship 2024 - NED",
+    "date": null,
+    "status": "At Large",
+    "wa": null
+   },
+   "laps": [
+    2902,
+    2986,
+    3077,
+    2988,
+    3018,
+    3017,
+    3052,
+    3011,
+    3102,
+    3031,
+    3076,
+    2908,
+    2893,
+    3058,
+    3001,
+    3013,
+    3051,
+    3017,
+    3115,
+    3255,
+    3301,
+    3203,
+    3349,
+    3353,
+    3401
+   ],
+   "stop": "RTC"
+  },
+  {
+   "id": "NLD-onno-overes",
+   "nation": "NLD",
+   "name": "Onno Overes",
+   "gender": null,
+   "age": null,
+   "dns": false,
+   "qual": {
+    "yards": 36,
+    "race": "Dutch Backyard Ultra – Zeewolde",
+    "date": null,
+    "status": "Silver Ticket",
+    "wa": "W"
+   },
+   "laps": [
+    3010,
+    2973,
+    3020,
+    3128,
+    2992,
+    3085,
+    3073,
+    2964,
+    3102,
+    3026,
+    3121,
+    3035,
+    2926,
+    3000,
+    3077,
+    2917,
+    2921,
+    3045,
+    3024,
+    2951,
+    3003,
+    3102,
+    3130,
+    3127,
+    3190,
+    3110,
+    3138,
+    3225,
+    3280,
+    3236,
+    3235,
+    3330,
+    3299,
+    3341,
+    3375,
+    3332,
+    3474
+   ],
+   "stop": "OVER"
+  }
+ ],
+ "config": {
+  "excluded": {
+   "MUS": "Mauritius will not start the 2026 World Team Championship. The country is experiencing its worst civil unrest in decades, with violent protests, widespread property damage and an overnight curfew across 10 administrative regions.",
+   "SGP": "Singapore will not start the 2026 World Team Championship. Air quality is in the Unhealthy range due to transboundary smoke haze from fires in Indonesia."
+  },
+  "hiddenRunners": []
+ }
+}

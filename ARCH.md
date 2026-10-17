@@ -26,7 +26,7 @@ sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-
   - next.jdbc, HikariCP and postgresql: the store, with migratus for migrations;
   - tools.logging with logback.
 
-  There's no CSV library. Add one to `deps.edn` if an adapter needs it.
+  `org.clojure/data.csv` parses CSV (the sheet adapter).
 - **Frontend:** ClojureScript, with shadow-cljs 3.5.5, Reagent 2.0.1 and React 18.3.1. The charts are hand-built SVG; there's no chart library.
 
 ## Data model (`wtc.model`)
@@ -67,6 +67,16 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   4. add it to `SOURCES`.
 
   `SOURCES` *replaces* the default mock, so leave the mock out of it when a real adapter is live; otherwise mock laps merge in wherever the real source has no row. Compose passes `SOURCES` through from the shell or `.env`. Put adapter tests in `test/wtc/source_test.clj`, next to `mock-source`.
+- **`wtc.source.official`:** the official site's own results feed, `https://wtc2026.bigsbackyardultra.com/api/results`, which its pages poll every 30 s. It's read from the organisers' master sheet, so it's fresher than the published sheet and has full names, lap times and stop reasons. An internal feed, not a promised API.
+  - Nations use ISO codes (`NLD`); they're mapped to the roster's (`NED`) by country name. Runners are matched to roster ids by name within their country (Unicode-aware, so Chinese names match too); an unmatched runner keeps their feed id under our code.
+  - `laps[i]` is lap i+1 with that many seconds (`null`: no time recorded). A `stop` (`RTC`, `OVER`, `INC`) or `dns` is a `:dnf` on the next lap. Excluded nations and hidden runners are left out.
+  - Polls send the last ETag, so an unchanged feed is a 304.
+  - Run it on its own: `SOURCES='[{:id :official :type :official :priority 10}]'`. Not merged with the sheet: sources merge per runner and lap, so a yard the organisers remove from the feed would live on from a lagging or stale sheet copy. If the feed fails, the ingester keeps its last good data; if it's gone for good, switch `SOURCES` to the sheet by hand.
+- **`wtc.source.sheet`:** the official leaderboard, the published Google Sheet behind the official site's "Leaderboard" link, read as CSV from its `Lite2` tab (yards per country and seat). A manual fallback for `wtc.source.official`, not run next to it. Config: `SOURCES='[{:id :sheet :type :sheet :priority 10}]'`.
+  - Seats are the roster's ranks, so ids are `<code>-<seat>`; names come from the roster. Withdrawn countries (`#` = 0) and seats without a roster runner or yards are skipped.
+  - Only yards: n yards become finished laps 1..n without `:seconds`. No DNFs (they're cell colours, lost in CSV), so `wtc.race` marks a runner out once a lap settles without a result. A country that reports late shows as out until it reports; raise `GRACE_SECONDS` to soften that.
+  - Not the Leaderboard tab: on race day it lagged, its seat-4 column was always `00:00:00`, and its surname lookup showed `#N/A` for running runners. Lite2 matched the official site's feed to the yard.
+  - Google serves different cached copies of a published tab per request, so a copy can be older than the previous one. A copy with fewer yards in total than the last accepted one is rejected as stale (the ingester retries and keeps the last good data).
 - **`wtc.source.mock`:** a deterministic simulation per `:seed` of the real roster: the team members (rank ≤ 15) from `resources/roster/wtc-2026.edn`.
   - Each runner gets a lap capacity drawn around their `:best-yards` (±~25%), and the mock applies the team rule itself.
   - A fetch reveals only what has happened by `:now`, and the generated race is cached per start time.
