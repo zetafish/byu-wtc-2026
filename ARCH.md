@@ -198,6 +198,16 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 ## Deployment
 
-- **Backend:** the `Dockerfile` image, run as a single always-on container on Caasify. **Run exactly one instance**, because the scheduler and the derived state are in-process.
-- **Database:** Neon Postgres, via `DATABASE_URL`.
-- **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt (`make web-deploy`). Set `BACKEND_HOST` in `frontend/vercel.json` first.
+There are two deployments, **prod** and **demo**, built from the same image and differing only in their env vars:
+
+| | prod | demo |
+|---|---|---|
+| Caasify container | `wtc-prod` | `wtc-demo` |
+| Neon branch (`DATABASE_URL`) | production | its own branch (not the `demo` branch that local development resets) |
+| `CLOCK_START` | unset (real time) | set, e.g. `2026-10-18T18:00:00Z` |
+| `SOURCES` | the real sources | unset (mock) |
+| Vercel project | `wtc-prod` | `wtc-demo` |
+
+- **Backend:** the `Dockerfile` image, run as an always-on container on Caasify, one per deployment. Caasify's Launch only builds from Git, so both apps use the root directory `deploy/`, whose `Dockerfile` just pulls a prebuilt image from GHCR. `make release` builds and pushes the image tagged with the commit, pins that tag in `deploy/Dockerfile`, commits and pushes; the push makes Caasify redeploy both apps. Container port 8080, health check `GET /api/health`. **Run exactly one instance of each (min = max = 1, no scale to zero)**, because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart puts it back at `CLOCK_START`.
+- **Database:** Neon Postgres, via `DATABASE_URL`. The migrations run on start and expect an empty branch.
+- **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy SITE=demo|prod`. That stages `frontend/public` in `frontend/.deploy/<SITE>`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `DEMO_BACKEND_HOST` or `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `wtc-<SITE>` (linked on the first deploy).

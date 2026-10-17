@@ -166,6 +166,7 @@ With two runners left (A and B):
 ## 7. Hosting [decided]
 
 - **Backend:** one always-on container on **Caasify**, which is free until 31 Dec 2026, so it covers the race.
+- **Two deployments**, each with its own backend, database branch and site: **prod** (the real race) and **demo** (a demo race on mock data, with the simulation panel). [decided]
 - **Database:** **Neon** Postgres.
 - **Frontend:** **Vercel**. `/api/*` is rewritten to the backend, so the browser stays same-origin and Vercel's CDN caches the API responses.
 
@@ -183,8 +184,7 @@ With two runners left (A and B):
 
 - [ ] **Real data adapter(s).** The source is still unknown. Candidates: the official results page, a Google doc, or per-country feeds.
 - [ ] **Deploy:**
-  - set `BACKEND_HOST` in `frontend/vercel.json`;
-  - set up Caasify and Neon;
+  - set up Neon branches for prod and demo, the Caasify containers `wtc-prod` and `wtc-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.
 - [ ] **Seat = roster rank** [assumed]: confirm.
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).
