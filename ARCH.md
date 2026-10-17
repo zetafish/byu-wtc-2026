@@ -23,7 +23,7 @@ sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-
   - reitit and ring: routing;
   - jsonista: JSON;
   - malli: model schemas;
-  - next.jdbc, HikariCP and postgresql: the store;
+  - next.jdbc, HikariCP and postgresql: the store, with migratus for migrations;
   - tools.logging with logback.
 
   There's no CSV library. Add one to `deps.edn` if an adapter needs it.
@@ -97,7 +97,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - On boot, the datasets are reloaded from the store.
   - `refresh!` merges, enriches and derives.
   - `make-clock` provides real time, or the fixed moment of a demo race: state `:sim` `{at end-lap}`, there only when `CLOCK_START` is set. A demo race stands still until `control-sim` moves it (jump to a lap, or step k laps), always to a moment with the previous lap settled. `sim-end-lap` works out the demo race's last lap once at boot (the sources fetched as if a month had passed), for the slider. In a demo every API response is `Cache-Control: no-store`. The position lives in memory only, so an app restart puts the race back at `CLOCK_START`.
-- **`wtc.store`:** the `Store` protocol, plus `MemoryStore`. **`wtc.store.postgres`** creates its tables on start:
+- **`wtc.store`:** the `Store` protocol, plus `MemoryStore`. **`wtc.store.postgres`** runs the migratus migrations in `resources/migrations` on start (applied ones are recorded in `_migratus`; add a new `<timestamp>-<name>.up.sql`/`.down.sql` pair for every schema change, statements separated by `--;;`; no `if exists`/`if not exists`, which would hide a schema that is not what the migrations say). The tables:
   - `country`, `runner` and `lap` (table names are singular), all keyed by `source` plus the adapters' ids (`ISL`, `ISL-01`), with foreign keys `lap (source, runner_id)` → `runner` and `runner (source, country)` → `country`;
   - `fetch_log`, a log of every fetch with its duration, ok/error, laps and rejected rows.
 

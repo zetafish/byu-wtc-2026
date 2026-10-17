@@ -3,39 +3,11 @@
             [next.jdbc :as jdbc]
             [next.jdbc.connection :as connection]
             [next.jdbc.result-set :as rs]
+            [migratus.core :as migratus]
             [wtc.store :as store])
   (:import (com.zaxxer.hikari HikariDataSource)
            (java.net URI)
            (java.sql Timestamp)))
-
-(def ^:private schema
-  [;; The plural tables of earlier versions. The data ones only hold a copy
-   ;; of what the sources serve, so the next fetch refills them; the fetch
-   ;; log is kept.
-   "drop table if exists laps, runners, countries"
-   "do $$ begin
-      if to_regclass('fetches') is not null and to_regclass('fetch_log') is null then
-        alter table fetches rename to fetch_log;
-      end if;
-    end $$"
-   "create table if not exists country (
-      source text not null, code text not null, name text not null,
-      primary key (source, code))"
-   "create table if not exists runner (
-      source text not null, id text not null, name text not null,
-      country text not null, bib text,
-      primary key (source, id),
-      foreign key (source, country) references country (source, code))"
-   "create table if not exists lap (
-      source text not null, runner_id text not null, lap int not null,
-      status text not null, seconds int,
-      updated_at timestamptz not null default now(),
-      primary key (source, runner_id, lap),
-      foreign key (source, runner_id) references runner (source, id))"
-   "create table if not exists fetch_log (
-      id bigserial primary key, source text not null,
-      started_at timestamptz not null, duration_ms int not null,
-      ok boolean not null, error text, laps int, rejected int)"])
 
 (defn jdbc-url
   "Accepts a jdbc: URL or a postgres:// URL as Neon hands them out."
@@ -101,8 +73,16 @@
 
   (close! [_] (.close ds)))
 
+;; Migrations live in resources/migrations; migratus records the applied ones
+;; in _migratus.
+(defn migrate! [ds]
+  (migratus/migrate {:store :database
+                     :migration-dir "migrations/"
+                     :migration-table-name "_migratus"
+                     :db {:datasource ds}}))
+
 (defn postgres-store [database-url]
   (let [ds (connection/->pool HikariDataSource {:jdbcUrl (jdbc-url database-url)
                                                 :maximumPoolSize 4})]
-    (doseq [ddl schema] (jdbc/execute! ds [ddl]))
+    (migrate! ds)
     (->PostgresStore ds)))
