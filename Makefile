@@ -2,7 +2,10 @@
 .PHONY: help test run demo-reset demo-off run-mem repl up down logs psql db-reset uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy
 
 PORT ?= 8090
-NEON_BRANCH ?= demo
+# Local development and `make db-reset` only touch the Neon project byu-wtc-demo,
+# never the production project byu-wtc-2026.
+NEON_PROJECT_ID ?= winter-leaf-48380451
+NEON_BRANCH ?= local
 
 # DEMO=1 runs a demo race: it stands at CLOCK_START (default lap 31) until
 # the site's simulation panel moves it (step, jump, play). It's saved in
@@ -10,7 +13,8 @@ NEON_BRANCH ?= demo
 # restart puts the race back at CLOCK_START. `make demo-off` goes back to
 # real time.
 #
-# The database is always Neon: put DATABASE_URL (a Neon branch, e.g. `demo`)
+# The database is always Neon: put DATABASE_URL (the branch `local` of the
+# Neon project byu-wtc-demo)
 # in .env. Only `make run-mem` and the tests work without it.
 -include .env
 ifdef DEMO
@@ -61,8 +65,8 @@ demo-off: ## Back to the real-time clock
 logs: ## Follow the app and web logs
 	docker compose logs -f app web
 
-db-reset: ## Reset the Neon branch NEON_BRANCH (default demo) to its parent, then restart the app
-	npx -y neonctl branches reset $(NEON_BRANCH) --parent $(if $(NEON_PROJECT_ID),--project-id $(NEON_PROJECT_ID))
+db-reset: ## Reset the Neon branch NEON_BRANCH (default local) to its parent, then restart the app
+	npx -y neonctl branches reset $(NEON_BRANCH) --parent --project-id $(NEON_PROJECT_ID)
 	-docker compose restart app
 
 psql: ## Open psql on DATABASE_URL (Neon); needs a local psql

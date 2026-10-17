@@ -190,7 +190,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - `app`: the backend on :8090.
   - `web`: the nginx-served release build on :8091. It uses `resolver 127.0.0.11` with a variable upstream, so a backend restart doesn't leave a stale IP.
   - `web-dev`: `shadow-cljs watch` with hot reload on :8092, and the shadow-cljs UI on :9630.
-- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at a Neon branch (e.g. `demo`, never the production branch); compose and `make run` refuse to start without it. `make db-reset` resets the branch to its parent with `neonctl` (or use "Reset from parent" in the Neon console). `make run-mem` uses the in-memory store.
+- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at the branch `local` of the Neon project `byu-wtc-demo`, never at the production project; compose and `make run` refuse to start without it. `make db-reset` resets `local` to its parent `main` (the hosted demo's data) with `neonctl`, and only ever in `byu-wtc-demo` (`NEON_PROJECT_ID`). `make run-mem` uses the in-memory store.
 - **Ports** avoid 8080 and 8787, which local `bb` servers often use.
 - **`DEMO=1`** writes `CLOCK_START` (default `2026-10-18T18:00:00Z`, lap 31) to `.env`, which compose reads, so a plain `docker compose up` is a demo too. A restart puts the race back at `CLOCK_START`.
 - **REPL:** `make repl` starts nREPL on 7888; then run `(user/start)` or `(user/restart)` from `dev/user.clj`.
@@ -203,11 +203,11 @@ There are two deployments, **prod** and **demo**, built from the same image and 
 | | prod | demo |
 |---|---|---|
 | Fly.io app | `byu-wtc-prod` (`fly.prod.toml`) | `byu-wtc-demo` (`fly.demo.toml`) |
-| Neon branch (`DATABASE_URL`) | production | its own branch (not the `demo` branch that local development resets) |
+| Neon (`DATABASE_URL`) | project `byu-wtc-2026`, branch `production` | project `byu-wtc-demo`, branch `main` (local development uses its child `local`) |
 | `CLOCK_START` | unset (real time) | set, e.g. `2026-10-18T18:00:00Z` |
 | `SOURCES` | the real sources | unset (mock) |
 | Vercel project | `bigs-live` (bigs-live.vercel.app) | `bigs-live-demo` (bigs-live-demo.vercel.app) |
 
 - **Backend:** the `Dockerfile` image on Fly.io, one app per deployment in `fra` (next to Neon's `eu-central-1`), deployed with `make fly-deploy SITE=demo|prod`. Fly's remote builder builds the image. Port 8080, health check `GET /api/health`, 1 GB shared CPU. `DATABASE_URL` (and `SOURCES` for prod) are Fly secrets; the demo's `CLOCK_START` is in `fly.demo.toml`. **Run exactly one machine per app, always on** (`--ha=false`, `auto_stop_machines = "off"`), because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart or deploy puts it back at `CLOCK_START`.
-- **Database:** Neon Postgres, via `DATABASE_URL`. The migrations run on start and expect an empty branch.
+- **Database:** Neon Postgres, via `DATABASE_URL`. Prod and demo are separate Neon projects, so nothing from one can reach the other. The migrations run on start and expect an empty branch.
 - **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy SITE=demo|prod`. That stages `frontend/public` in `frontend/.deploy/<SITE>`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `DEMO_BACKEND_HOST` or `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `bigs-live` (prod) or `bigs-live-demo` (demo), linked on the first deploy.
