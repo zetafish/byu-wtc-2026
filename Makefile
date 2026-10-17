@@ -1,19 +1,23 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run demo-reset demo-off run-mem repl up down logs db-reset .db-up psql uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh
+.PHONY: help test run demo-reset demo-off run-mem repl up down logs psql uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh
 
 PORT ?= 8090
-LOCAL_DB := postgres://wtc:wtc@localhost:55432/wtc
 
 # DEMO=1 runs a demo race: it stands at CLOCK_START (default lap 31) until
 # the site's simulation panel moves it (step, jump, play). It's saved in
 # .env, so plain `docker compose up` and `make run` are demos too. An app
 # restart puts the race back at CLOCK_START. `make demo-off` goes back to
 # real time.
+#
+# The database is always Neon: put DATABASE_URL (a Neon branch, e.g. `demo`)
+# in .env. Only `make run-mem` and the tests work without it.
 -include .env
 ifdef DEMO
 CLOCK_START ?= 2026-10-18T18:00:00Z
 endif
 export PORT CLOCK_START
+export DATABASE_URL
+need-db = $(if $(DATABASE_URL),,$(error Set DATABASE_URL in .env to a Neon branch))
 
 help: ## List targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}' 
@@ -27,44 +31,37 @@ else
 	clojure -M:test -n $(T)
 endif
 
-run: .db-up ## Run the backend on the JVM against the compose Postgres
-	DATABASE_URL=$(LOCAL_DB) clojure -M:run
+run: ## Run the backend on the JVM against DATABASE_URL (Neon)
+	$(need-db)clojure -M:run
 
 run-mem: ## Run the backend on the JVM with the in-memory store
-	clojure -M:run
+	DATABASE_URL= clojure -M:run
 
 repl: ## Start nREPL on 7888 (then (user/start))
 	clojure -M:dev:nrepl
 
-up: ## Build and run the full stack in Docker (Postgres, app, web, web-dev)
+up: ## Build and run the stack in Docker (app, web, web-dev) against DATABASE_URL (Neon)
 ifdef DEMO
-	@printf 'CLOCK_START=%s\n' $(CLOCK_START) > .env
+	@{ grep -v '^CLOCK_START=' .env 2>/dev/null; printf 'CLOCK_START=%s\n' $(CLOCK_START); } > .env.tmp && mv .env.tmp .env
 endif
 	docker compose up --build -d
 	@echo "site: http://localhost:8091   hot reload: http://localhost:8092   api: http://localhost:$(PORT)/api/race"
 
-down: ## Stop the stack (keeps the data)
+down: ## Stop the stack
 	docker compose down
 
 demo-reset: ## Put the demo race back at CLOCK_START (restarts the app)
 	docker compose up -d --force-recreate app
 
 demo-off: ## Back to the real-time clock
-	rm -f .env
+	@grep -v '^CLOCK_START=' .env > .env.tmp 2>/dev/null; mv .env.tmp .env
 	CLOCK_START= docker compose up -d app
 
 logs: ## Follow the app and web logs
 	docker compose logs -f app web
 
-.db-up: # start only Postgres, for `run`
-	docker compose up -d --wait db
-
-db-reset: ## Delete the database volume and bring the stack back up on an empty DB
-	docker compose down -v
-	docker compose up -d
-
-psql: ## Open psql on the compose Postgres
-	docker compose exec db psql -U wtc -d wtc
+psql: ## Open psql on DATABASE_URL (Neon); needs a local psql
+	$(need-db)psql "$$DATABASE_URL"
 
 uber: ## Build target/wtc.jar
 	clojure -T:build uber

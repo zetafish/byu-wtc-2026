@@ -1,33 +1,15 @@
-# Local stack: Postgres (stand-in for Neon), the backend, and the frontend
-# behind nginx (stand-in for Vercel, which proxies /api the same way).
-# Clock/source settings come from the shell or from .env, which `make up DEMO=1`
-# writes so a plain `docker compose up` keeps the demo race.
+# Local stack: the backend and the frontend behind nginx (stand-in for
+# Vercel, which proxies /api the same way). The database is always Neon:
+# DATABASE_URL (a Neon branch) comes from .env, like the clock and source
+# settings. `make up DEMO=1` writes CLOCK_START there so a plain
+# `docker compose up` keeps the demo race.
 services:
-  db:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_USER: wtc
-      POSTGRES_PASSWORD: wtc
-      POSTGRES_DB: wtc
-    ports:
-      - "55432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wtc -d wtc"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
-
   app:
     build: .
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
       - "${PORT:-8090}:8080"
     environment:
-      DATABASE_URL: postgres://wtc:wtc@db:5432/wtc
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env to a Neon branch}
       POLL_SECONDS: ${POLL_SECONDS:-60}
       CLOCK_START: ${CLOCK_START:-}
       SOURCES: ${SOURCES:-}
@@ -56,6 +38,3 @@ services:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
       - ./frontend/shadow-cljs.edn:/app/shadow-cljs.edn
-
-volumes:
-  pgdata:
