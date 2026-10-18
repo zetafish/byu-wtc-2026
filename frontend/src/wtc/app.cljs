@@ -1072,22 +1072,42 @@
       (concat (sort-by k (if desc? #(compare %2 %1) compare) timed) untimed))
     rs))
 
+(defn- pick-sort!
+  "Sorts the leaderboard by `by`: first quickest first, again on the same
+  column slowest first; :pos goes back to the position order."
+  [by]
+  (let [{cur :by desc? :desc?} (:runner-sort @db)
+        on? (= by (or cur :pos))]
+    (swap! db assoc :runner-sort (cond (= by :pos) nil
+                                       (and on? (not desc?)) {:by by :desc? true}
+                                       :else {:by by :desc? false}))
+    (save-prefs!)))
+
+(defn- sort-arrow [by]
+  (let [{cur :by desc? :desc?} (:runner-sort @db)]
+    (cond (not= by (or cur :pos)) "" (and desc? (not= by :pos)) " ▼" :else " ▲")))
+
 (defn- sort-header
-  "A column header that sorts the leaderboard: first click quickest first,
-  next click reverses; \"Pos\" goes back to the position order."
+  "A column header that sorts the leaderboard, as the Sort buttons do."
   [by label title]
   (let [{cur :by desc? :desc?} (:runner-sort @db)
         on? (= by (or cur :pos))]
     [:th.num {:aria-sort (cond (not on?) "none" desc? "descending" :else "ascending")
               :title title}
-     [:button.sort {:class (when on? "on")
-                    :on-click #(do (swap! db assoc :runner-sort
-                                          (cond (= by :pos) nil
-                                                (and on? (not desc?)) {:by by :desc? true}
-                                                :else {:by by :desc? false}))
-                                   (save-prefs!))}
-      label
-      [:span.arrow (cond (not on?) "" (= by :pos) " ▲" desc? " ▼" :else " ▲")]]]))
+     [:button.sort {:class (when on? "on") :on-click #(pick-sort! by)}
+      label [:span.arrow (sort-arrow by)]]]))
+
+(defn- sort-buttons
+  "The leaderboard's sort, in both views (the heatmap has no time columns to
+  click): the active one with ▲ quickest first or ▼ slowest first; clicking
+  it again flips."
+  []
+  (let [cur (or (:by (:runner-sort @db)) :pos)]
+    [:div.segmented.sort-buttons {:role "group" :aria-label "Sort runners by"}
+     (for [[by label] [[:pos "Pos"] [:last "Last yard"] [:avg "Avg"] [:fastest "Fastest"] [:total "Total"]]]
+       ^{:key by}
+       [:button {:aria-pressed (= by cur) :on-click #(pick-sort! by)}
+        label [:span.arrow (sort-arrow by)]])]))
 
 (defn- runners-table []
   (let [{:keys [runners open lap-times show-out-runners? runner-filter query]} @db
@@ -1112,7 +1132,7 @@
          ^{:key v}
          [:button {:aria-pressed (= v (:runners-view @db :table))
                    :on-click #(do (swap! db assoc :runners-view v) (save-prefs!))} label])]]
-     [runner-filters n-out show-out?]
+     [:div.filters-bar [runner-filters n-out show-out?] [sort-buttons]]
      (if (empty? shown)
        [:div.empty (cond
                      (seq candidates) "Everyone here has stopped. Tick \"Show all\" to see them."

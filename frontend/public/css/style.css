@@ -400,6 +400,9 @@ button.star:disabled { color: var(--axis); cursor: not-allowed; }
 td.name .key-box { margin-right: 6px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+.filters-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 10px; }
+.filters-bar .filters { margin-bottom: 0; }
+.sort-buttons .arrow { color: var(--accent); }
 .filters .chip { padding: 4px 6px 4px 10px; gap: 6px; }
 input.search {
   font: 500 14px var(--body); color: var(--text-primary); background: var(--page);
