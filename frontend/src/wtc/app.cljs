@@ -7,6 +7,8 @@
             [wtc.panels :as panels]))
 
 (def max-selected 8)
+;; the Countries view's charts and Compare row, hidden for now: only the table
+(def ^:private show-charts? false)
 (def poll-ms 60000)
 (def bell-poll-ms 20000)  ; around the bell, when runners finish and results are entered
 (def default-sim-poll-ms 10000)  ; a playing demo race steps one lap this often
@@ -81,7 +83,7 @@
   ;; quick clicks fire overlapping requests; only the latest round may land
   (let [n (swap! fetch-seq inc)
         latest? #(= n @fetch-seq)]
-    (doseq [{:keys [id metric per-country?]} (map effective panels/panels)]
+    (doseq [{:keys [id metric per-country?]} (when show-charts? (map effective panels/panels))]
       (-> (get-json "/api/query" (cond-> {:metric metric}
                                    per-country? (assoc :by "country" :countries (selected-codes))))
           (.then #(when (latest?) (swap! db assoc-in [:results [id metric]] (get-in % [:data :result]))))
@@ -651,7 +653,7 @@
                       toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
             ^{:key code}
             [:<>
-             [:tr.clickable {:class [(when (contains? selected code) "selected") (when eliminated-after "out")]
+             [:tr.clickable {:class [(when (and show-charts? (contains? selected code)) "selected") (when eliminated-after "out")]
                              :on-click toggle-open}
               [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
                                   :aria-pressed fav?
@@ -1369,11 +1371,13 @@
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
     ;; countries: the Compare chips, all charts (comparison row first), then the ranking
-    (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
-      [:<> [comparing]
-       [:div.grid
-        (for [p (concat compare overall)] ^{:key (:id p)} [panel p false])
-        [countries-table]]])))
+    (if show-charts?
+      (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
+        [:<> [comparing]
+         [:div.grid
+          (for [p (concat compare overall)] ^{:key (:id p)} [panel p false])
+          [countries-table]]])
+      [:div.grid [countries-table]])))
 
 (defn- app []
   [:div.layout

@@ -124,6 +124,8 @@ With two runners left (A and B):
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
 ### Countries view: ranking and comparison charts
+
+**For now the view shows only the table:** the charts and the Compare row are hidden (`show-charts?` in `wtc.app`), and their queries aren't fetched. The descriptions below stay for when they come back. [decided]
 - **Top:** a "Compare" row with all the selection controls, then a chip per compared country, each with a ✕. Then the charts in two rows: first the two comparison charts, then the two all-country charts.
 - **Bottom:** the countries table. [decided]
 - **The table:** all countries in ranking order, with rank, country, runners in race / total, team score, gap (laps behind the leader's team score, "–" for the leader), and status (in race, winner, or out after lap N). [decided]
