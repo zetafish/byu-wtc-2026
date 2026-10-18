@@ -94,6 +94,7 @@ With two runners left (A and B):
   - **A runner who turns back** shows up as a short "lap". That counts as a DNF.
   - **A finish in the first ~30 min of an hour** belongs to the previous loop.
 - Every lap time of every runner is stored durably, in Postgres, for statistics after the race. [brief]
+- The latest copy of the official feed is kept on disk (a Fly volume in prod) and loaded at boot, so a restart while the feed is down still shows the race. The feed holds the whole race, so this one file is also enough for statistics afterwards; no history of copies is kept. [decided]
 - **Roster:** the official selection behind https://bigsbackyardultra.com/world-team-championship-2026/.
   - 69 countries and 1,330 runners.
   - **"AIN"** (Individual Neutral Athletes) is Russia. The code stays AIN, as in the official data, and it's shown as "Individual Neutral Athletes (Russia)". [decided]

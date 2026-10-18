@@ -6,10 +6,17 @@ primary_region = "fra"  # next to Neon (eu-central-1)
 
 # No CLOCK_START: real time.
 [env]
-  # The official site's feed only (see wtc.source.official).
-  SOURCES = '[{:id :official :type :official :priority 10}]'
+  # The official site's feed only (see wtc.source.official). Its latest copy
+  # is kept on the volume, so a restart while the feed is down still has data.
+  SOURCES = '[{:id :official :type :official :priority 10 :snapshot "/data/latest.json"}]'
   # A country that reports up to 45 min after the bell isn't shown as out meanwhile.
   GRACE_SECONDS = "2700"
+
+# Create it once before deploying:
+#   fly volumes create wtc_data --region fra --size 1 -a bigs-live
+[mounts]
+  source = "wtc_data"
+  destination = "/data"
 
 [http_service]
   internal_port = 8080

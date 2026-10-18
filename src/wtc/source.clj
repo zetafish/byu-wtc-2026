@@ -11,6 +11,15 @@
     Throw on failure; the ingester retries, times out and keeps the last good
     data."))
 
+(defprotocol Saved
+  (saved [this]
+    "The snapshot this source saved on its last good fetch, from before a
+    restart, or nil. It stands in until the first fetch succeeds."))
+
+(extend-protocol Saved
+  Object
+  (saved [_] nil))
+
 (defmulti create :type)
 
 (defmethod create :default [cfg]

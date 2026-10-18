@@ -26,16 +26,24 @@
 
   Polls send the last ETag, so an unchanged feed costs a 304.
 
+  With :snapshot, every new copy of the feed is written there as is, and
+  read back at boot (see `wtc.source/saved`), so a restart while the feed is
+  down doesn't start from nothing.
+
   Options (all optional):
-    :url     (default `results-url`)
-    :roster  \"roster/wtc-2026.edn\"  classpath resource"
+    :url       (default `results-url`)
+    :roster    \"roster/wtc-2026.edn\"  classpath resource
+    :snapshot  file for the latest copy, e.g. \"/data/latest.json\"; none by default"
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [jsonista.core :as json]
             [org.httpkit.client :as http]
             [wtc.source :as source])
-  (:import (java.text Normalizer Normalizer$Form)))
+  (:import (java.io File)
+           (java.nio.file CopyOption Files StandardCopyOption)
+           (java.text Normalizer Normalizer$Form)))
 
 (def results-url "https://wtc2026.bigsbackyardultra.com/api/results")
 
@@ -110,7 +118,33 @@
                              (when out? [{:lap (inc (count laps)) :status :dnf}]))]
              (assoc lap :runner-id id))}))
 
+(defn- save!
+  "Write the feed to `path` through a temp file, so a crash never leaves half
+  a file. A failure is logged: it must not fail the fetch."
+  [^String path ^String body]
+  (try
+    (let [f (File. path)
+          tmp (File. (str path ".tmp"))]
+      (some-> (.getParentFile f) .mkdirs)
+      (spit tmp body)
+      (Files/move (.toPath tmp) (.toPath f)
+                  (into-array CopyOption [StandardCopyOption/REPLACE_EXISTING StandardCopyOption/ATOMIC_MOVE])))
+    (catch Exception e
+      (log/warnf "official: can't save the snapshot to %s: %s" path (ex-message e)))))
+
+(defn- load-saved
+  "The snapshot saved at `path`, parsed, or nil if there's none or it's unreadable."
+  [roster path]
+  (when (and path (.exists (File. ^String path)))
+    (try
+      (parse roster (json/read-value (slurp path)))
+      (catch Exception e
+        (log/warnf "official: ignoring the saved snapshot %s: %s" path (ex-message e))
+        nil))))
+
 (defrecord OfficialSource [opts roster cache]
+  source/Saved
+  (saved [_] (load-saved roster (:snapshot opts)))
   source/Source
   (fetch [_ _]
     (let [{:keys [etag snap]} @cache
@@ -124,6 +158,7 @@
         (not= 200 status) (throw (ex-info (str "official: HTTP " status) {:status status}))
         :else (let [snap (parse roster (json/read-value body))]
                 (reset! cache {:etag (:etag headers) :snap snap})
+                (some-> (:snapshot opts) (save! body))
                 snap)))))
 
 (def defaults {:url results-url :roster "roster/wtc-2026.edn"})

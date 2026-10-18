@@ -6,6 +6,7 @@
             [wtc.http :as http]
             [wtc.roster :as roster]
             [wtc.ingest :as ingest]
+            [wtc.model :as model]
             [wtc.source :as source]
             [wtc.source.mock]
             [wtc.source.official]
@@ -40,15 +41,23 @@
                 (pg/postgres-store url)
                 (do (log/warn "DATABASE_URL not set, using in-memory store")
                     (store/memory-store)))
-        datasets (store/load-datasets store)
-        state (atom (cond-> {:datasets datasets :persisted datasets
+        sources (mapv #(assoc % :impl (source/create %)) (:sources cfg))
+        ;; a source's own saved snapshot is newer than the store's copy
+        saved (into {} (for [{:keys [id impl]} sources
+                             :let [snap (source/saved impl)]
+                             :when snap]
+                         (do (log/infof "%s: starting from its saved snapshot" id)
+                             [id (dissoc (model/sanitize snap) :rejected)])))
+        persisted (store/load-datasets store)
+        datasets (merge persisted saved)
+        state (atom (cond-> {:datasets datasets :persisted persisted
                              :mock-data (boolean (some #(= :mock (:type %)) (:sources cfg)))}
                       (get-in cfg [:clock :start]) (assoc :sim {:at (get-in cfg [:clock :start])})))
         sys {:config cfg
              :store store
              :clock (ingest/make-clock state)
              :roster-info (roster/runner-info)
-             :sources (mapv #(assoc % :impl (source/create %)) (:sources cfg))
+             :sources sources
              :state state}
         _ (when (:sim @state) (swap! state assoc-in [:sim :end-lap] (ingest/sim-end-lap sys)))
         control-sim! (fn [cmd]

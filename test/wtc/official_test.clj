@@ -2,10 +2,15 @@
   (:require [clojure.java.io :as io]
             [clojure.test :refer [deftest is testing]]
             [jsonista.core :as json]
+            [org.httpkit.server :as http-kit]
             [wtc.model :as model]
             [wtc.race :as race]
+            [wtc.source :as source]
             [wtc.source.official :as official])
-  (:import (java.time Instant)))
+  (:import (java.io File)
+           (java.nio.file Files)
+           (java.nio.file.attribute FileAttribute)
+           (java.time Instant)))
 
 (def start (Instant/parse "2026-10-17T12:00:00Z"))
 
@@ -49,3 +54,28 @@
 
 (deftest rejects-unknown-shape
   (is (thrown? clojure.lang.ExceptionInfo (official/parse {} {"teams" []}))))
+
+(deftest saved-snapshot
+  (let [body (slurp (io/resource "wtc/fixtures/official-results.json"))
+        stop (http-kit/run-server (fn [_] {:status 200 :headers {"ETag" "\"v1\""} :body body}) {:port 0 :legacy-return-value? false})
+        dir (.toFile (Files/createTempDirectory "wtc" (make-array FileAttribute 0)))
+        path (str dir "/data/latest.json")
+        cfg {:id :official :type :official :snapshot path}
+        ctx {:start start :now start}]
+    (try
+      (testing "nothing saved yet"
+        (is (nil? (source/saved (source/create cfg)))))
+      (testing "a fetch saves the feed as is"
+        (let [snap (source/fetch (source/create (assoc cfg :url (str "http://localhost:" (http-kit/server-port stop) "/")))
+                                 ctx)]
+          (is (= body (slurp path)))
+          (testing "and a new instance, e.g. after a restart, reads it back"
+            (is (= snap (source/saved (source/create cfg)))))))
+      (testing "an unreadable file is ignored"
+        (spit path "{not json")
+        (is (nil? (source/saved (source/create cfg)))))
+      (testing "without :snapshot nothing is saved"
+        (is (nil? (source/saved (source/create (dissoc cfg :snapshot))))))
+      (finally
+        (http-kit/server-stop! stop)
+        (run! #(.delete ^File %) (reverse (file-seq dir)))))))
