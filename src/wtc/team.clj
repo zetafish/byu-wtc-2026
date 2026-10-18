@@ -78,10 +78,16 @@
      (let [all (vals runners)
            by-country (group-by :country all)
            rs (by-country code)
-           laps (range 1 (inc settled-lap))
-           totals (fn [c] (mapv #(totals-at (by-country c) %) laps))
-           our-totals (totals code)
-           series-of (fn [c] (mapv (fn [n [t _] [o _]] [n (- t o)]) laps (totals c) our-totals))
+           ;; a country that hasn't reported a lap yet would look flat on it
+           reported (fn [c] (if-let [rt (:reported-through c)] (min rt settled-lap) settled-lap))
+           upto (reported ours)
+           laps (range 1 (inc upto))
+           our-totals (mapv #(totals-at rs %) laps)
+           series-of (fn [c]
+                       (vec (for [n (range 1 (inc (min upto (reported (get countries c)))))
+                                  :let [[t _] (totals-at (by-country c) n)
+                                        [o _] (our-totals (dec n))]]
+                              [n (- t o)])))
            others (remove #(= code (:code %)) (sort-by :position (vals countries)))
            seats (seat-places all)
            still-going (remove :eliminated-after (vals countries))]

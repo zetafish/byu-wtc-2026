@@ -49,7 +49,13 @@
       (is (= {:gap 6 :gain -1} (select-keys ((by-code ahead) "CCC") [:gap :gain])))))
   (testing "the gap over the laps, as theirs minus ours"
     (is (= [[1 0] [2 0] [3 1] [4 2] [5 3] [6 4]]
-           (:series ((by-code (get-in (team/team derived "BBB") [:chase :ahead])) "AAA"))))))
+           (:series ((by-code (get-in (team/team derived "BBB") [:chase :ahead])) "AAA")))))
+  (testing "a gap line stops at the last lap both countries have reported"
+    (let [d (assoc-in derived [:countries "AAA" :reported-through] 4)]
+      (is (= [[1 0] [2 0] [3 1] [4 2]]
+             (:series ((by-code (get-in (team/team d "BBB") [:chase :ahead])) "AAA"))))
+      (is (= [[1 0] [2 0] [3 -1] [4 -2]]
+             (:series ((by-code (get-in (team/team d "AAA") [:chase :behind])) "BBB")))))))
 
 (deftest catching-up
   ;; JJJ 6+6+4+4+4 = 24 with 2 still in; KKK 6+6+6 = 18 with 3 still in:
