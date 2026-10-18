@@ -120,3 +120,30 @@
     (is (= ["LA" "LB" "LC" "LD"] (map :code behind)))
     (is (= {:gap -4 :gain -1 :laps-to-pass 5} (select-keys (last behind) [:gap :gain :laps-to-pass])))
     (is (every? :series behind) "each picked rival has its history")))
+
+(deftest overtakes
+  ;; settled lap 6: AAA 18 (3 in), BBB 14 (2), CCC 24 (4), DDD 12 (2), EEE 14 (2)
+  (let [os (team/overtakes derived 20)
+        pass (into {} (map (juxt (juxt :passer :passed) :lap)) os)]
+    (testing "AAA, 3 in, gains 1 a lap on the 2-runner countries behind it: never"
+      (is (nil? (pass ["AAA" "CCC"]))))
+    (testing "CCC is ahead of everyone already, nobody is behind it to pass"
+      (is (not-any? #(= "CCC" (:passed %)) (filter #(#{"BBB" "DDD" "EEE"} (:passer %)) os))))
+    (testing "level countries with as many in never pass each other"
+      (is (nil? (pass ["BBB" "EEE"])))
+      (is (nil? (pass ["EEE" "BBB"]))))
+    (testing "soonest first"
+      (is (= (sort (map :lap os)) (map :lap os)))))
+  (testing "a gaining country passes; once out it passes nobody"
+    (let [d (race/derive-state
+             (dataset (concat (for [x ["x1" "x2"]] [x "XXX"]) (for [x ["y1" "y2" "y3"]] [x "YYY"]))
+                      {"x1" (finished 6) "x2" (finished 6)
+                       "y1" (finished 6) "y2" (finished 6) "y3" (concat (finished 2) [[3 :dnf nil]])})
+             {:start start :now (at-hours 6.5)})]
+      ;; XXX 12 (2 in), YYY 14 (2 in): level pace, nobody passes
+      (is (= [] (team/overtakes d 20)))
+      (let [d (assoc-in d [:countries "XXX" :active] 3)]
+        ;; XXX 2 behind, gaining 1 a lap: strictly ahead after 3 laps
+        (is (= [{:passer "XXX" :passed "YYY" :lap 9 :gap 2 :gain 1}] (team/overtakes d 20))))
+      (let [d (-> d (assoc-in [:countries "XXX" :active] 3) (assoc-in [:countries "XXX" :eliminated-after] 6))]
+        (is (= [] (team/overtakes d 20)))))))

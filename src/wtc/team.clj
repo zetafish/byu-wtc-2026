@@ -137,3 +137,36 @@
                   :field-active (when (seq still-going)
                                   (/ (Math/round (* 10.0 (/ (reduce + (map :active still-going)) (count still-going))))
                                      10.0))})}))))
+
+(defn overtakes
+  "Every pass coming within `horizon` laps of the last bell, across the field, if nobody drops:
+  [{:passer code :passed code :lap n …}], soonest first. Each pair is
+  compared at the last lap both have reported, so a country still entering
+  results doesn't look behind (an out country's score is final, so it
+  compares at any lap); :lap is the lap after which the passer is
+  strictly ahead on team score. A country that is out or down to its last
+  runner passes nobody, but can be passed."
+  ([derived] (overtakes derived 6))
+  ([{:keys [countries runners settled-lap current-lap]} horizon]
+   (let [by-country (group-by :country (vals runners))
+         ;; an out country's score is frozen: any lap compares with it
+         settled (update-vals countries #(if (:eliminated-after %)
+                                           Long/MAX_VALUE
+                                           (or (race/country-settled % settled-lap current-lap) 0)))
+         cs (sort-by :position (vals countries))]
+     (->> (for [a cs
+                :when (pos? (pace a))
+                b cs
+                :when (not= a b)
+                :let [n (min (settled (:code a)) (settled (:code b)))
+                      ka (totals-at (by-country (:code a)) n)
+                      kb (totals-at (by-country (:code b)) n)]
+                ;; behind on the official order: score, then farthest runner
+                :when (neg? (compare ka kb))
+                :let [gap (- (first kb) (first ka))
+                      gain (- (pace a) (pace b))
+                      k (if (zero? gap) (when (pos? gain) 1) (laps-to-pass gap gain))]
+                :when (and k (<= (+ n k) (+ (max 0 (dec current-lap)) horizon)))]
+            {:passer (:code a) :passed (:code b) :lap (+ n k) :gap gap :gain gain})
+          (sort-by (juxt :lap #(get-in countries [(:passer %) :position])))
+          vec))))

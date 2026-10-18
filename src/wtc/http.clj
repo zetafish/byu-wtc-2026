@@ -84,6 +84,7 @@
              (if-let [t (team/team (derived) code)]
                (json t)
                (json 404 {:error "not found"} "no-store")))
+     :overtakes (fn [_] (json (team/overtakes (derived))))
      :metrics (fn [_] (json (update-vals metrics/registry #(dissoc % :fn))))
      :query (fn [{{:strs [metric by countries runners lap]} :query-params}]
               (let [r (metrics/query (derived) metric
@@ -106,6 +107,7 @@
         ["/api/runners" {:get (:runners h)}]
         ["/api/runners/:id" {:get (:runner h)}]
         ["/api/team/:code" {:get (:team h)}]
+        ["/api/overtakes" {:get (:overtakes h)}]
         ["/api/metrics" {:get (:metrics h)}]
         ["/api/query" {:get (:query h)}]]
        {:data {:middleware [wrap-params]}})

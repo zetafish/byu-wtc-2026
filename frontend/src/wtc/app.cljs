@@ -136,10 +136,19 @@
         (.then #(when (= code (:team @db)) (swap! db assoc :team-data %)))
         (.catch #(js/console.warn %)))))
 
+(defn- fetch-overtakes!
+  "The coming overtakes across the field, for the Race view."
+  []
+  (when (= :race (:view @db))
+    (-> (get-json "/api/overtakes" {})
+        (.then #(swap! db assoc :overtakes %))
+        (.catch #(js/console.warn %)))))
+
 (defn refresh! []
   ;; charts load alongside the rest instead of after it, so they don't pop in late
   (fetch-panels!)
   (fetch-team!)
+  (fetch-overtakes!)
   (some-> (:open @db) fetch-runner-detail!)
   (-> (js/Promise.all (clj->js [(get-json "/api/race" {})
                                 (get-json "/api/countries" {})
@@ -690,6 +699,47 @@
              (for [{:keys [id name stop] :as r} (sort-by :rank rs)]
                ^{:key id}
                [:span.drop {:title (out-text r)} name " " [:span.code (or (stop-short stop) "no result")]])]])])]))
+
+(defn- short-country
+  "[flag] CODE linking to the team page, the full name on hover: for lists
+  where a whole name per country is too long."
+  [code]
+  [:a.cshort {:href (str "#team/" code) :title (str (or (country-name code) code) ": team page")}
+   [flag code] code])
+
+(defn- overtakes-card
+  "One line under the drops: how many passes are coming if nobody drops, the
+  soonest yard's first. \"Show\" lists them all by yard; a ★ country's
+  passes are marked."
+  []
+  (let [{:keys [overtakes favourites overtakes-open?]} @db
+        by-yard (sort-by key (group-by :lap overtakes))
+        [y0 first-ones] (first by-yard)
+        fav? (fn [{:keys [passer passed]}] (or (contains? favourites passer) (contains? favourites passed)))
+        pass (fn [{:keys [passer passed gap gain] :as o}]
+               [:span.pass {:class (when (fav? o) "fav")
+                            :title (str (country-name passer) " is " gap (if (= 1 gap) " yard" " yards")
+                                        " behind " (country-name passed) " and gains " gain " a yard")}
+                [short-country passer] " passes " [short-country passed]])]
+    [:div.drops.overtakes.wide
+     [:div.drops-line
+      [:b "Coming overtakes:"]
+      (if (seq overtakes)
+        [:<>
+         [:span (str "after yard " y0 " ")]
+         (for [o (take 2 first-ones)] ^{:key (str (:passer o) (:passed o))} [pass o])
+         (when (> (count overtakes) 2)
+           [:button.link {:aria-expanded (boolean overtakes-open?) :on-click #(swap! db update :overtakes-open? not)}
+            (if overtakes-open? "Hide ▴" (str "All " (count overtakes) " ▾"))])]
+        [:span "none in the next yards"])
+      [:span.muted "if nobody drops"]]
+     (when (and overtakes-open? (seq overtakes))
+       [:ul.drops-list
+        (for [[y os] by-yard]
+          ^{:key y}
+          [:li [:span.yard (str "After yard " y)]
+           [:span.drop-names
+            (for [o (sort-by (comp not fav?) os)] ^{:key (str (:passer o) (:passed o))} [pass o])]])])]))
 
 (defn- surname [nm] (last (str/split (str/trim (str nm)) #"\s+")))
 
@@ -1492,7 +1542,8 @@
                  changed? (assoc :team-data nil)))
     (when team (save-prefs!))
     (when (= view :charts) (fetch-panels!))
-    (fetch-team!)))
+    (fetch-team!)
+    (fetch-overtakes!)))
 
 (defn- apply-theme!
   "Light or dark on <html data-theme>; system leaves it to the OS setting."
@@ -1564,8 +1615,8 @@
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
     :charts [charts-view]
-    ;; race: who went out at the last bell, then the standings
-    [:div.grid [drops-card] [countries-table]]))
+    ;; race: who went out at the last bell, the passes coming, then the standings
+    [:div.grid [drops-card] [overtakes-card] [countries-table]]))
 
 (defn- new-version-bar []
   (when (:new-version? @db)
