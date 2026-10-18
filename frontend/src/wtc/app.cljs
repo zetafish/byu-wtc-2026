@@ -676,11 +676,12 @@
         ;; fixed columns, so filtering or "★ only" never moves them
         [:table.runners
          [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.n] [:col.status]
-          [:col.time] [:col.time] [:col.total] [:col.spark]]
+          [:col.time] [:col.time] [:col.time] [:col.total] [:col.spark]]
          [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Laps"]
                   [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
                   [:th "Status"]
                   [:th.num "Last lap"] [:th.num "Fastest"]
+                  [:th.num {:title "Average of the timed laps"} "Avg"]
                   [:th.num {:title "Sum of the timed laps"} "Total"]
                   [:th "Lap times"]]]
          [:tbody
@@ -704,6 +705,7 @@
              [:td [status-badge runner]]
              [:td.num (mmss (:last-seconds runner))]
              [:td.num (mmss (:fastest-seconds runner))]
+             [:td.num (mmss (:avg-seconds runner))]
              [:td.num (hmmss (:total-seconds runner))]
              [:td (when times [chart/sparkline times])]])]]])]))
 

@@ -150,7 +150,7 @@ With two runners left (A and B):
   - a name search;
   - "★ only", for starred runners;
   - "Show eliminated (n)". [decided]
-- **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
+- **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, average lap time (of the timed laps), total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
 - **Sparklines** of the lap times are always shown. Unfiltered, that means fetching every runner's lap times (~480 KB, ~140 KB gzipped late in the race) per refresh; accepted. [decided]
 - **Clicking a row opens a runner dialog** (modelled on the one Upfront showed): [decided]
   - the name, country, seat, bib and status;
