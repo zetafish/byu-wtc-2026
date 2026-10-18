@@ -168,7 +168,8 @@ With two runners left (A and B):
   - "★ only", for starred runners;
   - "Show eliminated (n)". [decided]
 - **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, average lap time (of the timed laps), total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
-- **Sparklines** of the lap times are always shown. Unfiltered, that means fetching every runner's lap times (~480 KB, ~140 KB gzipped late in the race) per refresh; accepted. [decided]
+- **Sorting** [decided]: by position (default), or by last yard, average, fastest or total time, in both directions: click the column header (first quickest first, again slowest first; "Pos" goes back). Runners without a time go last either way; ties keep position order. The choice is remembered.
+- **Sparklines** of the lap times are always shown. All runners' lap times load once on the Runners view (~100 KB gzipped late in the race); each reload then fetches only the newest yards (~8 KB). [decided]
 - **Clicking a row opens a runner dialog** (modelled on the one Upfront showed): [decided]
   - the name, country, seat, bib and status;
   - figures: laps; distance (laps × 6.7056 km); fastest lap and which lap; average lap and its pace per km; last lap; margin (rest per lap, average of the last 3); total rest (between finishing a lap and the next start); position on the leaderboard;

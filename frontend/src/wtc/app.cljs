@@ -48,6 +48,7 @@
                                                              :chase-view (:chase-view @db)
                                                              :chase-range (:chase-range @db)
                                                              :team-sort (:team-sort @db)
+                                                             :runner-sort (:runner-sort @db)
                                                              :race-view (:race-view @db)
                                                              :theme (:theme @db)
                                                              :standings-filter (:standings-filter @db)
@@ -1022,6 +1023,38 @@
    [:td.num (or (:best-yards runner) "–")]
    [:td (when times [chart/sparkline times])]])
 
+;; the leaderboard's sortable columns: key into the row, and its header
+(def ^:private runner-sorts
+  {:last [:last-seconds "Last yard"] :avg [:avg-seconds "Avg"]
+   :fastest [:fastest-seconds "Fastest"] :total [:total-seconds "Total"]})
+
+(defn- sort-runners
+  "The leaderboard in the chosen order: position (default), or a time column
+  quickest first (`desc?` slowest first), untimed runners last either way."
+  [rs {:keys [by desc?]}]
+  (if-let [[k] (runner-sorts by)]
+    (let [{timed true untimed false} (group-by #(some? (k %)) rs)]
+      ;; a stable sort of rows in position order: ties stay in position order
+      (concat (sort-by k (if desc? #(compare %2 %1) compare) timed) untimed))
+    rs))
+
+(defn- sort-header
+  "A column header that sorts the leaderboard: first click quickest first,
+  next click reverses; \"Pos\" goes back to the position order."
+  [by label title]
+  (let [{cur :by desc? :desc?} (:runner-sort @db)
+        on? (= by (or cur :pos))]
+    [:th.num {:aria-sort (cond (not on?) "none" desc? "descending" :else "ascending")
+              :title title}
+     [:button.sort {:class (when on? "on")
+                    :on-click #(do (swap! db assoc :runner-sort
+                                          (cond (= by :pos) nil
+                                                (and on? (not desc?)) {:by by :desc? true}
+                                                :else {:by by :desc? false}))
+                                   (save-prefs!))}
+      label
+      [:span.arrow (cond (not on?) "" (= by :pos) " ▲" desc? " ▼" :else " ▲")]]]))
+
 (defn- runners-table []
   (let [{:keys [runners starred open lap-times show-out-runners? runner-filter starred-only? query]} @db
         starred? #(contains? starred (:id %))
@@ -1034,7 +1067,8 @@
         show-out? (or show-out-runners? (finished?))
         n-out (count (filter out-runner? candidates))
         ;; starred runners stay visible so they can still be unstarred
-        shown (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)
+        shown (-> (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)
+                  (sort-runners (:runner-sort @db)))
         open-runner (when open (some #(when (= open (:id %)) %) (ranked runners)))]
     [:section.card.wide
      (when open-runner ^{:key open} [runner-dialog open-runner (count runners)])
@@ -1053,12 +1087,12 @@
          ;; the columns it shares with the team page come in the same order and width
          [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.status]
           [:col.time] [:col.time] [:col.time] [:col.total] [:col.n] [:col.spark]]
-         [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
+         [:thead [:tr [sort-header :pos "Pos" "Leaderboard position"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
                   [:th "Status"]
-                  [:th.num "Last yard"]
-                  [:th.num {:title "Average of the timed yards"} "Avg"]
-                  [:th.num "Fastest"]
-                  [:th.num {:title "Sum of the timed yards"} "Total"]
+                  [sort-header :last "Last yard" "Sort by the last yard's time"]
+                  [sort-header :avg "Avg" "Average of the timed yards"]
+                  [sort-header :fastest "Fastest" "Sort by the fastest yard"]
+                  [sort-header :total "Total" "Sum of the timed yards"]
                   [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
                   [:th "Yard times"]]]
          [:tbody
@@ -1700,12 +1734,14 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort runner-sort race-view theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
+           :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
+                          {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (if (= "runners" race-view) :runners :teams)
            :theme (case theme "light" :light "dark" :dark :system)
            :standings-filter (if (= "running" standings-filter) :running :all)
