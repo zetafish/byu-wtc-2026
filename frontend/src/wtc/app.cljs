@@ -1246,7 +1246,26 @@
    [flag code] [:span code]
    (when (and with-laps? laps-to-pass) [:span.gap (in-laps laps-to-pass)])])
 
-(defn- chase-card [{:keys [country chase]}]
+(defn- one-drop-line
+  "What one runner less now would cost this team, if nobody else drops: who
+  passes it, by yard, within 6 yards."
+  [{:keys [ends? passes]} nm]
+  (let [by-yard (sort-by key (group-by :lap passes))]
+    [:div.nb-line.one-drop
+     [:span.label {:title "If this team loses one runner this yard and nobody else drops: the countries that would pass it within 6 yards (or sooner than they will anyway)"}
+      "If one drops now"]
+     (cond
+       (and ends? (empty? passes)) [:span.muted "its race ends, and nobody passes it in the next 6 yards"]
+       (empty? passes) [:span.muted "no place lost in the next 6 yards"]
+       :else [:<>
+              (when ends? [:span "its race ends;"])
+              (for [[y ps] by-yard]
+                ^{:key y}
+                [:span.drop-yard
+                 (for [{:keys [code]} ps] ^{:key code} [rival-chip {:code code :name (country-name code)} false])
+                 [:span.muted (str (if (= 1 (count ps)) "passes" "pass") " after yard " y)]])])]))
+
+(defn- chase-card [{:keys [country chase one-drop]}]
   (let [{:keys [ahead level behind field-active]} chase
         ;; level countries go above or below this one by the tie-break
         [level-above level-below] ((juxt filter remove) #(ahead-of? % country) level)
@@ -1318,6 +1337,7 @@
         [:div.nb-line {:class cls}
          [:span.label (case cls "danger" (str "⚠ " label) "chance" (str "✓ " label) label)]
          (for [r items] ^{:key (:code r)} [rival-chip r (#{:catching-you :catching} k)])])]
+     (when one-drop [:div.buckets [one-drop-line one-drop nm]])
      (when (and early? field-active)
        [:p.chase-note (str nm " has " (:active country) " in; countries still going average " field-active ".")])
      (when-not early?

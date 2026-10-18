@@ -473,6 +473,8 @@ table.team-runners td.name { white-space: nowrap; }
 .buckets { display: grid; gap: 8px; margin-bottom: 14px; }
 .buckets .nb-line .label { width: 210px; white-space: nowrap; }
 @media (max-width: 520px) { .buckets .nb-line .label { width: 100%; } }
+.buckets .one-drop { border-top: 1px solid var(--grid); padding-top: 10px; }
+.drop-yard { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-right: 10px; }
 .buckets .nb-line.danger .label { color: var(--critical); font-weight: 700; }
 .buckets .nb-line.chance .label { color: var(--good); font-weight: 700; }
 .chase-note { color: var(--text-muted); margin: 0 0 12px; }

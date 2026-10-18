@@ -147,3 +147,18 @@
         (is (= [{:passer "XXX" :passed "YYY" :lap 9 :gap 2 :gain 1}] (team/overtakes d 20))))
       (let [d (-> d (assoc-in [:countries "XXX" :active] 3) (assoc-in [:countries "XXX" :eliminated-after] 6))]
         (is (= [] (team/overtakes d 20)))))))
+
+(deftest one-drop
+  (let [d (-> (race/derive-state
+               (dataset (concat (for [x ["x1" "x2"]] [x "XXX"]) (for [x ["y1" "y2" "y3"]] [x "YYY"]))
+                        {"x1" (finished 6) "x2" (finished 6)
+                         "y1" (finished 6) "y2" (finished 6) "y3" (concat (finished 2) [[3 :dnf nil]])})
+               {:start start :now (at-hours 6.5)})
+              ;; XXX 12 with 3 in, YYY 14 with 2 in: XXX passes after lap 9
+              (assoc-in [:countries "XXX" :active] 3))]
+    (testing "down to 2, one drop ends YYY's race: XXX passes after the next lap instead"
+      (is (= {:ends? true :passes [{:code "XXX" :lap 7}]} (team/one-drop d "YYY" 20))))
+    (testing "XXX has nobody behind it: a drop lets nobody pass"
+      (is (= {:ends? false :passes []} (team/one-drop d "XXX" 20))))
+    (testing "nothing to say once a country is out"
+      (is (nil? (team/one-drop (assoc-in d [:countries "YYY" :eliminated-after] 6) "YYY" 20))))))

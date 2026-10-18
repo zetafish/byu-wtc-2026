@@ -77,11 +77,13 @@
     (when (seq l3)
       (Math/round (double (/ (reduce + (map #(- model/lap-seconds %) l3)) (count l3)))))))
 
+(declare one-drop)
+
 (defn team
   "The team page's data for country `code`, or nil if there's no such
   country. `n-rivals` countries ahead and behind are in the chase."
   ([derived code] (team derived code 3))
-  ([{:keys [countries runners settled-lap current-lap]} code n-rivals]
+  ([{:keys [countries runners settled-lap current-lap] :as derived} code n-rivals]
    (when-let [ours (get countries code)]
      (let [all (vals runners)
            by-country (group-by :country all)
@@ -125,6 +127,7 @@
                                       (range 1 (inc current-lap)))
                     :team-score (mapv (fn [n [t _]] [n t]) laps our-totals)
                     :place (mapv (fn [n] [n ((places-at by-country n) code)]) laps)}
+        :one-drop (one-drop derived code)
         :chase (let [with-series #(mapv (fn [r] (assoc r :series (series-of (:code r))
                                                          :finishers (finishers-of (:code r)))) %)
                      side (fn [pred order]
@@ -161,8 +164,9 @@
                 :let [n (min (settled (:code a)) (settled (:code b)))
                       ka (totals-at (by-country (:code a)) n)
                       kb (totals-at (by-country (:code b)) n)]
-                ;; behind on the official order: score, then farthest runner
-                :when (neg? (compare ka kb))
+                ;; behind on the official order (score, then farthest runner), or
+                ;; sharing the place: pulling ahead of a tied country is a pass too
+                :when (not (pos? (compare ka kb)))
                 :let [gap (- (first kb) (first ka))
                       gain (- (pace a) (pace b))
                       k (if (zero? gap) (when (pos? gain) 1) (laps-to-pass gap gain))]
@@ -170,3 +174,22 @@
             {:passer (:code a) :passed (:code b) :lap (+ n k) :gap gap :gain gain})
           (sort-by (juxt :lap #(get-in countries [(:passer %) :position])))
           vec))))
+
+(defn one-drop
+  "What losing one runner now would cost country `code`, if nobody else
+  drops: the countries that would then pass it within `horizon` laps, or
+  pass it sooner, [{:code … :lap …}] soonest first, and :ends? when it's down
+  to 2 (one drop ends its race). nil once it's out or down to its last runner."
+  ([derived code] (one-drop derived code 6))
+  ([{:keys [countries] :as derived} code horizon]
+   (let [{:keys [active eliminated-after]} (get countries code)]
+     (when (and active (not eliminated-after) (>= active 2))
+       (let [passes (fn [d] (into {} (keep #(when (= code (:passed %)) [(:passer %) (:lap %)]))
+                                  (overtakes d horizon)))
+             before (passes derived)
+             after (passes (update-in derived [:countries code :active] dec))]
+         {:ends? (= 2 active)
+          :passes (->> after
+                       (filter (fn [[c lap]] (< lap (get before c Long/MAX_VALUE))))
+                       (sort-by (juxt val #(get-in countries [(key %) :position])))
+                       (mapv (fn [[c lap]] {:code c :lap lap})))})))))
