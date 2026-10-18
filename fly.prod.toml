@@ -1,8 +1,6 @@
-# The prod backend. DATABASE_URL (its own Neon branch) is a secret:
-#   fly secrets set -a bigs-live DATABASE_URL='postgres://…'
-# Deploy with `make fly-deploy SITE=prod`.
+# The prod backend. Deploy with `make fly-deploy SITE=prod`.
 app = "bigs-live"
-primary_region = "fra"  # next to Neon (eu-central-1)
+primary_region = "fra"
 
 # No CLOCK_START: real time.
 [env]
@@ -12,11 +10,13 @@ primary_region = "fra"  # next to Neon (eu-central-1)
   # A country that reports up to 45 min after the bell isn't shown as out meanwhile.
   GRACE_SECONDS = "2700"
 
-# Create it once before deploying:
+# The official feed's latest copy (see wtc.source.official). Create the
+# volume once, before the first deploy with this mount; `fly deploy` won't:
 #   fly volumes create wtc_data --region fra --size 1 -a bigs-live
 [mounts]
   source = "wtc_data"
   destination = "/data"
+  initial_size = "1gb"
 
 [http_service]
   internal_port = 8080

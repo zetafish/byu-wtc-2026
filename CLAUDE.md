@@ -23,17 +23,15 @@ make test T=wtc.race-test/team-rule  # one test
 make up DEMO=1                     # app + web + web-dev in Docker: site :8091, hot reload :8092, API :8090, shadow-cljs UI :9630
 make web-dev                       # hot reload on the host instead (needs a backend on :8090: make run DEMO=1)
 make web-build | web-deploy        # frontend release build | deploy prebuilt to Vercel
-make run DEMO=1                    # app on the JVM, port 8090 (Neon if DATABASE_URL is set, else in memory)
-make run-mem                       # app on the JVM, in-memory store, no Docker
+make run DEMO=1                    # app on the JVM, port 8090, no Docker
 make repl                          # nREPL on 7888, then (user/start) / (user/restart)
-make psql | logs | down            # psql opens DATABASE_URL with a local psql
-make db-reset                      # reset the Neon branch `local` (project bigs-live-demo) to its parent, restart the app
+make logs | down
 make uber | image                  # target/wtc.jar | production image `wtc`
 make roster                        # build resources/roster/wtc-2026.edn from roster/*.json; fetches only uncached countries
 make roster-refresh                # re-fetch every roster/*.json from the official endpoint (~2 min), then build
 ```
 
-Before the race starts, a real-time clock shows nothing. `DEMO=1` runs a demo race. It stands at `CLOCK_START` (default lap 31) until the site's simulation panel moves it (play, step, slider), or `POST /api/sim`. `make up DEMO=1` writes `CLOCK_START` to `.env`, and compose reads it, so a plain `docker compose up` is a demo too. An app restart puts the race back at `CLOCK_START`. `make demo-reset` does that on purpose; `make demo-off` returns to real time. `user/start` in `dev/user.clj` starts a demo race too. The local default port is 8090, because 8080 and 8787 are often taken by other local `bb` servers. No database is needed locally: without `DATABASE_URL` the backend uses its in-memory store. To use Postgres, put `DATABASE_URL` (the branch `local` of the Neon project `bigs-live-demo`, never the production project `bigs-live`) in `.env`; there is no local Postgres. `make psql` needs it, and `make up DEMO=1` and `make demo-off` keep that line. `make db-reset` resets the demo data: it resets the Neon branch `NEON_BRANCH` (default `local`) in the project `NEON_PROJECT_ID` (default `bigs-live-demo`) to its parent with `npx neonctl` (it logs in through the browser the first time), then restarts the app. `make run-mem` uses the in-memory store even when `DATABASE_URL` is set.
+Before the race starts, a real-time clock shows nothing. `DEMO=1` runs a demo race. It stands at `CLOCK_START` (default lap 31) until the site's simulation panel moves it (play, step, slider), or `POST /api/sim`. `make up DEMO=1` writes `CLOCK_START` to `.env`, and compose reads it, so a plain `docker compose up` is a demo too. An app restart puts the race back at `CLOCK_START`. `make demo-reset` does that on purpose; `make demo-off` returns to real time. `user/start` in `dev/user.clj` starts a demo race too. The local default port is 8090, because 8080 and 8787 are often taken by other local `bb` servers. There is no database: the state lives in memory, and the official source can keep its latest copy of the feed on disk (`:snapshot`, see `ARCH.md`).
 
 ## Checking your work
 
@@ -44,7 +42,7 @@ Before the race starts, a real-time clock shows nothing. `DEMO=1` runs a demo ra
   - For screenshots, use headless Chrome: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --virtual-time-budget=8000 --window-size=1300,900 --screenshot=<scratchpad>/x.png 'http://localhost:8092/#countries'`. Then read the PNG. Phone widths under ~500 px get clipped.
   - The nginx site on :8091 serves the *release* build, so it only changes after `docker compose up -d --build web`.
 - **The race state of the local stack:**
-  - `make up DEMO=1` writes `CLOCK_START` to `.env`, and the Makefile `-include`s it. From then on `make run` and `make run-mem` run the demo clock too, until `make demo-off`.
+  - `make up DEMO=1` writes `CLOCK_START` to `.env`, and the Makefile `-include`s it. From then on `make run` runs the demo clock too, until `make demo-off`.
   - The demo race only moves when told to. Go to a lap with `curl -XPOST -H 'Content-Type: application/json' localhost:8090/api/sim -d '{"action":"jump","lap":49}'`, or one lap on with `-d '{"action":"step","by":1}'`. A lap past the end gives the finished race.
   - Someone else's open tab that's playing keeps stepping the shared race.
 

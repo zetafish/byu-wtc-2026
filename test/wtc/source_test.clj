@@ -6,8 +6,7 @@
             [wtc.race :as race]
             [wtc.source :as source]
             [wtc.source.mock]
-            [wtc.roster :as roster]
-            [wtc.store :as store])
+            [wtc.roster :as roster])
   (:import (java.time Instant)))
 
 (def start (Instant/parse "2026-10-17T12:00:00Z"))
@@ -52,7 +51,6 @@
 (defn- system [source-cfg]
   {:config {:race-start start :grace-s 900
             :fetch {:timeout-ms 500 :attempts 2 :backoff-ms 1}}
-   :store (store/memory-store)
    :clock (constantly (.plusSeconds start (* 10 3600)))
    :sources [(assoc source-cfg :impl (source/create source-cfg))]
    :state (atom {})})
@@ -63,8 +61,7 @@
         failing (assoc-in sys [:sources 0 :impl] (reify source/Source (fetch [_ _] (throw (ex-info "boom" {})))))
         after (ingest/tick! failing)]
     (is (= (:runners ok) (:runners after)))
-    (is (false? (get-in @(:state sys) [:fetches :mock :ok])))
-    (is (= 2 (count (:fetches @(:db (:store sys))))))))
+    (is (false? (get-in @(:state sys) [:fetches :mock :ok])))))
 
 (deftest ingest-times-out
   (let [sys (system {:id :slow :type :mock :latency-ms 2000})]

@@ -5,8 +5,7 @@
             [wtc.model :as model]
             [wtc.race :as race]
             [wtc.roster :as roster]
-            [wtc.source :as source]
-            [wtc.store :as store])
+            [wtc.source :as source])
   (:import (java.time Instant)
            (java.util.concurrent ExecutionException Executors ScheduledExecutorService TimeUnit)))
 
@@ -31,9 +30,8 @@
       (if (= r ::retry) (recur (inc attempt)) (:ok r)))))
 
 (defn ingest-source!
-  "Fetch one source and update the live dataset. Persisting is retried on
-  every tick until the stored copy matches the live one."
-  [{:keys [state store clock config]} src]
+  "Fetch one source and update the live dataset."
+  [{:keys [state clock config]} src]
   (let [started (clock)
         t0 (System/nanoTime)
         entry (try
@@ -50,14 +48,6 @@
                      :started-at started
                      :duration-ms (quot (- (System/nanoTime) t0) 1000000))]
     (swap! state assoc-in [:fetches (:id src)] entry)
-    (try
-      (let [live (get-in @state [:datasets (:id src)])]
-        (when (and live (not= live (get-in @state [:persisted (:id src)])))
-          (store/save-dataset! store (:id src) live)
-          (swap! state assoc-in [:persisted (:id src)] live)))
-      (store/record-fetch! store entry)
-      (catch Exception e
-        (log/errorf e "%s store write failed, retrying next tick" (:id src))))
     entry))
 
 (defn refresh!

@@ -5,7 +5,7 @@ How the site is built. `REQUIREMENTS.md` describes what it does, and `DESIGN.md`
 ## Overview
 
 ```
-sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-source dataset ──▶ memory + Postgres
+sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-source dataset ──▶ memory
                                                                │
                          model/merge-datasets (by priority) ◀──┘
                                        │
@@ -23,7 +23,6 @@ sources (adapters) ──fetch every 60 s──▶ model/sanitize ──▶ per-
   - reitit and ring: routing;
   - jsonista: JSON;
   - malli: model schemas;
-  - next.jdbc, HikariCP and postgresql: the store, with migratus for migrations;
   - tools.logging with logback.
 
   `org.clojure/data.csv` parses CSV (the sheet adapter).
@@ -94,7 +93,6 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - **Lap state:**
     - Laps are credited up to the last finished lap. Gaps below it are missed registrations, marked `:inferred`.
     - A *settled* lap is one whose country has finished reporting it: up to the country's `:reported-through` when its source gives one (the official feed's `reportedThrough`), but never the lap in progress; otherwise, once its deadline + `GRACE_SECONDS` has passed. A runner with no result for a settled lap is out with `:missing`, and `:dnf` takes precedence. The team rule uses the same per-country settled lap. `:settled-lap` in `/api/race` stays the grace-period one.
-    - `:reported-through` isn't stored in Postgres. After a restart it's back with the first fetch, and until then the grace period applies.
     - Lap times over 3600 s become `:suspect` with `:seconds nil`.
     - Finished laps under 1800 s (`too-fast-seconds`) get `:too-fast true`. They still count, and their time is kept.
   - **The team rule (`team-result`):** the first settled lap with fewer than 2 finishers ends the country.
@@ -107,14 +105,9 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 - **`wtc.ingest`:** a single-thread scheduler.
   - Each source is isolated, with a timeout, 3 attempts and exponential backoff. A failed fetch keeps the last good dataset live.
   - The state atom holds `:datasets` (live) and `:persisted`. The DB write is retried every tick until they're equal.
-  - On boot, the datasets are reloaded from the store.
+  - The state lives in memory only. On boot, each source's dataset starts from its own saved snapshot (`wtc.source/saved`; only the official source has one, with `:snapshot`), else empty until the first fetch. The official feed holds the whole race, so nothing else is kept.
   - `refresh!` merges, enriches and derives.
   - `make-clock` provides real time, or the fixed moment of a demo race: state `:sim` `{at end-lap}`, there only when `CLOCK_START` is set. A demo race stands still until `control-sim` moves it (jump to a lap, or step k laps), always to a moment with the previous lap settled. `sim-end-lap` works out the demo race's last lap once at boot (the sources fetched as if a month had passed), for the slider. In a demo every API response is `Cache-Control: no-store`. The position lives in memory only, so an app restart puts the race back at `CLOCK_START`.
-- **`wtc.store`:** the `Store` protocol, plus `MemoryStore`. **`wtc.store.postgres`** runs the migratus migrations in `resources/migrations` on start (applied ones are recorded in `_migratus`; add a new `<timestamp>-<name>.up.sql`/`.down.sql` pair for every schema change, statements separated by `--;;`; no `if exists`/`if not exists`, which would hide a schema that is not what the migrations say). The tables:
-  - `country`, `runner` and `lap` (table names are singular), all keyed by `source` plus the adapters' ids (`ISL`, `ISL-01`), with foreign keys `lap (source, runner_id)` → `runner` and `runner (source, country)` → `country`;
-  - `fetch_log`, a log of every fetch with its duration, ok/error, laps and rejected rows.
-
-  The API never reads from Postgres.
 - **`wtc.metrics`:** visualisation queries, in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The current entries:
   - `runners_started`
   - `team_score`
@@ -189,7 +182,6 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | Var | Default | |
 |---|---|---|
 | `PORT` | 8080 (8090 via the Makefile) | |
-| `DATABASE_URL` | none (in-memory store) | Neon `postgres://…` or a `jdbc:` URL |
 | `RACE_START` | `2026-10-17T12:00:00Z` | |
 | `POLL_SECONDS` | 60 | |
 | `GRACE_SECONDS` | 900 | |
@@ -199,11 +191,10 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 ## Local development
 
-- **`docker-compose.yml`** has three services, and no database:
+- **`docker-compose.yml`** has three services:
   - `app`: the backend on :8090.
   - `web`: the nginx-served release build on :8091. It uses `resolver 127.0.0.11` with a variable upstream, so a backend restart doesn't leave a stale IP.
   - `web-dev`: `shadow-cljs watch` with hot reload on :8092, and the shadow-cljs UI on :9630.
-- **Database:** optional locally. Without `DATABASE_URL`, compose, `make run` and the REPL use the in-memory store. With it, `DATABASE_URL` in `.env` points at the branch `local` of the Neon project `bigs-live-demo`, never at the production project. `make db-reset` resets `local` to its parent `main` (the hosted demo's data) with `neonctl`, and only ever in `bigs-live-demo` (`NEON_PROJECT_ID`). `make run-mem` uses the in-memory store.
 - **Ports** avoid 8080 and 8787, which local `bb` servers often use.
 - **`DEMO=1`** writes `CLOCK_START` (default `2026-10-18T18:00:00Z`, lap 31) to `.env`, which compose reads, so a plain `docker compose up` is a demo too. A restart puts the race back at `CLOCK_START`.
 - **REPL:** `make repl` starts nREPL on 7888; then run `(user/start)` or `(user/restart)` from `dev/user.clj`.
@@ -216,12 +207,10 @@ There are two deployments, **prod** and **demo**, built from the same image and 
 | | prod | demo |
 |---|---|---|
 | Fly.io app | `bigs-live` (`fly.prod.toml`) | `bigs-live-demo` (`fly.demo.toml`) |
-| Neon (`DATABASE_URL`) | project `bigs-live`, branch `main` | project `bigs-live-demo`, branch `main` (local development uses its child `local`) |
 | `CLOCK_START` | unset (real time) | set, e.g. `2026-10-18T18:00:00Z` |
 | `SOURCES` | the real sources | unset (mock) |
 | Vercel project | `bigs-live` (bigs-live.vercel.app) | `bigs-live-demo` (bigs-live-demo.vercel.app) |
 
-- **Backend:** the `Dockerfile` image on Fly.io, one app per deployment in `fra` (next to Neon's `eu-central-1`), deployed with `make fly-deploy SITE=demo|prod`. Fly's remote builder builds the image. Port 8080, health check `GET /api/health`, 1 GB shared CPU. `DATABASE_URL` is a Fly secret; plain config is in `[env]` of the toml: prod's `SOURCES` in `fly.prod.toml`, the demo's `CLOCK_START` in `fly.demo.toml`. **Run exactly one machine per app, always on** (`--ha=false`, `auto_stop_machines = "off"`), because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart or deploy puts it back at `CLOCK_START`.
-- **Database:** Neon Postgres, via `DATABASE_URL`. Prod and demo are separate Neon projects, so nothing from one can reach the other. The migrations run on start and expect an empty branch.
-- **Volume (prod only):** `wtc_data`, 1 GB in `fra`, mounted at `/data` for the official feed's `latest.json`. Create it once before the first deploy with the mount: `fly volumes create wtc_data --region fra --size 1 -a bigs-live`. It survives deploys and restarts, but isn't replicated; losing it only means starting from the first fetch.
+- **Backend:** the `Dockerfile` image on Fly.io, one app per deployment in `fra`, deployed with `make fly-deploy SITE=demo|prod`. Fly's remote builder builds the image. Port 8080, health check `GET /api/health`, 1 GB shared CPU. There are no secrets; config is in `[env]` of the toml: prod's `SOURCES` in `fly.prod.toml`, the demo's `CLOCK_START` in `fly.demo.toml`. **Run exactly one machine per app, always on** (`--ha=false`, `auto_stop_machines = "off"`), because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart or deploy puts it back at `CLOCK_START`.
+- **Volume (prod only):** `wtc_data`, 1 GB in `fra`, mounted at `/data` for the official feed's `latest.json`. Create it once before the first deploy with the mount: `fly volumes create wtc_data --region fra --size 1 -a bigs-live`. `fly deploy` won't create it for an existing app, even with `initial_size` in `[mounts]`; it stops with "needs volumes with name 'wtc_data'". It survives deploys and restarts, but isn't replicated; losing it only means starting from the first fetch.
 - **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy SITE=demo|prod`. That stages `frontend/public` in `frontend/.deploy/<SITE>`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `DEMO_BACKEND_HOST` or `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `bigs-live` (prod) or `bigs-live-demo` (demo), linked on the first deploy.

@@ -1,28 +1,18 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run demo-reset demo-off run-mem repl up down logs psql db-reset uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy
+.PHONY: help test run demo-reset demo-off repl up down logs uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy
 
 PORT ?= 8090
-# Local development and `make db-reset` only touch the Neon project bigs-live-demo,
-# never the production project bigs-live.
-NEON_PROJECT_ID ?= winter-leaf-48380451
-NEON_BRANCH ?= local
 
 # DEMO=1 runs a demo race: it stands at CLOCK_START (default lap 31) until
 # the site's simulation panel moves it (step, jump, play). It's saved in
 # .env, so plain `docker compose up` and `make run` are demos too. An app
 # restart puts the race back at CLOCK_START. `make demo-off` goes back to
 # real time.
-#
-# Without DATABASE_URL the backend uses its in-memory store. To use Postgres,
-# put DATABASE_URL (the branch `local` of the Neon project bigs-live-demo,
-# never the production project bigs-live) in .env.
 -include .env
 ifdef DEMO
 CLOCK_START ?= 2026-10-18T18:00:00Z
 endif
 export PORT CLOCK_START
-export DATABASE_URL
-need-db = $(if $(DATABASE_URL),,$(error Set DATABASE_URL in .env to a Neon branch))
 
 help: ## List targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}' 
@@ -36,16 +26,13 @@ else
 	clojure -M:test -n $(T)
 endif
 
-run: ## Run the backend on the JVM (Neon if DATABASE_URL is set, else in memory)
+run: ## Run the backend on the JVM
 	clojure -M:run
-
-run-mem: ## Run the backend on the JVM in memory, even if DATABASE_URL is set
-	DATABASE_URL= clojure -M:run
 
 repl: ## Start nREPL on 7888 (then (user/start))
 	clojure -M:dev:nrepl
 
-up: ## Build and run the stack in Docker (app, web, web-dev); Neon if DATABASE_URL is set
+up: ## Build and run the stack in Docker (app, web, web-dev)
 ifdef DEMO
 	@{ grep -v '^CLOCK_START=' .env 2>/dev/null; printf 'CLOCK_START=%s\n' $(CLOCK_START); } > .env.tmp && mv .env.tmp .env
 endif
@@ -64,13 +51,6 @@ demo-off: ## Back to the real-time clock
 
 logs: ## Follow the app and web logs
 	docker compose logs -f app web
-
-db-reset: ## Reset the Neon branch NEON_BRANCH (default local) to its parent, then restart the app
-	npx -y neonctl branches reset $(NEON_BRANCH) --parent --project-id $(NEON_PROJECT_ID)
-	-docker compose restart app
-
-psql: ## Open psql on DATABASE_URL (Neon); needs a local psql
-	$(need-db)psql "$$DATABASE_URL"
 
 uber: ## Build target/wtc.jar
 	clojure -T:build uber

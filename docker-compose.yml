@@ -1,7 +1,6 @@
 # Local stack: the backend and the frontend behind nginx (stand-in for
-# Vercel, which proxies /api the same way). DATABASE_URL (a Neon branch)
-# comes from .env, like the clock and source settings; without it the app
-# uses its in-memory store. `make up DEMO=1` writes CLOCK_START there so a plain
+# Vercel, which proxies /api the same way). The clock and source settings
+# come from .env. `make up DEMO=1` writes CLOCK_START there so a plain
 # `docker compose up` keeps the demo race.
 services:
   app:
@@ -9,7 +8,6 @@ services:
     ports:
       - "${PORT:-8090}:8080"
     environment:
-      DATABASE_URL: ${DATABASE_URL:-}
       POLL_SECONDS: ${POLL_SECONDS:-60}
       CLOCK_START: ${CLOCK_START:-}
       SOURCES: ${SOURCES:-}

@@ -93,8 +93,7 @@ With two runners left (A and B):
   - **Missed registrations.** A later lap shows up without the earlier one, so one recorded time can span hours. Earlier laps are then credited and marked as inferred.
   - **A runner who turns back** shows up as a short "lap". That counts as a DNF.
   - **A finish in the first ~30 min of an hour** belongs to the previous loop.
-- Every lap time of every runner is stored durably, in Postgres, for statistics after the race. [brief]
-- The latest copy of the official feed is kept on disk (a Fly volume in prod) and loaded at boot, so a restart while the feed is down still shows the race. The feed holds the whole race, so this one file is also enough for statistics afterwards; no history of copies is kept. [decided]
+- **No database.** The latest copy of the official feed is kept on disk (a Fly volume in prod) and loaded at boot, so a restart while the feed is down still shows the race. The feed holds every lap of every runner, so this one file is also enough for statistics after the race; no history of copies is kept. [decided] The brief asked for every lap time stored durably in Postgres; the feed made that redundant.
 - **Roster:** the official selection behind https://bigsbackyardultra.com/world-team-championship-2026/.
   - 69 countries and 1,330 runners.
   - **"AIN"** (Individual Neutral Athletes) is Russia. The code stays AIN, as in the official data, and it's shown as "Individual Neutral Athletes (Russia)". [decided]
@@ -172,17 +171,18 @@ With two runners left (A and B):
 ## 7. Hosting [decided]
 
 - **Backend:** one always-on machine on **Fly.io** per deployment. [decided] Caasify, the earlier choice, built too slowly.
-- **Two deployments**, each with its own backend, Neon project and site: **prod** (the real race) and **demo** (a demo race on mock data, with the simulation panel). [decided]
-- **Database:** **Neon** Postgres.
+- **Two deployments**, each with its own backend and site: **prod** (the real race) and **demo** (a demo race on mock data, with the simulation panel). [decided]
+- **Database:** none (see Data). Neon Postgres was used until 18 Oct. [decided]
 - **Frontend:** **Vercel**. `/api/*` is rewritten to the backend, so the browser stays same-origin and Vercel's CDN caches the API responses.
 
 ## 8. Changes from the original brief
 
 | Brief | Now | Why |
 |---|---|---|
-| Redis cache to offload the database | No Redis. The API serves from memory, with CDN cache headers. | There's a single backend instance, the data changes at most a few times per hour, and the CDN absorbs the worldwide traffic. Postgres is only for durability and statistics. |
+| Redis cache to offload the database | No Redis, and no database. The API serves from memory, with CDN cache headers. | There's a single backend instance, and the CDN absorbs the worldwide traffic. The official feed holds the whole race, so its latest copy on disk replaces a database. |
+| Every lap time stored durably in Postgres | The latest copy of the official feed on a Fly volume | The feed holds every lap of every runner. |
 | An external 1-minute ping triggers fetching | An in-process scheduler with timeouts, retries and backoff | More robust, and needs no external cron. |
-| "Vercel or maybe others" | Fly.io + Neon + Vercel | An always-on JVM container, cheap for the race week. |
+| "Vercel or maybe others" | Fly.io + Vercel | An always-on JVM container, cheap for the race week. |
 | Data from a results page or a Google doc | Pluggable adapters, mock for now | The source is still unknown. |
 | Live trackers, position in loop | Dropped | No GPX, and every country has its own loop. |
 
