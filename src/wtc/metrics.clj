@@ -88,11 +88,17 @@
       :values (mapv (fn [n] [n (count (filter #(let [a (:eliminated-after %)] (or (nil? a) (> a n))) cs))])
                     (range 1 (inc (:settled-lap derived))))}]))
 
-(defn- lap-time [derived params]
-  (for [r (sort-by :id (select derived params))]
+(defn- lap-time
+  "Each runner's lap times; with lap=, only from that lap on (a page that
+  has the earlier ones fetches just the new), leaving out runners with none."
+  [derived {from :lap :as params}]
+  (for [r (sort-by :id (select derived params))
+        :let [values (into [] (keep (fn [{:keys [lap seconds]}]
+                                      (when (and seconds (or (nil? from) (>= lap from))) [lap seconds])))
+                           (:history r))]
+        :when (or (nil? from) (seq values))]
     {:metric {:__name__ "lap_time_seconds" :runner (:id r) :name (:name r) :country (:country r)}
-     :values (into [] (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])))
-                   (:history r))}))
+     :values values}))
 
 (defn- median [xs]
   (let [v (vec (sort xs)) n (count v)]
@@ -125,7 +131,7 @@
    "attrition" {:doc "Runners out at the bell of lap n, per reason (rtc, inc, over, dnf, missing). by=country" :x "lap" :fn attrition}
    "team_rank" {:doc "Each country's place after lap n (official ranking); filter with countries=" :x "lap" :fn team-rank}
    "countries_running" {:doc "Countries still in the race after lap n" :x "lap" :fn countries-running}
-   "lap_time_seconds" {:doc "Lap times per runner; filter with runners= or countries=" :x "lap" :fn lap-time}
+   "lap_time_seconds" {:doc "Lap times per runner; filter with runners= or countries=, lap= from that lap on" :x "lap" :fn lap-time}
    "lap_time_median_seconds" {:doc "The field's median lap time per lap" :x "lap" :fn lap-time-median}
    "countries_by_active_runners" {:doc "Histogram: number of countries with k runners starting lap= (default current)" :x "active_runners" :fn countries-by-active}})
 

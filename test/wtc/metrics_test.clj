@@ -28,3 +28,13 @@
     (let [v (values "attrition" {})]
       (is (= 2 (second (nth (v "dnf") 2))))     ; b3 and e3 out on lap 3
       (is (= 1 (second (first (v "dnf"))))))))  ; d3 out on lap 1
+
+(deftest lap-times-from-a-lap
+  (let [all (get-in (metrics/query derived "lap_time_seconds" {}) [:data :result])
+        from (get-in (metrics/query derived "lap_time_seconds" {:lap 3}) [:data :result])]
+    (testing "lap= keeps only that lap on"
+      (is (seq from))
+      (is (every? #(>= (first %) 3) (mapcat :values from))))
+    (testing "and leaves out runners without a lap there"
+      (is (every? (comp seq :values) from))
+      (is (<= (count from) (count all))))))

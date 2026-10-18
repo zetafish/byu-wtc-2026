@@ -74,8 +74,6 @@
   []
   (str/join "," (sort (into (set (keys (:selected @db))) (group-codes (:chart-group @db))))))
 
-(declare fetch-runner-times!)
-
 (defn- effective
   "A panel with its chosen variant's keys merged in."
   [{:keys [id variants] :as p}]
@@ -94,27 +92,33 @@
       (-> (get-json "/api/query" (cond-> {:metric metric}
                                    per-country? (assoc :by "country" :countries (selected-codes))))
           (.then #(when (latest?) (swap! db assoc-in [:results [id metric]] (get-in % [:data :result]))))
-          (.catch #(js/console.warn %))))
-    (fetch-runner-times! latest?)))
+          (.catch #(js/console.warn %))))))
 
 (defn- fetch-runner-times!
-  "Lap times for the sparklines: every runner when the leaderboard isn't
-  filtered by country (~140 KB gzipped late in the race), else the filtered
-  countries plus the starred runners."
-  [latest?]
-  (let [ids (str/join "," (:starred @db))
-        codes (str/join "," (sort (:runner-filter @db)))]
-    (-> (js/Promise.all
-         (clj->js (if (seq codes)
-                    [(get-json "/api/query" {:metric "lap_time_seconds" :countries codes})
-                     (if (seq ids) (get-json "/api/query" {:metric "lap_time_seconds" :runners ids}) #js {})]
-                    [(get-json "/api/query" {:metric "lap_time_seconds"})])))
-        (.then (fn [rs]
-                 (let [series (mapcat #(get-in (js->clj % :keywordize-keys true) [:data :result]) rs)]
-                   (when (latest?)
-                     (swap! db update :lap-times merge
-                            (into {} (map (fn [s] [(get-in s [:metric :runner]) (:values s)])) series))))))
-        (.catch #(js/console.warn %)))))
+  "Yard times for the Runners view's sparklines. Past yards never change, so
+  all of them load once, and later reloads only fetch from the last yard
+  known on (that yard again, in case a time was corrected): a few KB instead
+  of ~140 KB gzipped late in the race. Other views don't need them."
+  []
+  (when (= :runners (:view @db))
+    (let [through (:lap-times-through @db)
+          from (when through (max 1 through))]
+      (-> (get-json "/api/query" (cond-> {:metric "lap_time_seconds"} from (assoc :lap from)))
+          (.then (fn [r]
+                   (let [series (get-in (js->clj r :keywordize-keys true) [:data :result])
+                         fresh (into {} (map (fn [s] [(get-in s [:metric :runner]) (:values s)])) series)
+                         newest (reduce max (or through 0) (keep (comp first peek) (vals fresh)))]
+                     (swap! db (fn [d]
+                                 (-> d
+                                     (update :lap-times
+                                             (fn [old]
+                                               (if-not from
+                                                 fresh
+                                                 ;; keep the yards before `from`, take the rest as sent
+                                                 (merge-with (fn [o n] (into (filterv #(< (first %) from) o) n))
+                                                             old fresh))))
+                                     (assoc :lap-times-through newest)))))))
+          (.catch #(js/console.warn %))))))
 
 (defn- fetch-runner-detail!
   "The runner dialog's data: the runner's lap history and the field median."
@@ -149,6 +153,7 @@
   (fetch-panels!)
   (fetch-team!)
   (fetch-overtakes!)
+  (fetch-runner-times!)
   (some-> (:open @db) fetch-runner-detail!)
   (-> (js/Promise.all (clj->js [(get-json "/api/race" {})
                                 (get-json "/api/countries" {})
@@ -632,10 +637,24 @@
 
 (defn- race-key [r] [(:laps r) (if (running? r) 1 0)])
 
+(declare rank-runners)
+
+(defonce ^:private ranked-cache (atom nil))
+
 (defn- ranked
   "Runners best first, each with :pos. Equal laps share a position, except
-  that a runner still going is ahead of one who is out."
+  that a runner still going is ahead of one who is out. Kept for the same
+  `runners` (they change once a reload), so the leaderboard's rows stay
+  identical between redraws and are skipped."
   [runners]
+  (let [[rs result] @ranked-cache]
+    (if (identical? rs runners)
+      result
+      (let [result (rank-runners runners)]
+        (reset! ranked-cache [runners result])
+        result))))
+
+(defn- rank-runners [runners]
   (let [sorted (sort-by (juxt (comp - :laps) #(if (running? %) 0 1) :name) runners)]
     (first (reduce (fn [[acc prev-key prev-pos] [i r]]
                      (let [k (race-key r)
@@ -976,6 +995,33 @@
                  :on-change #(do (swap! db update :show-out-runners? not) (save-prefs!))}]
         (str "Show eliminated (" n-out ")")])]))
 
+(defn- runner-row
+  "One leaderboard row. A component of its own, so a row whose runner, star
+  and yard times are unchanged isn't redrawn: opening or closing the runner
+  dialog (or any other change of state) would otherwise redraw ~1000 rows
+  with their sparklines."
+  [{:keys [id name country laps pos] :as runner} starred? times]
+  [:tr.clickable {:class (when (= "out" (:status runner)) "out")
+                  :on-click (fn []
+                              (fetch-runner-detail! id)
+                              (swap! db assoc :open id))}
+   [:td.num pos]
+   [:td.name [:button.star {:aria-label (if starred? "Unstar" "Star")
+                            :aria-pressed starred?
+                            :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
+              (if starred? "★" "☆")]
+    name]
+   [:td [country-label country]]
+   [:td.num (:rank runner)]
+   [:td.num laps]
+   [:td [status-badge runner]]
+   [:td.num (mmss (:last-seconds runner))]
+   [:td.num (mmss (:avg-seconds runner))]
+   [:td.num (mmss (:fastest-seconds runner))]
+   [:td.num (hmmss (:total-seconds runner))]
+   [:td.num (or (:best-yards runner) "–")]
+   [:td (when times [chart/sparkline times])]])
+
 (defn- runners-table []
   (let [{:keys [runners starred open lap-times show-out-runners? runner-filter starred-only? query]} @db
         starred? #(contains? starred (:id %))
@@ -1016,29 +1062,8 @@
                   [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
                   [:th "Yard times"]]]
          [:tbody
-          (for [{:keys [id name country laps pos] :as runner} shown
-                :let [times (get lap-times id)]]
-            ^{:key id}
-            [:tr.clickable {:class (when (out-runner? runner) "out")
-                            :on-click (fn []
-                                        (fetch-runner-detail! id)
-                                        (swap! db assoc :open id))}
-             [:td.num pos]
-             [:td.name [:button.star {:aria-label (if (starred? runner) "Unstar" "Star")
-                                      :aria-pressed (starred? runner)
-                                      :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
-                        (if (starred? runner) "★" "☆")]
-              name]
-             [:td [country-label country]]
-             [:td.num (:rank runner)]
-             [:td.num laps]
-             [:td [status-badge runner]]
-             [:td.num (mmss (:last-seconds runner))]
-             [:td.num (mmss (:avg-seconds runner))]
-             [:td.num (mmss (:fastest-seconds runner))]
-             [:td.num (hmmss (:total-seconds runner))]
-             [:td.num (or (:best-yards runner) "–")]
-             [:td (when times [chart/sparkline times])]])]]])]))
+          (for [{:keys [id] :as runner} shown]
+            ^{:key id} [runner-row runner (contains? starred id) (get lap-times id)])]]])]))
 
 ;; --- seat ranking ---
 ;; Every runner has a seat (1-15, their roster rank in the team). All runners
@@ -1050,7 +1075,7 @@
 (defn- seat-ranking
   "Runners of seat n, best first, with :pos (see `ranked`)."
   [runners n]
-  (ranked (filter #(= n (:rank %)) runners)))
+  (rank-runners (filter #(= n (:rank %)) runners)))
 
 (defn- seat-summary [runners n]
   (let [ranked (seat-ranking runners n)
@@ -1576,7 +1601,8 @@
     (track-view! view (:team @db))
     (when (= view :charts) (fetch-panels!))
     (fetch-team!)
-    (fetch-overtakes!)))
+    (fetch-overtakes!)
+    (fetch-runner-times!)))
 
 (defn- apply-theme!
   "Light or dark on <html data-theme>; system leaves it to the OS setting."
