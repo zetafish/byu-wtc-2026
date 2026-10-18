@@ -67,20 +67,15 @@ web-dev: .web-deps ## Frontend hot reload on the host (:8092), proxies /api to :
 web-build: .web-deps ## Release build of the frontend into frontend/public
 	cd frontend && npx shadow-cljs release app
 
-# Two sites: prod is the Vercel project bigs-live (bigs-live.vercel.app), demo
-# is bigs-live-demo (bigs-live-demo.vercel.app). Each has /api
-# proxied to its own backend, PROD_BACKEND_HOST or DEMO_BACKEND_HOST (the
-# Fly.io domains, set in .env). Each site is staged in frontend/.deploy/<SITE>,
-# which keeps its Vercel link.
-SITE ?= demo
-vercel-project = $(if $(filter prod,$(SITE)),bigs-live,bigs-live-demo)
-backend-host = $(if $(filter prod,$(SITE)),$(PROD_BACKEND_HOST),$(if $(filter demo,$(SITE)),$(DEMO_BACKEND_HOST),$(error SITE must be demo or prod)))
-web-deploy: web-build ## Deploy the frontend to Vercel: SITE=demo (default) or SITE=prod
-	@test -n "$(backend-host)" || { echo "Set $(if $(filter prod,$(SITE)),PROD,DEMO)_BACKEND_HOST in .env"; exit 1; }
-	mkdir -p frontend/.deploy/$(SITE)
-	rsync -a --delete --exclude js/cljs-runtime --exclude js/manifest.edn frontend/public/ frontend/.deploy/$(SITE)/public/
-	sed 's/BACKEND_HOST/$(backend-host)/' frontend/vercel.json > frontend/.deploy/$(SITE)/vercel.json
-	cd frontend/.deploy/$(SITE) && { test -d .vercel || npx vercel link --yes --project $(vercel-project); } && npx vercel deploy --prod
+# One site: the Vercel project bigs-live (bigs-live.vercel.app), with /api
+# proxied to the backend PROD_BACKEND_HOST (its Fly.io domain, set in .env).
+# It's staged in frontend/.deploy/prod, which keeps its Vercel link.
+web-deploy: web-build ## Deploy the frontend to Vercel
+	@test -n "$(PROD_BACKEND_HOST)" || { echo "Set PROD_BACKEND_HOST in .env"; exit 1; }
+	mkdir -p frontend/.deploy/prod
+	rsync -a --delete --exclude js/cljs-runtime --exclude js/manifest.edn frontend/public/ frontend/.deploy/prod/public/
+	sed 's/BACKEND_HOST/$(PROD_BACKEND_HOST)/' frontend/vercel.json > frontend/.deploy/prod/vercel.json
+	cd frontend/.deploy/prod && { test -d .vercel || npx vercel link --yes --project bigs-live; } && npx vercel deploy --prod
 
 roster: ## Build resources/roster/wtc-2026.edn from roster/*.json
 	bb scripts/fetch_roster.clj resources/roster/wtc-2026.edn
@@ -91,9 +86,8 @@ roster-refresh: ## Re-fetch + build the whole roster (~2min)
 clean: ## Remove build output
 	rm -rf target .cpcache frontend/public/js frontend/.shadow-cljs
 
-# Two backends on Fly.io, bigs-live-demo and bigs-live, configured in
-# fly.<SITE>.toml. Fly's remote builder builds the Dockerfile. --ha=false keeps
-# it at one machine: the scheduler and the state are in-process.
-fly-deploy: ## Deploy the backend to Fly.io: SITE=demo (default) or SITE=prod
-	@test -f fly.$(SITE).toml || { echo "SITE must be demo or prod"; exit 1; }
-	fly deploy -c fly.$(SITE).toml --ha=false
+# The backend on Fly.io, the app bigs-live, configured in fly.prod.toml.
+# Fly's remote builder builds the Dockerfile. --ha=false keeps it at one
+# machine: the scheduler and the state are in-process.
+fly-deploy: ## Deploy the backend to Fly.io
+	fly deploy -c fly.prod.toml --ha=false

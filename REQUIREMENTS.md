@@ -120,7 +120,7 @@ With two runners left (A and B):
 - A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Charts [decided], Team, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
-- **Visitor analytics:** Vercel Web Analytics shows where traffic comes from (referrers), countries and devices; cookie-free. [decided]
+- **Visitor analytics:** Vercel Web Analytics shows where traffic comes from (referrers), countries and devices, and which views are looked at (each view as its own page, each team page too); cookie-free. [decided]
 - **Theme:** light, dark or system (the default), switched in the menu and remembered. [decided]
 - **New version notice:** a page left open during a deploy says a new version is out and offers a Reload button; it never reloads by itself. [decided]
 - **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the runner leaderboard's "★ only" toggle, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
@@ -283,7 +283,7 @@ From the official feed, which the adapter doesn't carry yet:
 - [x] **Real data adapters:** `wtc.source.official` (the one in use) and `wtc.source.sheet` (manual fallback).
 - [x] **Late countries:** a country that reports late is never shown as out meanwhile. The official feed's `reportedThrough` says how far each country has reported. Only for a source without it does a runner without a result count as out 45 min after the lap's bell (`GRACE_SECONDS = 2700` in `fly.prod.toml`; the default is 15 min). [decided]
 - [ ] **Deploy:**
-  - set up the Fly.io apps `bigs-live` and `bigs-live-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
+  - set up the Fly.io app `bigs-live` and `PROD_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment); the demo site is no longer needed and was removed on 18 Oct [decided];
   - make a test run before 17 Oct 12:00Z.
 - [ ] **Seat = roster rank** [assumed]: confirm.
 - [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now). Equal team scores follow the official tie-break (see Countries). [decided]

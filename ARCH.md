@@ -165,7 +165,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
   A new formatter goes in `y-formats` in `wtc.app`. All charts render above the countries table, with the `:per-country?` charts first. Those stay empty until countries are added in the Compare row.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
-- **Analytics:** Vercel Web Analytics, enabled in the Vercel project, loaded by a script tag in `index.html` (`/_vercel/insights/script.js`). No cookies. The plain-HTML version has no route support, so the hash views all count as `/`; referrers, countries and devices work.
+- **Analytics:** Vercel Web Analytics, enabled in the Vercel project, loaded by a script tag in `index.html` (`/_vercel/insights/script.js`). No cookies. Its own tracking would count every hash view as `/`, so it's off (`data-disable-auto-track`) and `wtc.app/track-view!` sends `va('pageview', {path, route})` on load and on every change of view: `/race`, `/charts`, `/runners`, `/seats`, `/team/BEL` (route `/team/[code]`). Referrers, countries and devices work as usual.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.
   - In production, the Vercel rewrite does.
@@ -209,15 +209,8 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 ## Deployment
 
-There are two deployments, **prod** and **demo**, built from the same image and differing only in their env vars:
+There is one deployment, prod (a demo site ran before the race and was removed on 18 Oct; the demo race lives on locally with `DEMO=1`): the Fly.io app `bigs-live` (`fly.prod.toml`, real sources, real time) and the Vercel project `bigs-live` (bigs-live.vercel.app).
 
-| | prod | demo |
-|---|---|---|
-| Fly.io app | `bigs-live` (`fly.prod.toml`) | `bigs-live-demo` (`fly.demo.toml`) |
-| `CLOCK_START` | unset (real time) | set, e.g. `2026-10-18T18:00:00Z` |
-| `SOURCES` | the real sources | unset (mock) |
-| Vercel project | `bigs-live` (bigs-live.vercel.app) | `bigs-live-demo` (bigs-live-demo.vercel.app) |
-
-- **Backend:** the `Dockerfile` image on Fly.io, one app per deployment in `fra`, deployed with `make fly-deploy SITE=demo|prod`. Fly's remote builder builds the image. Port 8080, health check `GET /api/health`, 1 GB shared CPU. There are no secrets; config is in `[env]` of the toml: prod's `SOURCES` in `fly.prod.toml`, the demo's `CLOCK_START` in `fly.demo.toml`. **Run exactly one machine per app, always on** (`--ha=false`, `auto_stop_machines = "off"`), because the scheduler and the derived state are in-process. The demo race is shared by everyone who opens the demo site, and a restart or deploy puts it back at `CLOCK_START`.
-- **Volume (prod only):** `wtc_data`, 1 GB in `fra`, mounted at `/data` for the official feed's `latest.json`. Create it once before the first deploy with the mount: `fly volumes create wtc_data --region fra --size 1 -a bigs-live`. `fly deploy` won't create it for an existing app, even with `initial_size` in `[mounts]`; it stops with "needs volumes with name 'wtc_data'". It survives deploys and restarts, but isn't replicated; losing it only means starting from the first fetch.
-- **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy SITE=demo|prod`. That stages `frontend/public` in `frontend/.deploy/<SITE>`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `DEMO_BACKEND_HOST` or `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `bigs-live` (prod) or `bigs-live-demo` (demo), linked on the first deploy.
+- **Backend:** the `Dockerfile` image on Fly.io, in `fra`, deployed with `make fly-deploy`. Fly's remote builder builds the image. Port 8080, health check `GET /api/health`, 1 GB shared CPU. There are no secrets; config is in `[env]` of `fly.prod.toml` (`SOURCES`, `GRACE_SECONDS`). **Run exactly one machine, always on** (`--ha=false`, `auto_stop_machines = "off"`), because the scheduler and the derived state are in-process.
+- **Volume:** `wtc_data`, 1 GB in `fra`, mounted at `/data` for the official feed's `latest.json`. Create it once before the first deploy with the mount: `fly volumes create wtc_data --region fra --size 1 -a bigs-live`. `fly deploy` won't create it for an existing app, even with `initial_size` in `[mounts]`; it stops with "needs volumes with name 'wtc_data'". It survives deploys and restarts, but isn't replicated; losing it only means starting from the first fetch.
+- **Frontend:** Vercel's build image has no JVM, so the frontend is built locally and deployed prebuilt with `make web-deploy`. That stages `frontend/public` in `frontend/.deploy/prod`, with `BACKEND_HOST` in `frontend/vercel.json` replaced by `PROD_BACKEND_HOST` from `.env`, and deploys it to the Vercel project `bigs-live`, linked on the first deploy.

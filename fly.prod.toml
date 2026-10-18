@@ -1,4 +1,4 @@
-# The prod backend. Deploy with `make fly-deploy SITE=prod`.
+# The backend. Deploy with `make fly-deploy`.
 app = "bigs-live"
 primary_region = "fra"
 
