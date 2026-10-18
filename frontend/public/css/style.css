@@ -479,3 +479,4 @@ table.chase-table td.danger { color: var(--critical); font-weight: 600; }
 table.chase-table td.chance { color: var(--good); font-weight: 600; }
 table.chase-table tr.you td { background: var(--page); font-weight: 600; }
 .chase-switch { margin-bottom: 10px; }
+.chase-range { margin: 0 0 10px 8px; }

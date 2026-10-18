@@ -49,7 +49,8 @@
                                                              :variant (:variant @db)
                                                              :sim-poll-ms (:sim-poll-ms @db)
                                                              :team (:team @db)
-                                                             :chase-view (:chase-view @db)})))
+                                                             :chase-view (:chase-view @db)
+                                                             :chase-range (:chase-range @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -1007,15 +1008,20 @@
    [flag code] [:span code]
    (when (and with-laps? laps-to-pass) [:span.gap (in-laps laps-to-pass)])])
 
-(defn- chase-card [{:keys [country chase settled-lap]}]
+(defn- chase-card [{:keys [country chase]}]
   (let [{:keys [ahead level behind field-active]} chase
         c (:code country)
         nm (:name country)
         rivals (concat (reverse ahead) level behind)
         by-bucket (group-by chase-bucket rivals)
+        ;; 8 series colours: overtakes first (soonest first), then the nearest
+        charted (set (map :code (take 8 (sort-by (juxt #(if (:laps-to-pass %) 0 1)
+                                                        #(or (:laps-to-pass %) 0)
+                                                        #(abs (:gap %)))
+                                                  (concat ahead behind)))))
         series (map-indexed (fn [i {:keys [code name series]}]
                               {:key code :label (str name " " code) :color (color (inc i)) :values series})
-                            (concat (reverse ahead) behind))
+                            (filter (comp charted :code) (concat (reverse ahead) behind)))
         early? (and (empty? ahead) (empty? behind))
         many-level? (> (count level) 4)
         row (fn [{:keys [code name gap gain active laps-to-pass] :as r}]
@@ -1073,15 +1079,25 @@
           (map row behind)]]])
      (when (and (not early?) (= :history (:chase-view @db :numbers)))
        [:<>
-        [chart/line-chart {:series series :refs [{:y 0 :label (:name country) :neutral? true}]
+        [:div.segmented.chase-range {:role "group" :aria-label "Laps shown"}
+         (for [[v label] [[:all "All laps"] [:last-12 "Last 12"]]]
+           ^{:key v}
+           [:button {:aria-pressed (= v (:chase-range @db :all))
+                     :on-click #(do (swap! db assoc :chase-range v) (save-prefs!))} label])]
+        [chart/line-chart {:series (if (= :last-12 (:chase-range @db :all))
+                                     (let [to (reduce max 0 (map (comp first last :values) series))]
+                                       (map (fn [s] (update s :values #(filterv (fn [[x]] (> x (- to 12))) %))) series))
+                                     series)
+                           :refs [{:y 0 :label (:name country) :neutral? true}]
                            :y-zero? false :x-label "lap" :y-label "laps ahead of this team" :size :wide
                            :legend? true}]
         [:p.chart-note
          "Each line is a country's team score minus " (:name country) "'s after each lap. "
          "Above the dashed line it's ahead, below it behind. A line going up is gaining on "
          (:name country) " (more runners in), going down is losing ground, flat means as many runners in; "
-         "crossing the dashed line is an overtake. Up to lap " settled-lap
-         ", the last lap every country has had time to report, so results already in for the current lap aren't drawn yet."]])]))
+         "crossing the dashed line is an overtake. A line ends at the last lap both countries have reported."
+         (when (> (count (concat ahead behind)) 8)
+           " With more than 8 rivals, the chart shows those with an overtake first, then the nearest.")]])]))
 
 (defn- team-runners [{:keys [runners settled-lap]}]
   (let [ranked-all (ranked (:runners @db))
@@ -1301,10 +1317,11 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (if (= "history" chase-view) :history :numbers)
+           :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
