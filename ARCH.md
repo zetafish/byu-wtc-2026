@@ -36,7 +36,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 - **Runner:** `{:id "NED-01" :name … :country "NED" :bib …}`.
   - Ids must be the same across sources, because merging is per `[runner-id lap]`.
   - Using the roster's ids (`<IOC code>-<seat>`) gets roster enrichment for free.
-- **Lap:** `{:runner-id :lap :status :finished|:dnf :seconds}`. Lap n runs from start+(n−1) h to start+n h.
+- **Lap:** `{:runner-id :lap :status :finished|:dnf :seconds :stop}`. `:stop` (optional) is why a `:dnf` lap ended the race: `:rtc`, `:inc`, `:over` or `:dns`. Lap n runs from start+(n−1) h to start+n h.
 
 `sanitize` drops invalid rows, never the whole snapshot. `merge-datasets` merges the per-source datasets; the higher `:priority` wins per `[runner-id lap]`.
 
@@ -68,7 +68,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   `SOURCES` *replaces* the default mock, so leave the mock out of it when a real adapter is live; otherwise mock laps merge in wherever the real source has no row. Compose passes `SOURCES` through from the shell or `.env`. Put adapter tests in `test/wtc/source_test.clj`, next to `mock-source`.
 - **`wtc.source.official`:** the official site's own results feed, `https://wtc2026.bigsbackyardultra.com/api/results`, which its pages poll every 60 s. It's read from the organisers' master sheet, so it's fresher than the published sheet and has full names, lap times and stop reasons. An internal feed, not a promised API.
   - Nations use ISO codes (`NLD`); they're mapped to the roster's (`NED`) by country name. Runners are matched to roster ids by name within their country (Unicode-aware, so Chinese names match too); an unmatched runner keeps their feed id under our code.
-  - `laps[i]` is lap i+1 with that many seconds (`null`: no time recorded). A `stop` (`RTC`, `OVER`, `INC`) or `dns` is a `:dnf` on the next lap. Excluded nations and hidden runners are left out.
+  - `laps[i]` is lap i+1 with that many seconds (`null`: no time recorded). A `stop` (`RTC`, `OVER`, `INC`) or `dns` is a `:dnf` on the next lap, with the reason as `:stop` (`:rtc`, `:over`, `:inc`, `:dns`). A stop counts as soon as it is in the feed, even during the lap: it is final (the official site waits until the yard is complete). Excluded nations and hidden runners are left out.
   - A nation's `reportedThrough`, the last yard it has finished entering, becomes the country's `:reported-through`, so `wtc.race` settles laps per country without waiting for the grace period, and never shows a late country as out.
   - Polls send the last ETag, so an unchanged feed is a 304. In practice the feed is rebuilt every minute with a new `generatedAt`, so its ETag changes every minute too.
   - With `:snapshot "/data/latest.json"`, every new copy of the feed is written there as is (through a temp file and a rename). At boot, `wtc.main` asks each source for `wtc.source/saved` and starts from that before the first fetch, so a restart while the feed is down still shows the race. In prod the file is on a Fly volume. A failed write is logged and never fails the fetch.
@@ -99,7 +99,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
     - 1 finisher gives `{:after lap :winner id}`, and that runner gets `:status :finished :reason :winner`.
     - 0 finishers give `{:after (dec lap) :winner nil}`.
   - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:farthest` (the most laps of one runner), `:position` (the order: total laps, then farthest, then active runners, then code), `:rank` (the official place: shared, with `:tied true`, only when total laps and farthest are both equal), `:eliminated-after` and `:winner` `{:id :name :laps}`.
-  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds}`, optionally with `:inferred true`, `:suspect true` or `:too-fast true`; `:seconds` is nil for inferred or suspect laps.
+  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:stop` when the source gave one, `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds :stop}`, optionally with `:inferred true`, `:suspect true` or `:too-fast true`; `:seconds` is nil for inferred or suspect laps.
     - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1.
   - **Phase:** `:pre`, `:live` or `:finished`. When finished, `:final-lap` is the last lap anyone started, and `:current-lap` and `:settled-lap` are capped there, so the chart axes stop growing. `:race-laps` is the race length: the last lap anyone completed, which is `:final-lap` with a winner and one less when the last runners all DNF.
 - **`wtc.ingest`:** a single-thread scheduler.

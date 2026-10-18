@@ -261,11 +261,23 @@
 (def ^:private reason-text
   {"dnf" "did not finish" "missing" "no result"})
 
-(defn- status-badge [{:keys [status reason]}]
+;; the official stop codes, short for pills and long for tooltips
+(def ^:private stop-short {"rtc" "RTC" "inc" "INC" "over" "OVER" "dns" "did not start"})
+(def ^:private stop-long
+  {"rtc" "RTC: didn't start the next lap"
+   "inc" "INC: started a lap, didn't finish it"
+   "over" "OVER: finished a lap over the hour"
+   "dns" "did not start the race"})
+
+(defn- out-text [{:keys [reason stop]}]
+  (or (stop-long stop) (reason-text reason reason)))
+
+(defn- status-badge [{:keys [status reason stop] :as r}]
   (case status
     "running" [:span.pill.in [:span.dot.in] "in race"]
     "finished" [:span.pill.win "★ country winner"]
-    [:span.pill.out [:span.icon "✕"] (str "out · " (reason-text reason reason))]))
+    [:span.pill.out {:title (out-text r)} [:span.icon "✕"]
+     (str "out · " (or (stop-short stop) (reason-text reason reason)))]))
 
 (defn- finished? [] (= "finished" (get-in @db [:race :phase])))
 
@@ -584,11 +596,11 @@
                    [[] nil 0]
                    (map-indexed vector sorted)))))
 
-(defn- mini-status [{:keys [status reason]}]
+(defn- mini-status [{:keys [status] :as r}]
   (case status
     "running" [:span.dot.in {:title "in race"}]
     "finished" [:span.win {:title "country winner"} "★"]
-    [:span.icon {:title (str "out · " (reason-text reason reason))} "✕"]))
+    [:span.icon {:title (str "out · " (out-text r))} "✕"]))
 
 ;; --- countries ---
 
@@ -1186,12 +1198,22 @@
   (cond (< s 2760) 0 (< s 2940) 1 (< s 3180) 2 (< s 3420) 3 :else 4))
 
 (defn- lap-text
-  "What a lap-grid cell says: the lap time and the rest, or what happened."
-  [{:keys [status seconds inferred]}]
-  (cond (= "dnf" status) "did not finish"
+  "What a lap-grid cell says: the lap time and the rest, or what happened.
+  Without a result, it depends on the runner: still in and on the current
+  lap is running it, still in on an earlier lap is waiting for its result."
+  [{:keys [status seconds inferred stop]} runner l current-lap]
+  (cond (= "dnf" status) (case stop
+                           "rtc" "didn't start it (RTC)"
+                           "inc" "started, didn't finish (INC)"
+                           "over" "finished over the hour (OVER)"
+                           "dns" "did not start the race"
+                           "did not finish")
         seconds (str (mmss seconds) " · rest " (mmss (- 3600 seconds)))
         (= "finished" status) (if inferred "finished (missed registration)" "finished, no time")
-        :else "not started"))
+        (= "winner" (:reason runner)) (str "country winner after lap " (:laps runner))
+        (not= "running" (:status runner)) (str "out after lap " (:laps runner))
+        (= l current-lap) "running it now"
+        :else "no result yet"))
 
 (defn- lap-grid
   "Runners × laps. Hovering (or tapping) a cell shows its lap at once, in a
@@ -1200,40 +1222,44 @@
   (let [tip (r/atom nil)]  ; {:x :y :name :lap :text} of the cell under the pointer
     (fn [{:keys [runners settled-lap current-lap]}]
       (let [n (max 1 (if (pos? settled-lap) current-lap 1))
-            show! (fn [e nm l lap]
+            show! (fn [e r l lap]
                     (let [rect (.getBoundingClientRect (.-currentTarget e))]
                       (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
-                                   :name nm :lap l :text (lap-text lap)})))]
+                                   :name (:name r) :lap l :text (lap-text lap r l current-lap)})))]
         [:section.card.wide
          [:div.card-head
           [:div [:h2 "Every lap, every runner"]
-           [:p.sub "One cell per lap, darker is slower. Red is the lap a runner didn't finish; striped is a finished lap without a time. Hover or tap a cell for its lap time."]]]
+           [:p.sub "One cell per lap. Hover or tap a cell for its lap time, or why the runner stopped."]]]
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
-           (for [{:keys [id name history]} runners
+           (for [{:keys [id name history stop] :as r} runners
                  :let [by-lap (into {} (map (juxt :lap identity)) history)]]
              ^{:key id}
              [:<>
               [:span.lg-name name]
-              (for [l (range 1 (inc n))
+              (if (= "dns" stop)
+               [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
+               (for [l (range 1 (inc n))
                     :let [{:keys [status seconds] :as lap} (by-lap l)]]
                 ^{:key l}
                 [:span {:class [(cond
                                   (= "dnf" status) "lg dnf"
                                   seconds (str "lg s" (lap-shade seconds))
                                   (= "finished" status) "lg notime"
+                                  (and (= "running" (:status r)) (= l current-lap)) "lg running"
                                   :else "lg none")
                                 (when (and (= name (:name @tip)) (= l (:lap @tip))) "hover")]
-                        :aria-label (str name ", lap " l ": " (lap-text lap))
-                        :on-mouse-enter #(show! % name l lap)
-                        :on-click #(show! % name l lap)}])])]]
+                        :aria-label (str name ", lap " l ": " (lap-text lap r l current-lap))
+                        :on-mouse-enter #(show! % r l lap)
+                        :on-click #(show! % r l lap)}]))])]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · lap " lap " · " text)])
          [:ul.legend.lg-legend
           (for [[i t] (map-indexed vector ["under 46:00" "46–49" "49–53" "53–57" "57:00 or more"])]
             ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
-          [:li [:span.lg.dnf] "did not finish"]
-          [:li [:span.lg.notime] "no time"]]]))))
+          [:li [:span.lg.dnf] "stopped"]
+          [:li [:span.lg.notime] "no time"]
+          [:li [:span.lg.running] "running now"]]]))))
 
 (defn- team-over-time [{:keys [over-time country]}]
   [:section.card

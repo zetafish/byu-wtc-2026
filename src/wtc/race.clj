@@ -58,7 +58,8 @@
     (merge runner
            {:laps credited :history history}
            (cond
-             dnf {:status :out :reason :dnf}
+             dnf (cond-> {:status :out :reason :dnf}
+                   (:stop (get laps dnf)) (assoc :stop (:stop (get laps dnf))))
              (< credited settled) {:status :out :reason :missing}
              :else {:status :running}))))
 

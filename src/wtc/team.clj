@@ -105,7 +105,7 @@
                       (mapv (fn [r]
                               (let [timed (keep :seconds (:history r))
                                     [place of] (seats (:id r))]
-                                (-> (select-keys r [:id :name :rank :laps :status :reason :started :history])
+                                (-> (select-keys r [:id :name :rank :laps :status :reason :stop :started :history])
                                     (assoc :last-seconds (last timed)
                                            :avg-seconds (when (seq timed)
                                                           (Math/round (double (/ (reduce + timed) (count timed)))))

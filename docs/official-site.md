@@ -256,7 +256,7 @@ Screenshots: `/tmp/claude-1000/-home-endymion-code-byu-wtc-2026/3d044741-c917-4f
 ## Gaps in our adapter (`wtc.source.official`)
 
 1. **`reportedThrough` is ignored.** It's the authoritative signal that a nation hasn't entered a yard yet. We use the `GRACE_SECONDS` heuristic instead, so a late nation can show as out, or real drops show late.
-2. **Stop reasons are lost.** RTC, INC and OVER all become a plain `:dnf`.
+2. ~~**Stop reasons are lost.** RTC, INC and OVER all become a plain `:dnf`.~~ Fixed: the `:dnf` lap carries `:stop`.
 3. **DNS becomes a `:dnf` on lap 1.** That inflates lap-1 drops and the "out" counts. Officially DNS runners aren't starters and don't count in team size.
 4. **Fields we don't carry:**
    - `division`, `qualScore`, `site`, `utcOffset`, `managers`;

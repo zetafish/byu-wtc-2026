@@ -88,6 +88,7 @@ With two runners left (A and B):
 - Assume minimal data: per runner, per lap, finished or DNF. **A lap time is optional:** Big's Backyard Ultra has never required one, and a contending team may publish only finished/not finished to keep its rivals guessing. Expect the times to be missing most often at the front, late in the race. Everything that ranks or decides (yards, team rule, seats) must work without times; lap-time views show "time not recorded" for a finished lap without one, and never treat it as 0. [decided]
 - Some countries may have their own feeds with more detail or better accuracy. Several sources can run side by side, and the source with the higher priority wins per runner and lap. [brief]
 - Each source delivers a full snapshot, not changes. Late or corrected data must fix the site on the next refresh. [decided]
+- **Stops count at once:** a stop (RTC, INC, OVER) counts as soon as the feed has it, also during the lap: it is final. The official site waits until the yard is complete, so for a while we can show fewer runners in than it does. The reason is shown as the official code, explained in tooltips; DNS is "did not start". [decided]
 - Data is fetched every 60 s. A failed or slow fetch must never take the site down: the last good data stays live, and the site shows a notice that the source has a problem. [brief]
 - **Who reports the results:** the official overall feed is fed by each country's race director, who submits their runners' results to the organisation every hour. The organisation then updates the overall data, possibly by aggregating a Google Sheet. Race directors know exactly when a runner DNFs, so in the official feed **a DNF is reported as a DNF, and turn-backs don't occur**. [decided]
 - Timing data from other sources, such as live timing or per-country feeds, can be unreliable, as `../upfront-live` showed. Adapters for such sources must normalise these cases: [brief]
@@ -233,7 +234,7 @@ The side quest; we have it, the official site doesn't.
 
 #### Data this needs [proposed]
 From the official feed, which the adapter doesn't carry yet:
-- stop reasons (RTC / INC / OVER) and DNS as its own state (timeline, team page);
+- stop reasons (RTC / INC / OVER) and DNS as its own state: done for the team page and status pills; still to do for a timeline;
 - `utcOffset` and `site` (local time at the team's site);
 - `division`, for the class selectors on home [decided]; `gender` (optional).
 

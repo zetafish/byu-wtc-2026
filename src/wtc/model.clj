@@ -5,7 +5,7 @@
     {:countries [{:code \"NED\" :name \"Netherlands\" :reported-through 7}]
      :runners   [{:id \"NED-01\" :name \"…\" :country \"NED\" :bib \"1\"}]
      :laps      [{:runner-id \"NED-01\" :lap 1 :status :finished :seconds 2950}
-                 {:runner-id \"NED-01\" :lap 7 :status :dnf}]}
+                 {:runner-id \"NED-01\" :lap 7 :status :dnf :stop :rtc}]}
 
   Lap n runs from start + (n-1)h to start + n h. `:seconds` is the lap time
   and may be missing. A lap that's absent hasn't been reported yet.
@@ -40,7 +40,10 @@
    [:runner-id [:string {:min 1}]]
    [:lap [:int {:min 1 :max 1000}]]
    [:status [:enum :finished :dnf]]
-   [:seconds {:optional true} [:maybe [:int {:min 0}]]]])
+   [:seconds {:optional true} [:maybe [:int {:min 0}]]]
+   ;; why a :dnf lap ended the race, when the source says: :rtc (didn't start
+   ;; it), :inc (started, didn't finish), :over (finished over the hour), :dns
+   [:stop {:optional true} [:maybe [:enum :rtc :inc :over :dns]]]])
 
 (defn- index [schema ks key-fn rows]
   (let [valid? (m/validator schema)
@@ -55,7 +58,7 @@
   [{:keys [countries runners laps]}]
   (let [[runners bad-r] (index Runner [:id :name :country :bib] :id runners)
         [countries bad-c] (index Country [:code :name :reported-through :division :utc-offset :site] :code countries)
-        [laps bad-l] (index Lap [:runner-id :lap :status :seconds]
+        [laps bad-l] (index Lap [:runner-id :lap :status :seconds :stop]
                             (juxt :runner-id :lap) laps)
         known (into {} (filter (fn [[[id] _]] (contains? runners id))) laps)
         implied (into {} (map (fn [c] [c {:code c :name c}]))

@@ -19,7 +19,8 @@
     same words, or one name's words containing the other's). An unmatched
     runner keeps their feed id under our country code.
   - laps[i] is lap i+1, finished, with that many seconds (nil: no time
-    recorded). A stop, or DNS, is a :dnf on the lap after the last.
+    recorded). A stop, or DNS, is a :dnf on the lap after the last, with
+    its reason as :stop (:rtc, :inc, :over or :dns).
   - reportedThrough, the last yard a nation has finished entering, is the
     country's :reported-through; division, utcOffset and site become
     :division, :utc-offset and :site.
@@ -105,7 +106,9 @@
                    :name (get r "name")
                    :country code
                    :laps (get r "laps")
-                   :out? (boolean (or (get r "stop") (get r "dns")))})]
+                   :stop (cond (get r "dns") :dns
+                               (#{"RTC" "INC" "OVER"} (get r "stop")) (keyword (str/lower-case (get r "stop")))
+                               (get r "stop") :other)})]
     {:countries (for [n nations :let [code (get ours (get n "code"))]
                       :when (not (excluded (get n "code")))]
                   (cond-> {:code code :name (get-in roster [:countries code] (get n "name"))}
@@ -114,12 +117,13 @@
                     (number? (get n "utcOffset")) (assoc :utc-offset (get n "utcOffset"))
                     (string? (get n "site")) (assoc :site (get n "site"))))
      :runners (map #(select-keys % [:id :name :country]) runners)
-     :laps (for [{:keys [id laps out?]} runners
+     :laps (for [{:keys [id laps stop]} runners
                  lap (concat (map-indexed (fn [i s]
                                             {:lap (inc i) :status :finished
                                              :seconds (when (number? s) (Math/round (double s)))})
                                           laps)
-                             (when out? [{:lap (inc (count laps)) :status :dnf}]))]
+                             (when stop [(cond-> {:lap (inc (count laps)) :status :dnf}
+                                           (not= :other stop) (assoc :stop stop))]))]
              (assoc lap :runner-id id))}))
 
 (defn- save!

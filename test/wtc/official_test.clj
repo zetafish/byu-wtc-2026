@@ -43,16 +43,19 @@
   (testing "a stop is a DNF on the lap after the last"
     (let [ls (laps-of "NED-01")]
       (is (= 43 (count ls)))
-      (is (= {:runner-id "NED-01" :lap 43 :status :dnf} (last ls)))))
+      (is (= {:runner-id "NED-01" :lap 43 :status :dnf :stop :rtc} (last ls)))))
+  (testing "the stop reason is carried"
+    (is (= :over (:stop (last (laps-of "NED-02")))))
+    (is (= :inc (:stop (last (laps-of "NED-04"))))))
   (testing "a runner still in has no DNF"
     (is (not-any? #(= :dnf (:status %)) (laps-of "NED-06"))))
   (testing "DNS is a DNF on lap 1"
-    (is (= [{:runner-id "POR-02" :lap 1 :status :dnf}] (laps-of "POR-02")))))
+    (is (= [{:runner-id "POR-02" :lap 1 :status :dnf :stop :dns}] (laps-of "POR-02")))))
 
 (deftest derive-from-feed
   (let [d (race/derive-state (model/sanitize snap)
                              {:start start :now (.plusSeconds start (* 100 3600)) :grace-s 900})]
-    (is (= {:status :out :reason :dnf} (select-keys (get-in d [:runners "NED-01"]) [:status :reason])))
+    (is (= {:status :out :reason :dnf :stop :rtc} (select-keys (get-in d [:runners "NED-01"]) [:status :reason :stop])))
     (is (= 42 (get-in d [:runners "NED-01" :laps])))))
 
 (deftest rejects-unknown-shape
