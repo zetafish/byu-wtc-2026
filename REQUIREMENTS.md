@@ -140,6 +140,7 @@ With two runners left (A and B):
   - "Clear" empties it. [decided]
   - Countries that stay compared after "Top 8" or "★ Favourites" keep their colour. [decided]
 - **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites feed the search box and the "★ Favourites" button. [decided]
+  - **All | Still running** [decided]: a switch in the table head (remembered). Still running hides the countries whose race is over; places stay the official ones, so the numbers skip where an eliminated country ranks.
   - No "★ only" filter on the standings (removed): the table always shows every country. Favourite countries still come first in the pickers and the "Out at yard N" list. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens its team page (anywhere on the row but the star). The expanded runner grid below the row is gone: the team page shows the runners. [decided]

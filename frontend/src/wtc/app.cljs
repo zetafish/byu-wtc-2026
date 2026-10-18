@@ -52,7 +52,8 @@
                                                              :chase-range (:chase-range @db)
                                                              :team-sort (:team-sort @db)
                                                              :race-view (:race-view @db)
-                                                             :theme (:theme @db)})))
+                                                             :theme (:theme @db)
+                                                             :standings-filter (:standings-filter @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -717,11 +718,12 @@
         ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])]]))
 
 (defn- countries-table []
-  (let [{:keys [countries selected favourites race-view]} @db
+  (let [{:keys [countries selected favourites race-view standings-filter]} @db
         lead (reduce max 0 (map :total-laps countries))
         slots (reduce max 0 (map :runners countries))
-        ;; every country, eliminated ones greyed: their score still counts
-        shown countries]
+        running-only? (= :running standings-filter)
+        ;; all: eliminated ones greyed, their score still counts
+        shown (cond->> countries running-only? (remove :eliminated-after))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Standings"]
@@ -731,10 +733,15 @@
         (for [[v label] [[:teams "Teams"] [:runners "Runners"]]]
           ^{:key v}
           [:button {:aria-pressed (= v (or race-view :teams))
-                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!))} label])]]]
+                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!))} label])]
+       [:div.segmented {:role "group" :aria-label "Countries"}
+        (for [[v label] [[:all "All"] [:running "Still running"]]]
+          ^{:key v}
+          [:button {:aria-pressed (= v (or standings-filter :all))
+                    :on-click #(do (swap! db assoc :standings-filter v) (save-prefs!))} label])]]]
      (cond
        (empty? shown)
-       [:div.empty "No countries to show"]
+       [:div.empty (if running-only? "No country is still running." "No countries to show")]
        (= :runners race-view) [race-runners-grid shown]
        :else
        [:div.table-wrap.full
@@ -1560,7 +1567,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme standings-filter]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -1568,6 +1575,7 @@
            :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
            :race-view (if (= "runners" race-view) :runners :teams)
            :theme (case theme "light" :light "dark" :dark :system)
+           :standings-filter (if (= "running" standings-filter) :running :all)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
