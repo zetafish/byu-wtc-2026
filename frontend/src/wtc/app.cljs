@@ -7,12 +7,12 @@
             [wtc.flags :refer [flag]]
             [wtc.panels :as panels]))
 
-(def max-selected 10)  ; 8 colours, then the first two again, dashed
+(def top-n 10)  ; the Charts view's "Top 10" group
 (def poll-ms 60000)
 (def bell-poll-ms 20000)  ; around the bell, when runners finish and results are entered
 (def default-sim-poll-ms 10000)  ; a playing demo race steps one lap this often
 
-(defonce db (r/atom {:selected {}     ; compared countries: code -> color slot 1..8; empty until picked
+(defonce db (r/atom {:chart-group "ALL" ; the Charts view's countries (a first visit: all)
                      :favourites #{}  ; favourite country codes
                      :runner-filter #{} ; leaderboard: only these countries (empty = all)
                      :query ""        ; leaderboard name search (not stored)
@@ -35,8 +35,7 @@
 
 (defn- save-prefs! []
   (try (js/localStorage.setItem "wtc-prefs"
-                                (js/JSON.stringify (clj->js {:selected (:selected @db)
-                                                             :favourites (vec (:favourites @db))
+                                (js/JSON.stringify (clj->js {:favourites (vec (:favourites @db))
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
                                                              :variant (:variant @db)
@@ -67,11 +66,10 @@
 
 (declare group-codes pick-group! ordinal)
 
-(defn- selected-codes
-  "The countries the per-country charts query: the compared ones plus, with
-  a class picked, the whole class (drawn muted, as context)."
+(defn- group-query
+  "The countries the per-country charts query: the picked group's."
   []
-  (str/join "," (sort (into (set (keys (:selected @db))) (group-codes (:chart-group @db))))))
+  (str/join "," (sort (group-codes (:chart-group @db)))))
 
 (defn- effective
   "A panel with its chosen variant's keys merged in."
@@ -89,7 +87,7 @@
     ;; the charts only load on the Charts view
     (doseq [{:keys [id metric per-country?]} (when (= :charts (:view @db)) (map effective panels/panels))]
       (-> (get-json "/api/query" (cond-> {:metric metric}
-                                   per-country? (assoc :by "country" :countries (selected-codes))))
+                                   per-country? (assoc :by "country" :countries (group-query))))
           (.then #(when (latest?) (swap! db assoc-in [:results [id metric]] (get-in % [:data :result]))))
           (.catch #(js/console.warn %))))))
 
@@ -161,10 +159,8 @@
                (let [first? (empty? (:countries @db))]
                  (swap! db assoc :race race :countries countries :runners runners
                         :error nil :updated (js/Date.))
-                 ;; a remembered class needs the countries' classes to query
-                 ;; the charts' group needs the standings and classes: pick it now
-                 ;; a first visit starts with all countries (and all yards)
-                 (when first? (pick-group! (:chart-group @db "ALL"))))))
+                 ;; the charts' group needs the standings and classes to query
+                 (when first? (fetch-panels!)))))
       (.catch #(swap! db assoc :error (.-message %)))))
 
 (defonce ^:private poll-timer (atom nil))
@@ -236,19 +232,6 @@
 
 ;; --- actions ---
 
-(defn- select-countries!
-  "Compares the first `max-selected` of `codes`, replacing the selection.
-  Countries already compared keep their colour slot; the rest take free ones."
-  [codes]
-  (swap! db update :selected
-         (fn [sel]
-           (let [codes (take max-selected codes)
-                 kept (select-keys sel codes)
-                 free (remove (set (vals kept)) (range 1 (inc max-selected)))]
-             (into kept (map vector (remove kept codes) free)))))
-  (save-prefs!)
-  (fetch-panels!))
-
 (defn- ranked-codes [pred] (map :code (filter pred (sort-by :position (:countries @db)))))
 
 ;; the quick selectors on the Charts view: a class (division) or everyone
@@ -258,17 +241,16 @@
 (defn- group-codes [g]
   (case g
     nil nil
-    "TOP" (take max-selected (ranked-codes any?))
+    "TOP" (take top-n (ranked-codes any?))
     (ranked-codes #(or (= g "ALL") (= g (:division %))))))
 
 (defn- pick-group!
-  "Shows one group on the per-country charts: its best-ranked countries
-  (up to the 8 colours) in colour, the rest of it as muted context lines.
-  Top 8 is the 8 best of all; All is the 8 best in colour and everyone
-  else in grey."
+  "Shows one group on the per-country charts: all its countries as grey
+  lines, its best-ranked one black."
   [g]
   (swap! db assoc :chart-group g)
-  (select-countries! (group-codes g)))
+  (save-prefs!)
+  (fetch-panels!))
 
 (defn- toggle-favourite! [code]
   (swap! db update :favourites #(if (contains? % code) (disj % code) (conj % code)))
@@ -406,10 +388,9 @@
                    (option i it)]))])])]))))
 
 (defn- to-series [panel result]
-  (let [{:keys [per-country? series-label series-order series-names]} panel
-        selected (:selected @db)]
+  (let [{:keys [per-country? series-label series-order series-names]} panel]
     (cond
-      (and per-country? (:pick? panel))
+      per-country?
       ;; every country of the group, muted; the group's leader (its best in the standings) stands out
       (let [codes (group-codes (:chart-group @db))
             group (set codes)
@@ -418,24 +399,6 @@
               :let [code (:country metric)]
               :when (contains? group code)]
           {:key code :label (str (or (country-name code) code) " " code) :lead? (= code leader) :values values}))
-
-      per-country?
-      ;; only countries still ticked: a stale response must not flash a
-      ;; just-unticked country in a borrowed colour. A picked class adds the
-      ;; rest of its countries as muted context lines, drawn first.
-      (let [context (set (remove selected (group-codes (:chart-group @db))))]
-        (concat
-         (for [{:keys [metric values]} result
-               :let [code (:country metric)]
-               :when (contains? context code)]
-           {:key code :label (str (or (country-name code) code) " " code) :context? true :values values})
-         (for [{:keys [metric values]} (sort-by #(get selected (get-in % [:metric :country])) result)
-               :let [code (:country metric)]
-               :when (contains? selected code)]
-           (let [slot (get selected code 1)]
-             {:key code :label (str (or (country-name code) code) " " code)
-              ;; 8 hues: slots 9 and 10 reuse 1 and 2, dashed
-              :color (color (inc (mod (dec slot) 8))) :dash? (> slot 8) :values values}))))
 
       series-label
       (let [by-key (into {} (map (fn [s] [(get-in s [:metric series-label]) s])) result)]
@@ -620,8 +583,8 @@
            [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]]]
          [:div
           (cond
-            (and (:per-country? p) (empty? (:selected @db)))
-            [chart/placeholder "Pick a group above"]
+            (and (:per-country? p) (empty? (group-codes (:chart-group @db))))
+            [chart/placeholder ""]
             (not (contains? results rkey)) [chart/placeholder ""]
             @table? [chart/data-table opts]
             (:pick? p)
@@ -1750,10 +1713,7 @@
         (for [[g label] chart-groups]
           ^{:key g}
           [:button {:aria-pressed (= g (:chart-group @db))
-                    :title (let [n (count (group-codes g))]
-                             (if (<= n max-selected)
-                               (str "These " n " countries in colour")
-                               (str "The best " max-selected " of " n " in colour, the others in grey")))
+                    :title (str (count (group-codes g)) " countries")
                     :on-click #(pick-group! g)} label])]
        [:div.segmented {:role "group" :aria-label "Yards shown"}
         (for [[v label] [[:all "All yards"] [:last-12 "Last 12"]]]
@@ -1801,7 +1761,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -1817,7 +1777,6 @@
            :chart-group (or (#{"TOP" "SUPER" "AAA" "AA" "A" "ALL"} chart-group) "ALL")
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
-           :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
            :favourites (set favourites)
            :runner-filter (set runner-filter)
            :show-out-runners? (true? show-out-runners)))

@@ -130,14 +130,11 @@
   `:y-step` a fixed y tick distance, `:y-invert? true` for a place axis
   (low values at the top), `:y-domain [lo hi]` a fixed y range, `:y-max` a
   fixed top with `:y-reach` the least the axis goes down to.
-  A series can have `:dash? true` and `:dots? true`, or `:context? true`: a
-  thin muted line for the shape of the field, without legend, label or
-  tooltip row."
+  A series can have `:dash? true` and `:dots? true`."
   [_]
   (let [hover (r/atom nil)]
     (fn [{:keys [series fmt-y fmt-x x-label y-label refs marks] :as opts}]
-      (let [focus (remove :context? series)
-            labels? (and (:direct-labels? opts true) (<= 1 (count focus) 4))
+      (let [labels? (and (:direct-labels? opts true) (<= 1 (count series) 4))
             [w h] (sizes (:size opts :normal))
             m {:l 44 :r (if labels? 44 12) :t 24 :b 30 :w w :h h}
             xs (xs-of series)
@@ -150,7 +147,7 @@
         (if (empty? xs)
           [placeholder "No data yet"]
           [:div.chart
-           (when (and (:legend? opts true) (seq focus)) [legend focus :line])
+           (when (and (:legend? opts true) (seq series)) [legend series :line])
            [:div.plot
             [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
@@ -160,10 +157,10 @@
                [:g {:class (when neutral? "neutral")}
                 [:line.ref {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (sy y) :y2 (sy y)}]
                 (when label [:text.ref-label {:x (- (:w m) (:r m)) :y (- (sy y) 6) :text-anchor "end"} label])])
-             (for [{:keys [key color values dash? dots? context?]} series]
+             (for [{:keys [key color values dash? dots?]} series]
                ^{:key key}
                [:g
-                [:path.line {:class (cond dash? "dash" context? "context")
+                [:path.line {:class (when dash? "dash")
                              :d (str "M" (str/join "L" (map (fn [[x y]] (str (sx x) "," (sy y))) values)))
                              :stroke color}]
                 (when dots?
@@ -173,10 +170,10 @@
                ^{:key (str "mark" x)}
                [:g [:circle.dot {:cx (sx x) :cy (sy y) :r 5 :fill color}]
                 (when label [:text.mark-label {:x (sx x) :y (+ (sy y) 18) :text-anchor "middle"} label])])
-             (when labels? [direct-labels focus sx sy])
+             (when labels? [direct-labels series sx sy])
              (when hx
                [:g [:line.crosshair {:x1 (sx hx) :x2 (sx hx) :y1 (:t m) :y2 (- (:h m) (:b m))}]
-                (for [{:keys [key color values]} focus
+                (for [{:keys [key color values]} series
                       :let [y (some (fn [[x y]] (when (= x hx) y)) values)]
                       :when y]
                   ^{:key key} [:circle.dot {:cx (sx hx) :cy (sy y) :r 4 :fill color}])])
@@ -194,7 +191,7 @@
             (when hx
               [tooltip {:left (* 100 (/ (sx hx) (:w m)))
                         :title (str (or x-label "x") " " (fmt fmt-x hx))
-                        :rows (->> focus
+                        :rows (->> series
                                    (keep (fn [{:keys [values] :as s}]
                                            (when-let [y (some (fn [[x y]] (when (= x hx) y)) values)]
                                              (assoc s :y y :value (fmt fmt-y y)))))

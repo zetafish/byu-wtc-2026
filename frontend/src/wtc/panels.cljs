@@ -5,7 +5,7 @@
 
   Keys: :id :title :subtitle :metric :kind (:line | :bar) :x-label :y-label,
   plus one of
-    :per-country? true   one series per selected country (by=country query)
+    :per-country? true   one series per country of the picked group (by=country)
     :series-label :k     one series per value of metric label :k, ordered by
                          :series-order, named by :series-names
   and optionally

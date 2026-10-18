@@ -45,9 +45,8 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 
 - **Stat:** an uppercase label over a big display number. The lap stat is in the accent.
 - **Chip:** a rounded pill with a border. Used for summary counts, for compared countries (with a ✕ and a colour key), and for leaderboard country filters (with a ✕).
-- **Compare row:** "Compare" label, a search box (native `<datalist>` suggestions; Enter takes the best match), ghost buttons "Top 8", "★ Favourites" and "Clear", then the chips. Controls come before the chips so they don't move as chips are added. At narrow widths the row wraps.
 - **Country label:** a country is always shown as [flag] name code (`country-label` in `wtc.app`): a 20×15 flag with a hairline border, the name, and the IOC code in muted text. The name truncates with an ellipsis, never the code. Flags are SVGs in `frontend/public/flags` (flag-icons 7.5.0, MIT), mapped from IOC codes in `wtc.flags`; AIN has no flag and gets an empty frame of the same size. Chart legends can't hold images, so they show name and code only. Countries are picked with `country-select`, not a native `<select>` (whose options can't show flags): a button with the current country, and a popup with a search box, favourites first, ↑ ↓ / Enter / Esc. The team switcher, the leaderboard's "+ Country" filter and the compare picker all use it. The runner table's Country column is 190 px for it.
-- **Favourite star:** ☆/★ in the first column of the Countries table, styled like the runner stars. The table shows no series colour; compared rows only get the selected background.
+- **Favourite star:** ☆/★ in the first column of the Race standings. The table shows no series colour.
 - **Countries table rows** open the team page: a click anywhere on the row except the star; the name is a real link for the keyboard and new tabs. There is no expanded row any more.
 - **Filter bar** (`.filters`): a picker, chips, a search input and toggles in one wrapping row above the leaderboard table.
 - **Pills:**
@@ -67,7 +66,6 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 - **Dialog** (`dialog.zoom`): a native modal `<dialog>`, up to 1200 px wide, over a dark backdrop. Only the runner dialog uses it; charts have no zoom (the comparison charts are full width instead). [decided]
 - **Segmented control** (`.segmented`): the views of one chart, for example Gap to leader / Total, next to the Table toggle in the card head. The active view has `aria-pressed` and a tint.
 - **Star:** ☆/★ in gold `--star` (`#b98900` light, `#ffc61a` dark), not the accent, so it reads as a star. It doesn't open the row.
-- **Country key:** a small square in the country's series colour, shown wherever a selected country appears.
 
 ## Charts
 
@@ -93,7 +91,6 @@ Charts follow the dataviz method: pick the form first, colour last, and validate
 ## Stability: no flicker, no jumping
 
 - **Charts keep their card height.** A chart's svg has a fixed aspect (viewBox 640×240). Every non-chart state uses `chart/placeholder`, a box with the same aspect: loading, "No data yet", and "Add countries above…".
-- **The Compare row** has a minimum height, so its empty text and its chips take the same space. With many long names it can still wrap to a second line.
 - **No partial first paint:** the page shows "Loading live data…" until the first data arrives, then renders everything at once. The chart queries start alongside the main fetch, not after it.
 - **Fonts load with `display=block`.** Text appears only once Big Shoulders and Barlow are ready (cached after the first visit), instead of jumping from a fallback font.
 - **Auto-refresh changes only what changed.** With unchanged data, a refresh replaces no DOM nodes. Keep it that way: stable React keys, and no remounting of whole views.
