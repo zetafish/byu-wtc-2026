@@ -47,7 +47,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 | Map country names to IOC codes, and names to roster runner ids | Credit gaps below the last finished lap as `:inferred` |
 | Turn timestamps or durations into `{:lap :status :seconds}` | Mark runners with no result for a settled lap as out (`:missing`) |
 | A finish in the first ~30 min of an hour → the previous lap | Mark `:seconds` > 3600 as `:suspect` and blank the time |
-| A turn-back (an implausibly short "lap") → `:dnf`. Only for timing feeds; the official feed reports DNFs directly | Flag finished laps under 1800 s as `:too-fast`, keeping the time and the credit |
+| A turn-back (an implausibly short "lap") → `:dnf`. Only for timing feeds; the official feed reports DNFs directly | None: a short lap is a lap (real yards go under 30 min, the fastest 25:56 in 2026) |
 | | Apply the team rule, rankings and phase |
 | No result yet (for example a blank cell) → **no lap row at all**, never a placeholder | |
 
@@ -94,12 +94,11 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
     - Laps are credited up to the last finished lap. Gaps below it are missed registrations, marked `:inferred`.
     - A *settled* lap is one whose country has finished reporting it: up to the country's `:reported-through` when its source gives one (the official feed's `reportedThrough`), but never the lap in progress; otherwise, once its deadline + `GRACE_SECONDS` has passed. A runner with no result for a settled lap is out with `:missing`, and `:dnf` takes precedence. The team rule uses the same per-country settled lap. `:settled-lap` in `/api/race` stays the grace-period one.
     - Lap times over 3600 s become `:suspect` with `:seconds nil`.
-    - Finished laps under 1800 s (`too-fast-seconds`) get `:too-fast true`. They still count, and their time is kept.
   - **The team rule (`team-result`):** the first settled lap with fewer than 2 finishers ends the country.
     - 1 finisher gives `{:after lap :winner id}`, and that runner gets `:status :finished :reason :winner`.
     - 0 finishers give `{:after (dec lap) :winner nil}`.
   - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:farthest` (the most laps of one runner), `:position` (the order: total laps, then farthest, then active runners, then code), `:rank` (the official place: shared, with `:tied true`, only when total laps and farthest are both equal), `:eliminated-after` and `:winner` `{:id :name :laps}`.
-  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:stop` when the source gave one, `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds :stop}`, optionally with `:inferred true`, `:suspect true` or `:too-fast true`; `:seconds` is nil for inferred or suspect laps.
+  - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:stop` when the source gave one, `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds :stop}`, optionally with `:inferred true` or `:suspect true`; `:seconds` is nil for inferred or suspect laps.
     - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1; for a DNS it's 0 (they never started a lap).
   - **Phase:** `:pre`, `:live` or `:finished`. When finished, `:final-lap` is the last lap anyone started, and `:current-lap` and `:settled-lap` are capped there, so the chart axes stop growing. `:race-laps` is the race length: the last lap anyone completed, which is `:final-lap` with a winner and one less when the last runners all DNF.
 - **`wtc.ingest`:** a single-thread scheduler.

@@ -49,6 +49,7 @@
                                                              :chase-range (:chase-range @db)
                                                              :team-sort (:team-sort @db)
                                                              :runner-sort (:runner-sort @db)
+                                                             :runners-view (:runners-view @db)
                                                              :race-view (:race-view @db)
                                                              :theme (:theme @db)
                                                              :standings-filter (:standings-filter @db)
@@ -1024,6 +1025,55 @@
    [:td.num (or (:best-yards runner) "–")]
    [:td (when times [chart/sparkline times])]])
 
+(declare lap-shade lap-text lap-grid-legend)
+
+(defn- heat-row
+  "One runner in the leaderboard's heatmap: position, name, country, then a
+  cell per yard shaded by its time, as the team page's grid. Built from the
+  yard times and the runner's status, so it needs no history. A component of
+  its own, so unchanged rows aren't redrawn."
+  [{:keys [id name country pos laps status stop] :as r} times n current-lap tip]
+  (let [by-lap (into {} times)
+        failed (when (= "out" status) (out-at r))   ; the yard it stopped at
+        open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
+    [:<>
+     [:span.hm-pos pos]
+     [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
+     [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
+     (if (= "dns" stop)
+       [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
+       (for [l (range 1 (inc n))
+             :let [s (by-lap l)
+                   lap (cond s {:seconds s}
+                             (= l failed) {:status "dnf" :stop stop}
+                             (<= l laps) {:status "finished"})]]
+         ^{:key l}
+         [:span {:class (cond s (str "lg s" (lap-shade s))
+                              (= l failed) (if stop "lg dnf" "lg none")
+                              (<= l laps) "lg notime"
+                              (and (= "running" status) (= l current-lap)) "lg running"
+                              :else "lg none")
+                 :on-mouse-enter (fn [e]
+                                   (let [rect (.getBoundingClientRect (.-currentTarget e))]
+                                     (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
+                                                  :name name :lap l :text (lap-text lap r l current-lap)})))}]))]))
+
+(defn- runner-heatmap
+  "The leaderboard as a heatmap: the same runners in the same order, a row of
+  yard cells each. Hover a cell for its time; click a name for the dialog."
+  [_ _ _]
+  (let [tip (r/atom nil)]
+    (fn [shown lap-times current-lap]
+      (let [n (max 1 current-lap)]
+        [:<>
+         [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
+          [:div.lap-grid.hm {:style {:grid-template-columns (str "44px minmax(140px, 220px) 76px repeat(" n ", minmax(5px, 1fr))")}}
+           (for [{:keys [id] :as r} shown]
+             ^{:key id} [heat-row r (get lap-times id) n current-lap tip])]]
+         (when-let [{:keys [x y name lap text]} @tip]
+           [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
+         [lap-grid-legend]]))))
+
 ;; the leaderboard's sortable columns: key into the row, and its header
 (def ^:private runner-sorts
   {:last [:last-seconds "Last yard"] :avg [:avg-seconds "Avg"]
@@ -1076,13 +1126,20 @@
      (when open-runner ^{:key open} [runner-dialog open-runner (count runners)])
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
-       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the runner's figures and yard times."]]]
+       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the runner's figures and yard times."]]
+      [:div.segmented {:role "group" :aria-label "Show runners as"}
+       (for [[v label] [[:table "Table"] [:heatmap "Every yard"]]]
+         ^{:key v}
+         [:button {:aria-pressed (= v (:runners-view @db :table))
+                   :on-click #(do (swap! db assoc :runners-view v) (save-prefs!))} label])]]
      [runner-filters n-out show-out?]
      (if (empty? shown)
        [:div.empty (cond
                      (seq candidates) "Everyone here has stopped. Tick \"Show all\" to see them."
                      starred-only? "No starred runners here yet. Star (☆) a runner to add them."
                      :else "No runners match")]
+       (if (= :heatmap (:runners-view @db))
+        [runner-heatmap shown lap-times (get-in @db [:race :current-lap] 1)]
        [:div.table-wrap.full
         ;; fixed columns, so filtering or "★ only" never moves them
         [:table.runners
@@ -1099,7 +1156,7 @@
                   [:th "Yard times"]]]
          [:tbody
           (for [{:keys [id] :as runner} shown]
-            ^{:key id} [runner-row runner (contains? starred id) (get lap-times id)])]]])]))
+            ^{:key id} [runner-row runner (contains? starred id) (get lap-times id)])]]]))]))
 
 ;; --- seat ranking ---
 ;; Every runner has a seat (1-15, their roster rank in the team). All runners
@@ -1497,9 +1554,10 @@
            [:td [chart/sparkline (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history))]]])]]]]))
 
 (defn- lap-shade
-  "0-4 by lap time: under 46 min, 46-49, 49-53, 53-57, 57 or more."
+  "0-5 by lap time: under 40 min, 40-46, 46-49, 49-53, 53-57, 57 or more.
+  The fastest yards go well under 30 min; about 2% are under 40."
   [s]
-  (cond (< s 2760) 0 (< s 2940) 1 (< s 3180) 2 (< s 3420) 3 :else 4))
+  (cond (< s 2400) 0 (< s 2760) 1 (< s 2940) 2 (< s 3180) 3 (< s 3420) 4 :else 5))
 
 (defn- lap-text
   "What a lap-grid cell says: the lap time and the rest, or what happened.
@@ -1518,6 +1576,14 @@
         (not= "running" (:status runner)) (str "out after yard " (:laps runner))
         (= l current-lap) "running it now"
         :else "no result yet"))
+
+(defn- lap-grid-legend []
+  [:ul.legend.lg-legend
+   (for [[i t] (map-indexed vector ["under 40:00" "40–46" "46–49" "49–53" "53–57" "57:00 or more"])]
+     ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
+   [:li [:span.lg.dnf] "stopped"]
+   [:li [:span.lg.notime] "no time"]
+   [:li [:span.lg.running] "running now"]])
 
 (defn- lap-grid
   "Runners × laps. Hovering (or tapping) a cell shows its lap at once, in a
@@ -1558,12 +1624,7 @@
                         :on-click #(show! % r l lap)}]))])]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
-         [:ul.legend.lg-legend
-          (for [[i t] (map-indexed vector ["under 46:00" "46–49" "49–53" "53–57" "57:00 or more"])]
-            ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
-          [:li [:span.lg.dnf] "stopped"]
-          [:li [:span.lg.notime] "no time"]
-          [:li [:span.lg.running] "running now"]]]))))
+         [lap-grid-legend]]))))
 
 (defn- team-over-time [{:keys [over-time country]}]
   [:section.card
@@ -1736,12 +1797,13 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort runner-sort race-view theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
+           :runners-view (if (= "heatmap" runners-view) :heatmap :table)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (if (= "runners" race-view) :runners :teams)

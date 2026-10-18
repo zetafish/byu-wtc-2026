@@ -29,14 +29,9 @@
     (max 0 (min reported-through (dec current)))
     settled))
 
-(def too-fast-seconds
-  "A finished lap under 30 min is implausible: flagged, but still credited."
-  1800)
-
 (defn- clean [{:keys [seconds status] :as lap}]
   (cond
     (and seconds (> seconds model/lap-seconds)) (assoc lap :seconds nil :suspect true)
-    (and seconds (= :finished status) (< seconds too-fast-seconds)) (assoc lap :too-fast true)
     :else lap))
 
 (defn- runner-state
