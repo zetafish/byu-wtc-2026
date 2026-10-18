@@ -120,6 +120,7 @@ With two runners left (A and B):
 - A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Charts [decided], Team, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
+- **Visitor analytics:** Vercel Web Analytics shows where traffic comes from (referrers), countries and devices; cookie-free. [decided]
 - **Theme:** light, dark or system (the default), switched in the menu and remembered. [decided]
 - **New version notice:** a page left open during a deploy says a new version is out and offers a Reload button; it never reloads by itself. [decided]
 - **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the runner leaderboard's "★ only" toggle, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
@@ -202,10 +203,10 @@ No selection needed. **Home replaces the Countries view.** [decided]
 - **Left out on purpose:** the map, 2024 comparison curves, broadcast mode and the time machine. They add length, not answers.
 
 #### Team page [decided, first version built]
-Built: the switcher (picker with favourites, ← → by standings, ☆), the header (place, team score and gap, still in, current lap, class, site, local time, reporting status, team-rule pill), the chase panel with its gap chart, the runners table with seat race, the lap grid, and runners-in and place per lap. Not yet: a "vs rival" comparison, drifting-runner hints in the lap grid.
+Built: the switcher (a picker with favourites on top), the header (place, team score and gap, still in, current lap, class, site, local time, reporting status, team-rule pill), the chase panel with its gap chart, the runners table with seat race, the lap grid, and runners-in and place per lap. Not yet: a "vs rival" comparison, drifting-runner hints in the lap grid.
 Where most viewers will spend their time: people follow their own country and know its runners.
 - **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
-- **Switching teams** must be effortless: a picker with favourites on top, ← → for the neighbours in the standings, and the site remembers the viewer's team (home card, menu).
+- **Switching teams** must be effortless: a picker with favourites on top (the ← → neighbour arrows and the ☆ were dropped as not useful [decided]), and the site remembers the viewer's team (home card, menu).
 - **Header:** flag, name, place ("1 / 67", "tied with N"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
 - **Team-rule state in few words:** "9 in", "2 in" (green: two can go on for a long time), "1 left", "none left"; the rule is in the tooltip. [decided]
 - **Chase panel:** the race seen from this country's position (below).

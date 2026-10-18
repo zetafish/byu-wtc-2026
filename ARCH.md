@@ -164,6 +164,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
   A new formatter goes in `y-formats` in `wtc.app`. All charts render above the countries table, with the `:per-country?` charts first. Those stay empty until countries are added in the Compare row.
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
+- **Analytics:** Vercel Web Analytics, enabled in the Vercel project, loaded by a script tag in `index.html` (`/_vercel/insights/script.js`). No cookies. The plain-HTML version has no route support, so the hash views all count as `/`; referrers, countries and devices work.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.
   - In production, the Vercel rewrite does.

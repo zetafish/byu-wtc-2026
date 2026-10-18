@@ -1100,24 +1100,12 @@
 
 (defn- go-team! [code] (set! (.. js/window -location -hash) (str "team/" code)))
 
-(defn- team-switcher [code]
-  (let [{:keys [countries favourites]} @db
-        ordered (vec (sort-by :position countries))
-        i (first (keep-indexed #(when (= code (:code %2)) %1) ordered))
-        prev (when (and i (pos? i)) (ordered (dec i)))
-        next (when i (get ordered (inc i)))
-        fav? (contains? favourites code)]
-    [:div.team-switch
-     [:button.ghost {:disabled (nil? prev) :on-click #(go-team! (:code prev))
-                     :title (when prev (str "Ahead: " (:name prev))) :aria-label "Country ahead in the standings"} "←"]
-     [country-select {:value code :on-pick go-team! :placeholder "Pick a country" :label "Team"}]
-     [:button.ghost {:disabled (nil? next) :on-click #(go-team! (:code next))
-                     :title (when next (str "Behind: " (:name next))) :aria-label "Country behind in the standings"} "→"]
-     (when code
-       [:button.star {:aria-label (if fav? "Unfavourite" "Favourite") :aria-pressed fav?
-                      :title (if fav? "Remove from favourites" "Add to favourites")
-                      :on-click #(toggle-favourite! code)}
-        (if fav? "★" "☆")])]))
+(defn- team-switcher
+  "Picks another team. The page's header already names the current one, so
+  the picker doesn't repeat it."
+  [placeholder]
+  [:div.team-switch
+   [country-select {:value nil :on-pick go-team! :placeholder placeholder :label "Switch team"}]])
 
 (defn- team-rule-text
   "The team rule's state. Until the current lap settles, a country can be down
@@ -1144,6 +1132,7 @@
   (let [{:keys [code name total-laps active runners division utc-offset site rank]} country
         n (count (:countries @db))]
     [:section.card.wide.team-head
+     [team-switcher "Switch team"]
      [:div.team-title
       [flag code]
       [:div
@@ -1460,9 +1449,9 @@
 (defn- team-view []
   (let [{:keys [team team-data]} @db]
     [:<>
-     [team-switcher team]
      (cond
-       (nil? team) [:div.grid [:section.card.wide [:div.empty "Pick a country above to see its team page."]]]
+       (nil? team) [:div.grid [:section.card.wide [:div.empty [team-switcher "Pick a country"]
+                                                   [:p "Pick a country to see its team page."]]]]
        (nil? team-data) [:div.loading "Loading…"]
        :else [:div.grid
               [team-header team-data]
