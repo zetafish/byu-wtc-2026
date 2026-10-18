@@ -12,10 +12,8 @@
 (def default-sim-poll-ms 10000)  ; a playing demo race steps one lap this often
 
 (defonce db (r/atom {:selected {}     ; compared countries: code -> color slot 1..8; empty until picked
-                     :starred #{}
                      :favourites #{}  ; favourite country codes
                      :runner-filter #{} ; leaderboard: only these countries (empty = all)
-                     :starred-only? false
                      :query ""        ; leaderboard name search (not stored)
                      :show-out-runners? false ; list eliminated runners too
                      :view :race      ; menu view, mirrors the URL hash
@@ -37,11 +35,9 @@
 (defn- save-prefs! []
   (try (js/localStorage.setItem "wtc-prefs"
                                 (js/JSON.stringify (clj->js {:selected (:selected @db)
-                                                             :starred (vec (:starred @db))
                                                              :favourites (vec (:favourites @db))
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
-                                                             :starred-only (:starred-only? @db)
                                                              :variant (:variant @db)
                                                              :sim-poll-ms (:sim-poll-ms @db)
                                                              :team (:team @db)
@@ -279,11 +275,6 @@
 
 (defn- toggle-filter! [code]
   (swap! db update :runner-filter #(if (contains? % code) (disj % code) (conj % code)))
-  (save-prefs!)
-  (fetch-panels!))
-
-(defn- toggle-star! [id]
-  (swap! db update :starred #(if (contains? % id) (disj % id) (conj % id)))
   (save-prefs!)
   (fetch-panels!))
 
@@ -977,7 +968,7 @@
                        [:td.num (when d (str (if (neg? d) "−" "+") (mmss (js/Math.abs d))))]])]]]]])]]]))})))
 
 (defn- runner-filters [n-out show-out?]
-  (let [{:keys [countries runner-filter starred-only? query]} @db]
+  (let [{:keys [countries runner-filter query]} @db]
     [:div.filters
      [country-select {:on-pick toggle-filter! :placeholder "+ Country" :exclude runner-filter
                       :label "Filter by country"}]
@@ -987,10 +978,6 @@
         [:button.remove {:aria-label (str "Remove " code) :on-click #(toggle-filter! code)} "✕"]])
      [:input.search {:type "search" :placeholder "Search runner" :value query :aria-label "Search runner"
                      :on-change #(swap! db assoc :query (.. % -target -value))}]
-     [:label.toggle
-      [:input {:type "checkbox" :checked starred-only?
-               :on-change #(do (swap! db update :starred-only? not) (save-prefs!))}]
-      "★ only"]
      (when (and (pos? n-out) (not (finished?)))
        [:label.toggle
         [:input {:type "checkbox" :checked show-out?
@@ -1003,17 +990,13 @@
   and yard times are unchanged isn't redrawn: opening or closing the runner
   dialog (or any other change of state) would otherwise redraw ~1000 rows
   with their sparklines."
-  [{:keys [id name country laps pos] :as runner} starred? times]
+  [{:keys [id name country laps pos] :as runner} times]
   [:tr.clickable {:class (when (= "out" (:status runner)) "out")
                   :on-click (fn []
                               (fetch-runner-detail! id)
                               (swap! db assoc :open id))}
    [:td.num pos]
-   [:td.name [:button.star {:aria-label (if starred? "Unstar" "Star")
-                            :aria-pressed starred?
-                            :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
-              (if starred? "★" "☆")]
-    name]
+   [:td.name name]
    [:td [country-label country]]
    [:td.num (:rank runner)]
    [:td.num laps]
@@ -1107,26 +1090,23 @@
       [:span.arrow (cond (not on?) "" (= by :pos) " ▲" desc? " ▼" :else " ▲")]]]))
 
 (defn- runners-table []
-  (let [{:keys [runners starred open lap-times show-out-runners? runner-filter starred-only? query]} @db
-        starred? #(contains? starred (:id %))
+  (let [{:keys [runners open lap-times show-out-runners? runner-filter query]} @db
         q (str/lower-case (str/trim query))
         candidates (cond->> (ranked runners)
                      (seq runner-filter) (filter #(contains? runner-filter (:country %)))
-                     starred-only? (filter starred?)
                      (seq q) (filter #(str/includes? (str/lower-case (:name %)) q)))
         ;; out, or a country winner: either way no longer running
         stopped? #(not= "running" (:status %))
         show-out? (or show-out-runners? (finished?))
         n-out (count (filter stopped? candidates))
-        ;; starred runners stay visible so they can still be unstarred
-        shown (-> (filter #(or show-out? (not (stopped? %)) (starred? %)) candidates)
+        shown (-> (filter #(or show-out? (not (stopped? %))) candidates)
                   (sort-runners (:runner-sort @db)))
         open-runner (when open (some #(when (= open (:id %)) %) (ranked runners)))]
     [:section.card.wide
      (when open-runner ^{:key open} [runner-dialog open-runner (count runners)])
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
-       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the runner's figures and yard times."]]
+       [:p.sub "All runners of all countries. Click a row for the runner's figures and yard times."]]
       [:div.segmented {:role "group" :aria-label "Show runners as"}
        (for [[v label] [[:table "Table"] [:heatmap "Every yard"]]]
          ^{:key v}
@@ -1136,12 +1116,11 @@
      (if (empty? shown)
        [:div.empty (cond
                      (seq candidates) "Everyone here has stopped. Tick \"Show all\" to see them."
-                     starred-only? "No starred runners here yet. Star (☆) a runner to add them."
                      :else "No runners match")]
        (if (= :heatmap (:runners-view @db))
         [runner-heatmap shown lap-times (get-in @db [:race :current-lap] 1)]
        [:div.table-wrap.full
-        ;; fixed columns, so filtering or "★ only" never moves them
+        ;; fixed columns, so filtering never moves them
         [:table.runners
          ;; the columns it shares with the team page come in the same order and width
          [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.status]
@@ -1156,7 +1135,7 @@
                   [:th "Yard times"]]]
          [:tbody
           (for [{:keys [id] :as runner} shown]
-            ^{:key id} [runner-row runner (contains? starred id) (get lap-times id)])]]]))]))
+            ^{:key id} [runner-row runner (get lap-times id)])]]]))]))
 
 ;; --- seat ranking ---
 ;; Every runner has a seat (1-15, their roster rank in the team). All runners
@@ -1797,7 +1776,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [selected favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -1814,10 +1793,8 @@
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
-           :starred (set starred)
            :favourites (set favourites)
            :runner-filter (set runner-filter)
-           :starred-only? (true? starred-only)
            :show-out-runners? (true? show-out-runners)))
   (apply-theme! (:theme @db))
   (go-to-hash!)
