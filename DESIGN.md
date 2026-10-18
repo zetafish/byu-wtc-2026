@@ -56,6 +56,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
   - for seats: "open · N still in", "last one in", "★ winner" and "tie · N".
 - **Toggles:** "★ only" (both tables) and "Show eliminated (n)" (runner leaderboard only) checkboxes in the card head. They're opt-in and hidden after the finish, when everything is shown.
 - **Race view** (the countries table, `#race`; it was called Countries): for now only the table; the charts and the Compare row are hidden (`show-charts?`), and rows get no selected tint.
+- **Pips** (`.pips`, Race table "In race" column): one 6 px dot per runner, `--good` filled for still in, an `--axis` outline for out, then the count; a team with fewer starters keeps hidden slots so the counts line up; grey on an out row; "N of M still in" as tooltip and label.
 - **Eliminated countries** always show in the Countries table: the row is muted and the flag greyed (`filter: grayscale(1)`, 55% opacity).
 - **Zoom dialog** (`dialog.zoom`): a native modal `<dialog>`, up to 1200 px wide, over a dark backdrop, showing one chart card big. A chart's plot area shows a zoom-in cursor; the ⤢ button in the card head does the same for keyboard users.
   - The big chart uses a larger viewBox (`chart/sizes` `:big`, 1100×520) rather than scaling up the small one, so the text stays at its normal size.

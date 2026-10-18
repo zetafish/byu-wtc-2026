@@ -598,9 +598,20 @@
 
 ;; --- countries ---
 
+(defn- pips
+  "One dot per runner: filled for still in, empty for out, then the count.
+  `slots` keeps the count in line for a team with fewer starters."
+  [active runners slots]
+  [:span.pips {:title (str active " of " runners " still in")
+               :aria-label (str active " of " runners " still in")}
+   (for [i (range (max runners slots))]
+     ^{:key i} [:i {:class (cond (< i active) "in" (>= i runners) "none")}])
+   [:b active]])
+
 (defn- countries-table []
   (let [{:keys [countries selected favourites favourites-only?]} @db
         lead (reduce max 0 (map :total-laps countries))
+        slots (reduce max 0 (map :runners countries))
         fav? #(contains? favourites (:code %))
         ;; eliminated countries always show, greyed: their score still counts
         shown (cond->> countries favourites-only? (filter fav?))]
@@ -619,7 +630,7 @@
                      "No countries to show")]
        [:div.table-wrap.full
         [:table
-         [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
+         [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th "In race"] [:th.num "Team score"]
                   [:th.num {:title "Yards behind the leading country's team score"} "Gap"]
                   [:th "Status"]]]
          [:tbody
@@ -635,7 +646,7 @@
                     (if fav? "★" "☆")]]
               [:td.num {:title (when tied "shared place")} rank]
               [:td.name [country-label code]]
-              [:td.num active " / " runners]
+              [:td [pips active runners slots]]
               [:td.num total-laps]
               [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
               [:td (cond

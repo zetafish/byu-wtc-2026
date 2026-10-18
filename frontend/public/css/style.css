@@ -481,3 +481,11 @@ table.chase-table td.chance { color: var(--good); font-weight: 600; }
 table.chase-table tr.you td { background: var(--page); font-weight: 600; }
 .chase-switch { margin-bottom: 10px; }
 .chase-range { margin: 0 0 10px 8px; }
+
+/* runners still in as dots (Race table) */
+.pips { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.pips i { width: 6px; height: 6px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--axis); }
+.pips i.in { background: var(--good); box-shadow: none; }
+.pips i.none { visibility: hidden; }
+.pips b { margin-left: 6px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 2ch; }
+tr.out .pips i.in { background: var(--text-muted); }
