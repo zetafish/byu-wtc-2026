@@ -83,3 +83,20 @@
       (is (= [[1 3] [2 3] [3 3] [4 2] [5 2] [6 2] [7 2]] (get-in t [:over-time :runners-in])))
       (is (= [[1 3] [2 6] [3 8] [4 10] [5 12] [6 14]] (get-in t [:over-time :team-score])))
       (is (= 3 (get-in t [:over-time :place 5 1])) "after lap 6: behind CCC and AAA, sharing 3rd with EEE"))))
+
+(deftest fast-mover-further-away
+  ;; OUR 6+6+5+5 = 22 with 2 in. Behind, by team score: L1 6+6+5+4 = 21, L2 20, L3 19
+  ;; (2 in each, never closer), L4 6+6+6 = 18 with 3 in: 4th behind, but gains 1 a lap
+  ;; on a gap of 4, so it passes in 5 laps. L5 6+6+5 = 17 with 2 in never does.
+  (let [team-of (fn [code laps] (for [[i l] (map-indexed vector laps)] [(str code i) code l]))
+        out (fn [n] (concat (finished n) [[(inc n) :dnf nil]]))
+        teams (concat (team-of "OUR" [6 6 5 5]) (team-of "LA" [6 6 5 4]) (team-of "LB" [6 6 5 3])
+                      (team-of "LC" [6 6 4 3]) (team-of "LD" [6 6 6]) (team-of "LE" [6 6 5]))
+        d (race/derive-state
+           (dataset (map (fn [[id c]] [id c]) teams)
+                    (into {} (map (fn [[id _ l]] [id (if (= 6 l) (finished 6) (out l))])) teams))
+           {:start start :now (at-hours 6.5)})
+        behind (get-in (team/team d "OUR") [:chase :behind])]
+    (is (= ["LA" "LB" "LC" "LD"] (map :code behind)))
+    (is (= {:gap -4 :gain -1 :laps-to-pass 5} (select-keys (last behind) [:gap :gain :laps-to-pass])))
+    (is (every? :series behind) "each picked rival has its history")))

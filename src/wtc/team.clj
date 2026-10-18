@@ -43,7 +43,7 @@
 (defn- rival
   "One country seen from ours. :gap is theirs minus ours (positive: they're
   ahead); :gain is how much we gain on them per lap (negative: they gain)."
-  [ours theirs series-of]
+  [ours theirs]
   (let [gap (- (:total-laps theirs) (:total-laps ours))
         gain (- (:active ours) (:active theirs))]
     (merge (select-keys theirs [:code :name :rank :tied :total-laps :active :eliminated-after])
@@ -53,8 +53,14 @@
                             (pos? gap) (laps-to-pass gap gain)          ; we pass them
                             (neg? gap) (laps-to-pass (- gap) (- gain))  ; they pass us
                             (not (zero? gain)) 1                        ; level: the first lap decides
-                            :else nil)
-            :series (series-of (:code theirs))})))
+                            :else nil)})))
+
+(defn- pick-rivals
+  "The `n` nearest of `rivals` (nearest first), plus every one further away
+  with an overtake at the current runner counts, however far off, so a fast
+  mover isn't missed."
+  [rivals n]
+  (vec (keep-indexed (fn [i r] (when (or (< i n) (:laps-to-pass r)) r)) rivals)))
 
 (defn- rest-margin
   "Average rest per lap over the last 3 timed laps: what's left of the hour."
@@ -100,11 +106,13 @@
                                       (range 1 (inc current-lap)))
                     :team-score (mapv (fn [n [t _]] [n t]) laps our-totals)
                     :place (mapv (fn [n] [n ((places-at by-country n) code)]) laps)}
-        :chase {:ahead (->> others (filter #(> (:total-laps %) (:total-laps ours)))
-                            reverse (take n-rivals) (mapv #(rival ours % series-of)))
-                :level (->> others (filter #(= (:total-laps %) (:total-laps ours))) (mapv #(rival ours % series-of)))
-                :behind (->> others (filter #(< (:total-laps %) (:total-laps ours)))
-                             (take n-rivals) (mapv #(rival ours % series-of)))
-                :field-active (when (seq still-going)
-                                (/ (Math/round (* 10.0 (/ (reduce + (map :active still-going)) (count still-going))))
-                                   10.0))}}))))
+        :chase (let [with-series #(mapv (fn [r] (assoc r :series (series-of (:code r)))) %)
+                     side (fn [pred order]
+                            (->> others (filter #(pred (:total-laps %) (:total-laps ours))) order
+                                 (mapv #(rival ours %))))]
+                 {:ahead (with-series (pick-rivals (side > reverse) n-rivals))
+                  :level (with-series (side = identity))   ; all of them
+                  :behind (with-series (pick-rivals (side < identity) n-rivals))
+                  :field-active (when (seq still-going)
+                                  (/ (Math/round (* 10.0 (/ (reduce + (map :active still-going)) (count still-going))))
+                                     10.0))})}))))
