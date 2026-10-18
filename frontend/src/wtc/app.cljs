@@ -1073,7 +1073,7 @@
     rs))
 
 (defn- pick-sort!
-  "Sorts the leaderboard by `by`: first quickest first, again on the same
+  "Sorts the leaderboard by `by` (the Sort buttons): first quickest first, again on the same
   column slowest first; :pos goes back to the position order."
   [by]
   (let [{cur :by desc? :desc?} (:runner-sort @db)
@@ -1087,19 +1087,8 @@
   (let [{cur :by desc? :desc?} (:runner-sort @db)]
     (cond (not= by (or cur :pos)) "" (and desc? (not= by :pos)) " ▼" :else " ▲")))
 
-(defn- sort-header
-  "A column header that sorts the leaderboard, as the Sort buttons do."
-  [by label title]
-  (let [{cur :by desc? :desc?} (:runner-sort @db)
-        on? (= by (or cur :pos))]
-    [:th.num {:aria-sort (cond (not on?) "none" desc? "descending" :else "ascending")
-              :title title}
-     [:button.sort {:class (when on? "on") :on-click #(pick-sort! by)}
-      label [:span.arrow (sort-arrow by)]]]))
-
 (defn- sort-buttons
-  "The leaderboard's sort, in both views (the heatmap has no time columns to
-  click): the active one with ▲ quickest first or ▼ slowest first; clicking
+  "The leaderboard's sort, in both views: the active one with ▲ quickest first or ▼ slowest first; clicking
   it again flips."
   []
   (let [cur (or (:by (:runner-sort @db)) :pos)]
@@ -1145,12 +1134,12 @@
          ;; the columns it shares with the team page come in the same order and width
          [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.status]
           [:col.time] [:col.time] [:col.time] [:col.total] [:col.n] [:col.spark]]
-         [:thead [:tr [sort-header :pos "Pos" "Leaderboard position"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
+         [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
                   [:th "Status"]
-                  [sort-header :last "Last yard" "Sort by the last yard's time"]
-                  [sort-header :avg "Avg" "Average of the timed yards"]
-                  [sort-header :fastest "Fastest" "Sort by the fastest yard"]
-                  [sort-header :total "Total" "Sum of the timed yards"]
+                  [:th.num "Last yard"]
+                  [:th.num {:title "Average of the timed yards"} "Avg"]
+                  [:th.num "Fastest"]
+                  [:th.num {:title "Sum of the timed yards"} "Total"]
                   [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
                   [:th "Yard times"]]]
          [:tbody
