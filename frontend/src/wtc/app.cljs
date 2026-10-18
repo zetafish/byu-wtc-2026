@@ -51,7 +51,8 @@
                                                              :sim-poll-ms (:sim-poll-ms @db)
                                                              :team (:team @db)
                                                              :chase-view (:chase-view @db)
-                                                             :chase-range (:chase-range @db)})))
+                                                             :chase-range (:chase-range @db)
+                                                             :team-sort (:team-sort @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -788,14 +789,16 @@
        [:div.table-wrap.full
         ;; fixed columns, so filtering or "★ only" never moves them
         [:table.runners
-         [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.n] [:col.status]
-          [:col.time] [:col.time] [:col.time] [:col.total] [:col.spark]]
+         ;; the columns it shares with the team page come in the same order and width
+         [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.status]
+          [:col.time] [:col.time] [:col.time] [:col.total] [:col.n] [:col.spark]]
          [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
-                  [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
                   [:th "Status"]
-                  [:th.num "Last yard"] [:th.num "Fastest"]
+                  [:th.num "Last yard"]
                   [:th.num {:title "Average of the timed yards"} "Avg"]
+                  [:th.num "Fastest"]
                   [:th.num {:title "Sum of the timed yards"} "Total"]
+                  [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
                   [:th "Yard times"]]]
          [:tbody
           (for [{:keys [id name country laps pos] :as runner} shown
@@ -814,12 +817,12 @@
              [:td [country-label country]]
              [:td.num (:rank runner)]
              [:td.num laps]
-             [:td.num (or (:best-yards runner) "–")]
              [:td [status-badge runner]]
              [:td.num (mmss (:last-seconds runner))]
-             [:td.num (mmss (:fastest-seconds runner))]
              [:td.num (mmss (:avg-seconds runner))]
+             [:td.num (mmss (:fastest-seconds runner))]
              [:td.num (hmmss (:total-seconds runner))]
+             [:td.num (or (:best-yards runner) "–")]
              [:td (when times [chart/sparkline times])]])]]])]))
 
 ;; --- seat ranking ---
@@ -1161,28 +1164,43 @@
          "crossing the dashed line is an overtake. A line ends at the last yard both countries have reported."
          rivals-note])])]))
 
-(defn- team-runners [{:keys [runners settled-lap]}]
-  (let [ranked-all (ranked (:runners @db))
+(defn- team-runners [{:keys [runners]}]
+  (let [sort-by-key (:team-sort @db :seat)
+        ;; seat order; most yards first; fastest average first (untimed last)
+        runners (case sort-by-key
+                  :yards (sort-by (juxt (comp - :laps) :rank) runners)
+                  :avg (sort-by (juxt #(or (:avg-seconds %) js/Infinity) :rank) runners)
+                  (sort-by :rank runners))
+        ranked-all (ranked (:runners @db))
         open (:open @db)
         open-runner (when open (some #(when (= open (:id %)) %) ranked-all))]
     [:section.card.wide
      (when open-runner ^{:key open} [runner-dialog open-runner (count (:runners @db))])
      [:div.card-head
       [:div [:h2 "Runners"]
-       [:p.sub "Their seat, and their place among all runners in that seat (the race for the individual invites). Click a runner for their yard times."]]]
+       [:p.sub "Their seat, and their place among all runners in that seat (the race for the individual invites). Click a runner for their yard times."]]
+      [:div.segmented {:role "group" :aria-label "Sort runners by"}
+       (for [[v label] [[:seat "Seat"] [:yards "Yards"] [:avg "Avg"]]]
+         ^{:key v}
+         [:button {:aria-pressed (= v sort-by-key)
+                   :on-click #(do (swap! db assoc :team-sort v) (save-prefs!))} label])]]
      [:div.table-wrap.full
-      [:table.team-runners
-       [:thead [:tr [:th.num "Seat"] [:th "Runner"] [:th.num "Yards"] [:th "Status"]
-                [:th.num "Last yard"] [:th.num "Avg"]
+      ;; same order and widths as the runner leaderboard for the columns they share
+      [:table.runners.team-runners
+       [:colgroup [:col] [:col.n] [:col.n] [:col.status] [:col.time] [:col.time] [:col.time] [:col.seat-race] [:col.spark]]
+       [:thead [:tr [:th "Runner"] [:th.num "Seat"] [:th.num "Yards"] [:th "Status"]
+                [:th.num "Last yard"]
+                [:th.num {:title "Average of the timed yards"} "Avg"]
                 [:th.num {:title "Rest per yard, average of the last 3 timed yards"} "Margin"]
-                [:th {:title "Place among all runners in this seat"} "Seat race"]]]
+                [:th {:title "Place among all runners in this seat"} "Seat race"]
+                [:th "Yard times"]]]
        [:tbody
-        (for [{:keys [id name rank laps last-seconds avg-seconds margin-seconds seat-place seat-runners] :as r} runners]
+        (for [{:keys [id name rank laps last-seconds avg-seconds margin-seconds seat-place seat-runners history] :as r} runners]
           ^{:key id}
           [:tr.clickable {:class (when (= "out" (:status r)) "out")
                           :on-click #(do (fetch-runner-detail! id) (swap! db assoc :open id))}
-           [:td.num rank]
            [:td.name name]
+           [:td.num rank]
            [:td.num laps]
            [:td [status-badge r]]
            [:td.num (or (mmss last-seconds) "–")]
@@ -1190,7 +1208,8 @@
            [:td.num (or (mmss margin-seconds) "–")]
            [:td (when seat-place
                   [:a {:href "#seats" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seat rank))}
-                   (str (ordinal seat-place) " of " seat-runners)])]])]]]]))
+                   (str (ordinal seat-place) " of " seat-runners)])]
+           [:td [chart/sparkline (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history))]]])]]]]))
 
 (defn- lap-shade
   "0-4 by lap time: under 46 min, 46-49, 49-53, 53-57, 57 or more."
@@ -1405,11 +1424,12 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range team-sort]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
+           :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)

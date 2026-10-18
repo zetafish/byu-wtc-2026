@@ -381,6 +381,8 @@ table.runners col.status { width: 165px; }
 table.runners col.time { width: 72px; }
 table.runners col.total { width: 88px; }
 table.runners col.spark { width: 124px; }
+table.runners col.seat-race { width: 96px; }
+table.runners.team-runners { min-width: 820px; }
 table.runners td.name .star { margin-right: 6px; }
 select.seat {
   font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
