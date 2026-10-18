@@ -233,6 +233,73 @@
                 :on-click #(.stopPropagation %)}
      [flag code] [:span.cname nm] " " [:span.code code]]))
 
+(defn- country-face
+  "[flag] name code, without a link: for inside buttons and lists."
+  [code]
+  [:span.clabel [flag code] [:span.cname (or (country-name code) code)] " " [:span.code code]])
+
+(defn- country-select
+  "A dropdown of countries with their flags, which a native <select> can't
+  show. The button shows `value` (or `placeholder`); the list has a search
+  box, favourites first, and leaves out `exclude`. Picking calls `on-pick`
+  with the code. Keys: ↑ ↓ move, Enter picks, Esc closes."
+  [_]
+  (let [open? (r/atom false)
+        query (r/atom "")
+        active (r/atom 0)
+        close! #(do (reset! open? false) (reset! query "") (reset! active 0))]
+    (fn [{:keys [value on-pick placeholder exclude label disabled]}]
+      (let [{:keys [countries favourites]} @db
+            q (str/lower-case (str/trim @query))
+            matches? #(or (empty? q)
+                          (str/includes? (str/lower-case (:name %)) q)
+                          (str/includes? (str/lower-case (:code %)) q))
+            pool (->> countries (remove #(contains? (or exclude #{}) (:code %))) (filter matches?) (sort-by :name))
+            favs (filter #(contains? favourites (:code %)) pool)
+            ;; a favourite shows once, in its group, while not searching
+            items (vec (if (and (seq favs) (empty? q))
+                         (concat (map #(assoc % :group :fav) favs) (remove #(contains? favourites (:code %)) pool))
+                         pool))
+            pick! (fn [code] (close!) (on-pick code))
+            option (fn [i {:keys [code group]}]
+                     ^{:key (str (name (or group :all)) code)}
+                     [:li {:id (str "cs-" code) :role "option" :aria-selected (= i @active)
+                           :class (when (= i @active) "active")
+                           :on-mouse-move #(reset! active i)
+                           :on-mouse-down (fn [e] (.preventDefault e) (pick! code))}
+                      [country-face code]])]
+        ;; focus moving inside (button -> search box) keeps it open; currentTarget,
+        ;; unlike a ref, is never briefly nil while it re-renders
+        [:div.csel {:on-blur (fn [e] (when-not (.contains (.-currentTarget e) (.-relatedTarget e)) (close!)))}
+         [:button.csel-button {:type "button" :aria-haspopup "listbox" :aria-expanded @open? :aria-label label
+                               :disabled disabled
+                               :on-click #(swap! open? not)}
+          (if value [country-face value] [:span.muted placeholder])
+          [:span.csel-caret "▾"]]
+         (when @open?
+           [:div.csel-pop
+            [:input.search {:type "search" :placeholder "Search country" :value @query :auto-focus true
+                            :role "combobox" :aria-controls "csel-list" :aria-label "Search country"
+                            :aria-activedescendant (some->> (get items @active) :code (str "cs-"))
+                            :on-change #(do (reset! query (.. % -target -value)) (reset! active 0))
+                            :on-key-down (fn [e]
+                                           (case (.-key e)
+                                             "ArrowDown" (do (.preventDefault e) (swap! active #(min (dec (count items)) (inc %))))
+                                             "ArrowUp" (do (.preventDefault e) (swap! active #(max 0 (dec %))))
+                                             "Enter" (some-> (get items @active) :code pick!)
+                                             "Escape" (close!)
+                                             nil))}]
+            (if (empty? items)
+              [:p.muted.csel-empty "No country matches"]
+              [:ul.csel-list {:id "csel-list" :role "listbox"}
+               (doall
+                (for [[i it] (map-indexed vector items)]
+                  [:<> {:key (str i (:code it))}
+                   (when (and (= :fav (:group it)) (zero? i)) [:li.csel-group {:role "presentation"} "★ Favourites"])
+                   (when (and (nil? (:group it)) (pos? i) (= :fav (:group (get items (dec i)))))
+                     [:li.csel-group {:role "presentation"} "All countries"])
+                   (option i it)]))])])]))))
+
 (defn- to-series [panel result]
   (let [{:keys [per-country? series-label series-order series-names]} panel
         selected (:selected @db)]
@@ -648,11 +715,8 @@
 (defn- runner-filters [n-out show-out?]
   (let [{:keys [countries runner-filter starred-only? query]} @db]
     [:div.filters
-     [:select.seat {:value "" :aria-label "Filter by country"
-                    :on-change #(some-> (.. % -target -value) not-empty toggle-filter!)}
-      [:option {:value ""} "+ Country"]
-      (for [{:keys [code name]} (sort-by :name (remove #(contains? runner-filter (:code %)) countries))]
-        ^{:key code} [:option {:value code} name])]
+     [country-select {:on-pick toggle-filter! :placeholder "+ Country" :exclude runner-filter
+                      :label "Filter by country"}]
      (for [code (sort runner-filter)]
        ^{:key code}
        [:span.chip [country-label code]
@@ -853,16 +917,7 @@
     [:div.team-switch
      [:button.ghost {:disabled (nil? prev) :on-click #(go-team! (:code prev))
                      :title (when prev (str "Ahead: " (:name prev))) :aria-label "Country ahead in the standings"} "←"]
-     [:select.seat {:value (or code "") :aria-label "Team"
-                    :on-change #(some-> (.. % -target -value) not-empty go-team!)}
-      (when-not code [:option {:value ""} "Pick a country"])
-      (when (seq favourites)
-        [:optgroup {:label "★ Favourites"}
-         (for [{c :code nm :name} (sort-by :name (filter #(favourites (:code %)) countries))]
-           ^{:key c} [:option {:value c} (str nm " " c)])])
-      [:optgroup {:label "All countries"}
-       (for [{c :code nm :name} (sort-by :name countries)]
-         ^{:key c} [:option {:value c} (str nm " " c)])]]
+     [country-select {:value code :on-pick go-team! :placeholder "Pick a country" :label "Team"}]
      [:button.ghost {:disabled (nil? next) :on-click #(go-team! (:code next))
                      :title (when next (str "Behind: " (:name next))) :aria-label "Country behind in the standings"} "→"]
      (when code
@@ -1113,43 +1168,13 @@
                 [:<> label (when-let [t (:team @db)] [:span.count {:title "your team"} t])]
                 [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]]))
 
-(defn- country-picker
-  "Search box with suggestions; picking a suggestion, or Enter, adds the country."
-  []
-  (let [text (r/atom "")]
-    (fn []
-      (let [{:keys [countries selected favourites]} @db
-            full? (>= (count selected) max-selected)
-            options (->> countries
-                         (remove #(contains? selected (:code %)))
-                         (sort-by (juxt #(not (contains? favourites (:code %))) :name)))
-            add! (fn [{:keys [code]}] (reset! text "") (toggle-country! code))
-            find-by (fn [q f] (let [q (str/lower-case (str/trim q))]
-                                (when (seq q) (some #(when (f q (str/lower-case (:name %)) (str/lower-case (:code %))) %)
-                                                    options))))]
-        [:<>
-         [:input.search {:type "search" :list "country-options" :value @text :disabled full?
-                         :placeholder (if full? (str max-selected " compared, the most") "Add a country")
-                         :aria-label "Add a country to compare"
-                         :on-change (fn [e]
-                                      (let [v (.. e -target -value)]
-                                        ;; a picked suggestion fills in the full name
-                                        (if-let [c (find-by v (fn [q nm _] (= q nm)))] (add! c) (reset! text v))))
-                         :on-key-down (fn [e]
-                                        (when (= "Enter" (.-key e))
-                                          (some-> (or (find-by @text (fn [q _ cd] (= q cd)))
-                                                      (find-by @text (fn [q nm _] (str/starts-with? nm q)))
-                                                      (find-by @text (fn [q nm _] (str/includes? nm q))))
-                                                  add!)))}]
-         [:datalist {:id "country-options"}
-          (for [{:keys [code name]} options]
-            ^{:key code} [:option {:value name} (str (when (contains? favourites code) "★ ") name " " code)])]]))))
-
 (defn- comparing []
   (let [{:keys [selected favourites]} @db]
     [:div.comparing
      [:span.label "Compare"]
-     [country-picker]
+     [country-select {:on-pick toggle-country! :exclude (set (keys selected)) :label "Add a country to compare"
+                      :disabled (>= (count selected) max-selected)
+                      :placeholder (if (>= (count selected) max-selected) (str max-selected " compared, the most") "Add a country")}]
      [:button.ghost {:on-click #(select-countries! (ranked-codes any?))} (str "Top " max-selected)]
      (when (seq favourites)
        [:button.ghost {:title (str "Your favourite countries, the best-ranked " max-selected " if more")

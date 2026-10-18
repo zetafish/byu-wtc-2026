@@ -432,3 +432,25 @@ table.team-runners td.name { white-space: nowrap; }
 .lg.notime { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); }
 .lg.none { background: transparent; }
 .lg-legend .lg { width: 16px; height: 12px; }
+
+/* country dropdown: a native <select> can't show flags */
+.csel { position: relative; display: inline-block; }
+.csel-button {
+  display: inline-flex; align-items: center; gap: 8px; min-width: 220px; max-width: 320px; justify-content: space-between;
+  font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; cursor: pointer;
+}
+.csel-button:disabled { color: var(--text-muted); cursor: not-allowed; }
+.csel-button .clabel { min-width: 0; }
+.csel-caret { color: var(--text-muted); font-size: 12px; }
+.csel-pop {
+  position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; width: 300px; max-width: calc(100vw - 32px);
+  background: var(--surface-1); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.14); padding: 8px;
+}
+.csel-pop input.search { width: 100%; box-sizing: border-box; margin-bottom: 6px; }
+.csel-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; }
+.csel-list li[role=option] { padding: 6px 8px; border-radius: 5px; cursor: pointer; font-weight: 600; }
+.csel-list li.active { background: color-mix(in srgb, var(--series-1) 12%, transparent); }
+.csel-group { padding: 8px 8px 4px; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.csel-empty { padding: 8px; margin: 0; }
