@@ -17,8 +17,10 @@
   <div id="app"></div>
   <script src="/js/main.js"></script>
   <!-- Vercel Web Analytics (no cookies): visitors, referrers, countries. Only
-       answers on Vercel; locally the script is a harmless 404. -->
+       answers on Vercel; locally the script is a harmless 404. The views are
+       hashes, which it would all count as "/", so it doesn't track by itself:
+       the app reports each view as a path (wtc.app/track-view!). -->
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
-  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/insights/script.js" data-disable-auto-track="1"></script>
 </body>
 </html>

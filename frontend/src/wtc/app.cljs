@@ -1554,6 +1554,18 @@
       ;; #countries was the Race view's old name: old links still land there
       :else {:view (or (some #(when (= v (name (:id %))) (:id %)) views) :race)})))
 
+(defonce ^:private tracked (atom nil))
+
+(defn- track-view!
+  "Tells Vercel Web Analytics which view is shown, as a path (/race,
+  /team/BEL), grouped by route (/team/[code]). Once per change of view."
+  [view team]
+  (let [path (str "/" (name view) (when (= :team view) (str "/" team)))]
+    (when (and js/window.va (not= path @tracked))
+      (reset! tracked path)
+      (js/window.va "pageview" #js {:path path
+                                    :route (if (= :team view) "/team/[code]" path)}))))
+
 (defn- go-to-hash! []
   (let [{:keys [view team]} (parse-hash)
         changed? (and team (not= team (:team @db)))]
@@ -1561,6 +1573,7 @@
                  team (assoc :team team)
                  changed? (assoc :team-data nil)))
     (when team (save-prefs!))
+    (track-view! view (:team @db))
     (when (= view :charts) (fetch-panels!))
     (fetch-team!)
     (fetch-overtakes!)))
