@@ -502,3 +502,28 @@ tr.out .pips i.in { background: var(--text-muted); }
 .drop-names { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 14px; }
 .drop .code { color: var(--critical); font-size: 12px; font-weight: 600; }
 @media (max-width: 600px) { .drops-list li { grid-template-columns: minmax(0, 1fr); } }
+
+/* Race view, Runners: every runner of every country by seat */
+table.race-grid { table-layout: fixed; min-width: 1000px; }
+table.race-grid col.rk { width: 40px; }
+table.race-grid col.country { width: 190px; }
+table.race-grid col.n { width: 56px; }
+table.race-grid col.in { width: 60px; }
+table.race-grid col.time { width: 72px; }
+table.race-grid td { padding-top: 4px; padding-bottom: 4px; }
+.slots { display: grid; gap: 2px; }
+.slot {
+  display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 2px 1px;
+  border-radius: 4px; font-size: 10px; line-height: 1.2; color: var(--text-primary);
+  border: 1.5px solid transparent;
+}
+.slot b { font-size: 12px; font-variant-numeric: tabular-nums; }
+.slot span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* our brand: green for still racing, orange only for the winner */
+.slot.running { border-color: var(--good); }
+.slot.done { background: color-mix(in srgb, var(--good) 22%, transparent); }
+.slot.awaiting { border: 1.5px dashed var(--good); }
+.slot.out { background: var(--grid); color: var(--text-muted); }
+.slot.dns { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); color: var(--text-muted); }
+.slot.win { background: var(--accent); color: #fff; font-weight: 600; }
+.slot-legend .slot { display: inline-block; width: 16px; height: 12px; padding: 0; vertical-align: -2px; margin-right: 4px; }

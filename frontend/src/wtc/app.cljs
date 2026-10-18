@@ -52,7 +52,8 @@
                                                              :team (:team @db)
                                                              :chase-view (:chase-view @db)
                                                              :chase-range (:chase-range @db)
-                                                             :team-sort (:team-sort @db)})))
+                                                             :team-sort (:team-sort @db)
+                                                             :race-view (:race-view @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -652,8 +653,72 @@
                ^{:key id}
                [:span.drop {:title (out-text r)} name " " [:span.code (or (stop-short stop) "no result")]])]])])]))
 
+(defn- surname [nm] (last (str/split (str/trim (str nm)) #"\s+")))
+
+(defn- slot-state
+  "A runner's cell in the Runners grid: :win, :out, :dns, :done (already
+  finished the yard on course now), :running (on course), or :awaiting
+  (still in, but no result yet for the last completed yard)."
+  [{:keys [status stop laps]} current-lap]
+  (cond (= "finished" status) :win
+        (= "dns" stop) :dns
+        (= "out" status) :out
+        (>= laps current-lap) :done
+        (< laps (dec current-lap)) :awaiting
+        :else :running))
+
+(defn- race-runners-grid
+  "The standings with every runner: per country its 15 seats as cells of
+  yards and surname, coloured by state; hover for the full story."
+  [shown]
+  (let [{:keys [runners race]} @db
+        current (:current-lap race 0)
+        by-country (group-by :country runners)
+        slots (reduce max 0 (map :runners shown))]
+    [:div.table-wrap.full
+     [:table.race-grid
+      [:colgroup [:col.rk] [:col.country] [:col.n] [:col.in] [:col.time] [:col]]
+      [:thead [:tr [:th.num "#"] [:th "Country"] [:th.num "Yards"] [:th.num "In"]
+               [:th.num {:title "Average yard time of all the team's timed yards"} "Avg yard"]
+               [:th "Runners by seat"]]]
+      [:tbody
+       (for [{:keys [code rank active runners total-laps eliminated-after]} shown
+             :let [rs (sort-by :rank (by-country code))
+                   timed (keep (fn [{:keys [total-seconds avg-seconds]}]
+                                 (when (and total-seconds avg-seconds (pos? avg-seconds))
+                                   [total-seconds (js/Math.round (/ total-seconds avg-seconds))]))
+                               rs)
+                   n-timed (reduce + 0 (map second timed))
+                   avg (when (pos? n-timed) (js/Math.round (/ (reduce + 0 (map first timed)) n-timed)))]]
+         ^{:key code}
+         [:tr.clickable {:class (when eliminated-after "out")
+                         :on-click #(set! (.-hash js/location) (str "team/" code))}
+          [:td.num rank]
+          [:td.name [country-label code]]
+          [:td.num total-laps]
+          [:td.num active [:small (str " / " runners)]]
+          [:td.num (or (mmss avg) "–")]
+          [:td [:div.slots {:style {:grid-template-columns (str "repeat(" (max slots 1) ", minmax(0, 1fr))")}}
+                (for [{:keys [id name laps] :as r} rs
+                      :let [st (slot-state r current)]]
+                  ^{:key id}
+                  [:span.slot {:class (cljs.core/name st)
+                               :title (str "Seat " (:rank r) " · " name " · " laps " yards · "
+                                           (case st
+                                             :win "country winner"
+                                             :dns "did not start"
+                                             :out (str "out · " (out-text r))
+                                             :awaiting (str "result for yard " (dec current) " not in yet")
+                                             :done (str "finished yard " current)
+                                             :running (str "on yard " current)))}
+                   [:b (if (= st :dns) "–" laps)] [:span (surname name)]])]]])]]
+     [:ul.legend.slot-legend
+      (for [[st label] [[:running "on course"] [:done "finished this yard"] [:awaiting "result not in yet"] [:out "out"]
+                        [:win "country winner"] [:dns "did not start"]]]
+        ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])]]))
+
 (defn- countries-table []
-  (let [{:keys [countries selected favourites favourites-only?]} @db
+  (let [{:keys [countries selected favourites favourites-only? race-view]} @db
         lead (reduce max 0 (map :total-laps countries))
         slots (reduce max 0 (map :runners countries))
         fav? #(contains? favourites (:code %))
@@ -664,14 +729,22 @@
       [:div [:h2 "Standings"]
        [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for the team page."]]
       [:div.head-actions
+       [:div.segmented {:role "group" :aria-label "Show"}
+        (for [[v label] [[:teams "Teams"] [:runners "Runners"]]]
+          ^{:key v}
+          [:button {:aria-pressed (= v (or race-view :teams))
+                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!))} label])]
        [:label.toggle
         [:input {:type "checkbox" :checked favourites-only?
                  :on-change #(do (swap! db update :favourites-only? not) (save-prefs!))}]
         "★ only"]]]
-     (if (empty? shown)
+     (cond
+       (empty? shown)
        [:div.empty (if favourites-only?
                      "No favourite countries yet. Untick \"★ only\" and star (☆) a country to add it."
                      "No countries to show")]
+       (= :runners race-view) [race-runners-grid shown]
+       :else
        [:div.table-wrap.full
         [:table
          [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th "In race"] [:th.num "Team score"]
@@ -1477,12 +1550,13 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range team-sort]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range team-sort race-view]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
+           :race-view (if (= "runners" race-view) :runners :teams)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
