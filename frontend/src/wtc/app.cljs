@@ -607,15 +607,26 @@
 
 (defn- running? [r] (= "running" (:status r)))
 
-(defn- race-key [r] [(:laps r) (if (running? r) 1 0)])
+(defn- ranked-laps
+  "The laps a runner is ranked on: a runner still in counts up to the last
+  bell, so finishing the current lap first doesn't put them ahead of the
+  others still on it (they all start the next together). Read without
+  making the caller depend on the app state: the race moves with a reload,
+  which redraws anyway."
+  [r]
+  (let [cur (binding [ratom/*ratom-context* nil] (get-in @db [:race :current-lap]))]
+    (if (and cur (running? r)) (min (:laps r) (max 0 (dec cur))) (:laps r))))
+
+(defn- race-key [r] [(ranked-laps r) (if (running? r) 1 0)])
 
 (declare rank-runners)
 
 (defonce ^:private ranked-cache (atom nil))
 
 (defn- ranked
-  "Runners best first, each with :pos. Equal laps share a position, except
-  that a runner still going is ahead of one who is out. Kept for the same
+  "Runners best first, each with :pos. Equal laps (up to the last bell, see
+  `ranked-laps`) share a position, except that a runner still going is
+  ahead of one who is out. Kept for the same
   `runners` (they change once a reload), so the leaderboard's rows stay
   identical between redraws and are skipped."
   [runners]
@@ -627,7 +638,7 @@
         result))))
 
 (defn- rank-runners [runners]
-  (let [sorted (sort-by (juxt (comp - :laps) #(if (running? %) 0 1) :name) runners)]
+  (let [sorted (sort-by (juxt (comp - ranked-laps) #(if (running? %) 0 1) :name) runners)]
     (first (reduce (fn [[acc prev-key prev-pos] [i r]]
                      (let [k (race-key r)
                            pos (if (= k prev-key) prev-pos (inc i))]

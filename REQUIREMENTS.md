@@ -156,7 +156,7 @@ With two runners left (A and B):
 - **No chart zoom** (removed): the comparison charts are full width and large instead. [decided]
 
 ### Runners view: the individual leaderboard
-- A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided]
+- A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided] A runner still in counts laps up to the last bell: finishing the current yard first doesn't put them ahead of the others still on it (they all start the next yard together), here, in the seat ranking and in the team page's seat race. The Yards column still shows every finished yard. [decided]
 - **Filter bar:**
   - countries, from a "+ Country" picker, shown as removable chips; none means all;
   - a name search;

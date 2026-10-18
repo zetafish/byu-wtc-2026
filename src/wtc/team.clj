@@ -25,12 +25,16 @@
 
 (defn- seat-places
   "Every runner's place in their seat across all countries, as on the Seats
-  view: by laps, a runner still in ahead of one who is out, else shared.
+  view: by laps, a runner still in ahead of one who is out, else shared. A
+  runner still in counts laps up to the last bell, so finishing the current
+  lap first doesn't put them ahead of the others still on it.
   {id [place runners-in-seat]}"
-  [runners]
+  [runners current-lap]
   (into {}
         (for [[_ rs] (group-by :rank (filter :rank runners))
-              :let [k (fn [r] [(:laps r) (if (= :running (:status r)) 1 0)])
+              :let [k (fn [r] (let [running? (= :running (:status r))]
+                                [(if running? (min (:laps r) (max 0 (dec current-lap))) (:laps r))
+                                 (if running? 1 0)]))
                     ks (map k rs)]
               r rs]
           [(:id r) [(inc (count (filter #(pos? (compare % (k r))) ks))) (count rs)]])))
@@ -104,7 +108,7 @@
                                   (mapv (fn [n] [n (count (filter #(>= (:laps %) n) crs))])
                                         (range 1 (inc (reported (get countries c)))))))
            others (remove #(= code (:code %)) (sort-by :position (vals countries)))
-           seats (seat-places all)
+           seats (seat-places all current-lap)
            still-going (remove :eliminated-after (vals countries))]
        {:country ours
         ;; sharing the place (equal team score and farthest runner), from the same snapshot

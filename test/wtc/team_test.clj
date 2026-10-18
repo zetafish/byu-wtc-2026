@@ -174,3 +174,16 @@
                 ;; XXX's report lags: compared at lap 2, it passes after lap 3, long over
                 (assoc-in [:countries "XXX" :reported-through] 2))]
       (is (every? #(>= (:lap %) (:current-lap d)) (team/overtakes d 20))))))
+
+(deftest seat-place-up-to-the-last-bell
+  (testing "finishing the current lap first doesn't put a runner ahead in their seat"
+    ;; during lap 7: a1 has finished it already, b1 is still on it; both seat 1
+    (let [d (-> (race/derive-state
+                 (dataset [["a1" "AAA"] ["a2" "AAA"] ["b1" "BBB"] ["b2" "BBB"]]
+                          {"a1" (finished 7) "a2" (finished 6) "b1" (finished 6) "b2" (finished 6)})
+                 {:start start :now (at-hours 6.5)})
+                (assoc-in [:runners "a1" :rank] 1)
+                (assoc-in [:runners "b1" :rank] 1))
+          place (fn [code] (->> (team/team d code) :runners (some #(when (= 1 (:rank %)) (:seat-place %)))))]
+      (is (= 7 (:current-lap d)))
+      (is (= 1 (place "AAA") (place "BBB"))))))
