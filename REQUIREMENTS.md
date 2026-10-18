@@ -122,7 +122,7 @@ With two runners left (A and B):
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
 - **Theme:** light, dark or system (the default), switched in the menu and remembered. [decided]
 - **New version notice:** a page left open during a deploy says a new version is out and offers a Reload button; it never reloads by itself. [decided]
-- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the "★ only" toggles, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
+- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the runner leaderboard's "★ only" toggle, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
 ### Race view (was: Countries): ranking and comparison charts
@@ -140,7 +140,7 @@ With two runners left (A and B):
   - "Clear" empties it. [decided]
   - Countries that stay compared after "Top 8" or "★ Favourites" keep their colour. [decided]
 - **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites feed the search box and the "★ Favourites" button. [decided]
-  - A "★ only" toggle in the table head shows only favourite countries, eliminated ones included. With no favourites, the table says how to add some. [decided]
+  - No "★ only" filter on the standings (removed): the table always shows every country. Favourite countries still come first in the pickers and the "Out at yard N" list. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens its team page (anywhere on the row but the star). The expanded runner grid below the row is gone: the team page shows the runners. [decided]
 - **Eliminated countries always show**, in their place by team score, greyed out with a grey flag: their score still counts in the ranking. [decided]

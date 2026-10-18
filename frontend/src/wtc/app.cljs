@@ -18,7 +18,6 @@
                      :favourites #{}  ; favourite country codes
                      :runner-filter #{} ; leaderboard: only these countries (empty = all)
                      :starred-only? false
-                     :favourites-only? false ; countries table: only favourites
                      :query ""        ; leaderboard name search (not stored)
                      :show-out-runners? false ; list eliminated runners too
                      :view :race      ; menu view, mirrors the URL hash
@@ -46,7 +45,6 @@
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
                                                              :starred-only (:starred-only? @db)
-                                                             :favourites-only (:favourites-only? @db)
                                                              :variant (:variant @db)
                                                              :sim-poll-ms (:sim-poll-ms @db)
                                                              :team (:team @db)
@@ -719,31 +717,24 @@
         ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])]]))
 
 (defn- countries-table []
-  (let [{:keys [countries selected favourites favourites-only? race-view]} @db
+  (let [{:keys [countries selected favourites race-view]} @db
         lead (reduce max 0 (map :total-laps countries))
         slots (reduce max 0 (map :runners countries))
-        fav? #(contains? favourites (:code %))
-        ;; eliminated countries always show, greyed: their score still counts
-        shown (cond->> countries favourites-only? (filter fav?))]
+        ;; every country, eliminated ones greyed: their score still counts
+        shown countries]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Standings"]
-       [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for the team page."]]
+       [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand in the pickers. Click a row for the team page."]]
       [:div.head-actions
        [:div.segmented {:role "group" :aria-label "Show"}
         (for [[v label] [[:teams "Teams"] [:runners "Runners"]]]
           ^{:key v}
           [:button {:aria-pressed (= v (or race-view :teams))
-                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!))} label])]
-       [:label.toggle
-        [:input {:type "checkbox" :checked favourites-only?
-                 :on-change #(do (swap! db update :favourites-only? not) (save-prefs!))}]
-        "★ only"]]]
+                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!))} label])]]]
      (cond
        (empty? shown)
-       [:div.empty (if favourites-only?
-                     "No favourite countries yet. Untick \"★ only\" and star (☆) a country to add it."
-                     "No countries to show")]
+       [:div.empty "No countries to show"]
        (= :runners race-view) [race-runners-grid shown]
        :else
        [:div.table-wrap.full
@@ -1569,7 +1560,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -1584,7 +1575,6 @@
            :favourites (set favourites)
            :runner-filter (set runner-filter)
            :starred-only? (true? starred-only)
-           :favourites-only? (true? favourites-only)
            :show-out-runners? (true? show-out-runners)))
   (apply-theme! (:theme @db))
   (go-to-hash!)
