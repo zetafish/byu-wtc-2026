@@ -4,6 +4,9 @@ primary_region = "fra"
 
 # No CLOCK_START: real time.
 [env]
+  # A new copy of the feed (rebuilt every minute) waits for our next poll, so
+  # the poll interval adds straight to its age. Unchanged polls are a 304.
+  POLL_SECONDS = "5"
   # The official site's feed only (see wtc.source.official). Its latest copy
   # is kept on the volume, so a restart while the feed is down still has data.
   SOURCES = '[{:id :official :type :official :priority 10 :snapshot "/data/latest.json"}]'

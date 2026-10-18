@@ -14,7 +14,7 @@
   (j/object-mapper {:encoders {Instant (fn [i ^com.fasterxml.jackson.core.JsonGenerator gen]
                                          (.writeString gen (str i)))}}))
 
-(def ^:private cached "public, max-age=15, s-maxage=60, stale-while-revalidate=300")
+(def ^:private cached "public, max-age=15, s-maxage=20, stale-while-revalidate=300")
 
 (defn- json
   ([body] (json 200 body cached))

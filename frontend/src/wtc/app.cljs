@@ -8,6 +8,7 @@
 
 (def max-selected 8)
 (def poll-ms 60000)
+(def bell-poll-ms 20000)  ; around the bell, when runners finish and results are entered
 (def default-sim-poll-ms 10000)  ; a playing demo race steps one lap this often
 
 (defonce db (r/atom {:selected {}     ; compared countries: code -> color slot 1..8; empty until picked
@@ -143,8 +144,24 @@
 
 (declare control-sim!)
 
+(defn- poll-delay
+  "How long until the next reload of the real race: `bell-poll-ms` from 40
+  minutes into a lap (runners start finishing), and after the bell for as
+  long as a country still in the race hasn't reported the last lap (results
+  can come in late); `poll-ms` otherwise."
+  []
+  (let [{:keys [race countries]} @db
+        start (some-> (:start race) js/Date.parse)
+        m (when start (mod (quot (- (.now js/Date) start) 60000) 60))
+        last-lap (dec (:current-lap race 0))
+        reporting? (some #(and (not (:eliminated-after %)) (:reported-through %)
+                               (< (:reported-through %) last-lap))
+                         countries)]
+    (if (or (and m (>= m 40)) reporting?) bell-poll-ms poll-ms)))
+
 (defn- schedule-poll!
-  "(Re)starts the poll timer. The real race reloads every `poll-ms`. A demo
+  "(Re)starts the poll timer. The real race reloads every `poll-delay`,
+  skipped while the tab is hidden (it reloads when shown again). A demo
   race stands still on the server: while it plays, each tick steps it one
   lap (and reloads); paused, or at the last lap, nothing is polled."
   []
@@ -155,7 +172,8 @@
       (swap! db assoc :playing? false))
     (cond
       (not controls)
-      (reset! poll-timer (js/setTimeout #(do (refresh!) (schedule-poll!)) poll-ms))
+      (reset! poll-timer (js/setTimeout #(do (when-not js/document.hidden (refresh!)) (schedule-poll!))
+                                        (poll-delay)))
       (:playing? @db)
       (reset! poll-timer (js/setTimeout #(control-sim! {:action "step" :by 1})
                                         (:sim-poll-ms @db default-sim-poll-ms))))))
@@ -1249,6 +1267,10 @@
            :show-out? (true? show-out)
            :show-out-runners? (true? show-out-runners)))
   (go-to-hash!)
+  ;; a tab coming back to the front catches up at once
+  (.addEventListener js/document "visibilitychange"
+                     #(when (and (not js/document.hidden) (not (get-in @db [:race :simulation :controls])))
+                        (refresh!) (schedule-poll!)))
   (.addEventListener js/window "hashchange"
                      #(do (go-to-hash!) (js/window.scrollTo 0 0)))
   (render)

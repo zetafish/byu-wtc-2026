@@ -128,7 +128,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 
 ## API
 
-All routes are `GET`, served from the in-memory derived state. Responses carry `Cache-Control: public, max-age=15, s-maxage=60, stale-while-revalidate=300`; `health` and errors are `no-store`. This replaces the Redis layer from the original brief.
+All routes are `GET`, served from the in-memory derived state. Responses carry `Cache-Control: public, max-age=15, s-maxage=20, stale-while-revalidate=300`; `health` and errors are `no-store`. This replaces the Redis layer from the original brief.
 
 | Route | Returns |
 |---|---|
@@ -144,7 +144,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 ## Frontend (`frontend/`)
 
-- **`wtc.app`:** a single Reagent `db` atom. It polls `/api/race`, `/api/countries` and `/api/runners` every 60 s, then the panel queries. A demo race doesn't move by itself, so it isn't polled. While it plays (in the browser, not on the server), each tick POSTs a one-lap step and reloads, at the interval picked in the panel (2 s to 60 s, default 10 s, kept in prefs). It stops at the last lap. Each tab steps on its own, so two playing tabs step twice as fast.
+- **`wtc.app`:** a single Reagent `db` atom. It polls `/api/race`, `/api/countries` and `/api/runners`, then the panel queries: every 20 s from 40 minutes into a lap (runners start finishing) and after the bell for as long as a country still in the race hasn't reported the last lap (its `reported-through`; results can come in late), every 60 s otherwise, and not while the tab is hidden (it reloads as soon as the tab is shown). A demo race doesn't move by itself, so it isn't polled. While it plays (in the browser, not on the server), each tick POSTs a one-lap step and reloads, at the interval picked in the panel (2 s to 60 s, default 10 s, kept in prefs). It stops at the last lap. Each tab steps on its own, so two playing tabs step twice as fast.
   - The views are in `views`; the URL hash selects the view.
   - The seat ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
   - `/api/runners` rows carry `:last-seconds`, `:fastest-seconds`, `:avg-seconds` and `:total-seconds` (the last and fastest timed laps, their rounded mean, and their sum) instead of the history. Sparkline data comes from one unfiltered `lap_time_seconds` query (all runners), or, with a country filter on the leaderboard, queries for those countries plus the starred runners. A row's detail chart fetches `/api/runners/:id`.
@@ -185,7 +185,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 |---|---|---|
 | `PORT` | 8080 (8090 via the Makefile) | |
 | `RACE_START` | `2026-10-17T12:00:00Z` | |
-| `POLL_SECONDS` | 60 | |
+| `POLL_SECONDS` | 60 | 5 in prod (`fly.prod.toml`): a new copy of the official feed (rebuilt every minute) waits for our next poll, so its age is up to 60 s plus this. Unchanged polls are a 304 (ETag), so polling often is cheap |
 | `GRACE_SECONDS` | 900 | |
 | `FETCH_TIMEOUT_MS` | 20000 | per fetch attempt |
 | `CLOCK_START` | real time | a demo race standing at this moment until the simulation panel moves it |
