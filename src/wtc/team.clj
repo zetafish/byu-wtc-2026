@@ -170,7 +170,10 @@
                 :let [gap (- (first kb) (first ka))
                       gain (- (pace a) (pace b))
                       k (if (zero? gap) (when (pos? gain) 1) (laps-to-pass gap gain))]
-                :when (and k (<= (+ n k) (+ (max 0 (dec current-lap)) horizon)))]
+                ;; only yards still to come: from the one being run now. A country
+                ;; whose report lags (reportedThrough behind its results) would
+                ;; otherwise give passes after yards already over
+                :when (and k (<= current-lap (+ n k) (+ (max 0 (dec current-lap)) horizon)))]
             {:passer (:code a) :passed (:code b) :lap (+ n k) :gap gap :gain gain})
           (sort-by (juxt :lap #(get-in countries [(:passer %) :position])))
           vec))))
