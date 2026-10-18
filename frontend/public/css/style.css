@@ -414,7 +414,7 @@ footer { color: var(--text-muted); font-size: 13px; }
 .team-name-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
 .empty .team-switch { display: flex; justify-content: center; margin-bottom: 8px; }
 .team-title { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
-.team-title .flag { width: 56px; height: 42px; border-radius: 4px; margin-top: 4px; }
+.team-title > .flag { width: 56px; height: 42px; border-radius: 4px; margin-top: 4px; }
 .team-title h2 { font-size: 30px; margin: 0; }
 .team-title h2 .code { color: var(--text-muted); font-weight: 400; }
 .team-title .sub { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
