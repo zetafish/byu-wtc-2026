@@ -43,17 +43,9 @@
                {:label "Yards" :metric "team_score" :y-label "yards" :pick-text :yards
                 :subtitle "Team score: total yards by all runners of a country"}
                {:label "Rank" :metric "team_rank" :y-label "place" :y-invert? true :y-field :place :pick-text :place
-                :subtitle "Place after each yard (1 is first; ties share a place)"}]}
-   {:id :started
-    :title "Runners starting each yard"
-    :metric "runners_started"
-    :size :wide
-    :pick? true
-    :pick-text :runners
-    :per-country? true
-    :per-yard? true
-    :kind :line
-    :x-label "yard" :y-label "runners"}
+                :subtitle "Place after each yard (1 is first; ties share a place)"}
+               {:label "Runners" :metric "runners_started" :y-label "runners" :pick-text :runners
+                :subtitle "Runners starting each yard"}]}
    {:id :running
     :title "Countries still running"
     :subtitle "After each yard, all countries"
