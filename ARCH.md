@@ -151,6 +151,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - `:zoom` holds the panel id shown big. `zoom-dialog` renders `[panel p true]` in a modal `<dialog>`; `chart/line-chart` and `bar-chart` take `:size :normal|:big`.
   - Each round of chart queries gets a sequence number (`fetch-seq`), and responses from an older round are dropped, so quick clicks can't leave stale charts.
   - Preferences are kept in localStorage under `wtc-prefs`, with every access in try/catch.
+  - **New version:** a release build runs the shadow-cljs hook `wtc.build/write-version`, which writes `public/version.json` (a hash of `index.html`, `style.css` and `main.js`; git-ignored). The page fetches it at start (`no-store`), checks again every 5 minutes while visible and whenever the tab comes back, and shows a notice with a Reload button when it differs. In hot reload there is no such file, so it never checks.
 - **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here.** The panel keys:
   - `:id`, `:title`, `:subtitle`, `:metric`, `:kind` (`:line` or `:bar`), `:x-label`, `:y-label`;
   - either `:per-country? true` (one series per selected country, queried with `by=country`) or `:series-label :k` (one series per value of label `:k`, with `:series-order` and `:series-names`);

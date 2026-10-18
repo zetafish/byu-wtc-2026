@@ -178,6 +178,35 @@
       (reset! poll-timer (js/setTimeout #(control-sim! {:action "step" :by 1})
                                         (:sim-poll-ms @db default-sim-poll-ms))))))
 
+;; --- new version ---
+;; A release build writes /version.json (a hash of what the page loads). The
+;; page remembers the one it started with and checks again every
+;; `version-check-ms` and when the tab comes back; after a deploy it offers a
+;; reload. Without the file (hot reload in dev) it never checks.
+
+(def ^:private version-check-ms (* 5 60 1000))
+
+(defn- fetch-version []
+  (-> (js/fetch "/version.json" #js {:cache "no-store"})
+      (.then #(when (.-ok %) (.json %)))
+      (.then #(some-> % .-version))
+      (.catch (constantly nil))))
+
+(defn- check-version! []
+  (-> (fetch-version)
+      (.then (fn [v]
+               (when (and v (not= v (:version @db)))
+                 (swap! db assoc :new-version? true))))))
+
+(defn- watch-version! []
+  (-> (fetch-version)
+      (.then (fn [v]
+               (when v
+                 (swap! db assoc :version v)
+                 (js/setInterval #(when-not js/document.hidden (check-version!)) version-check-ms)
+                 (.addEventListener js/document "visibilitychange"
+                                    #(when-not js/document.hidden (check-version!))))))))
+
 ;; --- actions ---
 
 (defn- toggle-country! [code]
@@ -444,6 +473,9 @@
             [:span.chip (str "★ " (get by-status "finished") " country winners")])
           [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries "
                            (if (= "finished" (:phase race)) "done" "eliminated"))]]))
+     (when (:new-version? @db)
+       [:p.notice.new-version [:span.icon.info "↻"] "A new version of this site is out. "
+        [:button.link {:on-click #(.reload js/location)} "Reload"]])
      (when (:simulation race) [sim-panel race])
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
@@ -1350,6 +1382,7 @@
            :favourites-only? (true? favourites-only)
            :show-out-runners? (true? show-out-runners)))
   (go-to-hash!)
+  (watch-version!)
   ;; a tab coming back to the front catches up at once
   (.addEventListener js/document "visibilitychange"
                      #(when (and (not js/document.hidden) (not (get-in @db [:race :simulation :controls])))

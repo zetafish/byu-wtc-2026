@@ -12,4 +12,6 @@
  :builds {:app {:target :browser
                 :output-dir "public/js"
                 :asset-path "/js"
-                :modules {:main {:init-fn wtc.app/init}}}}}
+                :modules {:main {:init-fn wtc.app/init}}
+                ;; public/version.json, for the "new version" notice
+                :build-hooks [(wtc.build/write-version)]}}}

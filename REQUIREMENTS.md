@@ -118,6 +118,7 @@ With two runners left (A and B):
 - A **left menu** to switch views: Countries, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
+- **New version notice:** a page left open during a deploy says a new version is out and offers a Reload button; it never reloads by itself. [decided]
 - **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the "★ only" toggles, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 

@@ -98,6 +98,7 @@ Charts follow the dataviz method: pick the form first, colour last, and validate
   - "did not finish" and "no result" for the two out reasons.
 - Before the start, the start time is shown in the visitor's local time.
 - Data problems are worded as "Showing the last good data", never as an error page.
+- After a deploy, an open page shows a notice in the header: "A new version of this site is out. Reload" (the Reload button in the accent). It never reloads by itself.
 
 ## Accessibility
 
