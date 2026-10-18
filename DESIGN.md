@@ -40,7 +40,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 
 ## Components
 
-- **Team page** (`#team/CODE`): a switcher row (← picker → ☆), then cards: header (56 px flag, name and code, team-rule pill, a line of class · site · local time · reporting, then four figures), the chase (one sentence per rival in a list with a left rule; a rival that passes within 2 laps gets a `--critical` rule; the gap chart has this country as a neutral dashed zero line), runners, the lap grid (cells shaded in 5 steps of `--series-1` by lap time, `--critical` for a DNF lap, striped for no time), and two small charts. The team-rule pill is green when safe, `--critical` at 2 left.
+- **Team page** (`#team/CODE`): a switcher row (← picker → ☆), then cards: header (56 px flag, name and code, team-rule pill, a line of class · site · local time · reporting, then four figures, then up to three neighbourhood lines: "Chasing" (countries ahead, nearest first, +gap), "Level on N", "Chased by" (−gap), each country a compact [flag] code link), the chase (one sentence per rival in a list with a left rule; a rival that passes within 2 laps gets a `--critical` rule; the gap chart has this country as a neutral dashed zero line), runners, the lap grid (cells shaded in 5 steps of `--series-1` by lap time, `--critical` for a DNF lap, striped for no time), and two small charts. The team-rule pill is green when safe, `--critical` at 2 left.
 
 - **Stat:** an uppercase label over a big display number. The lap stat is in the accent.
 - **Chip:** a rounded pill with a border. Used for summary counts, for compared countries (with a ✕ and a colour key), and for leaderboard country filters (with a ✕).

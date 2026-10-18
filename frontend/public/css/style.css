@@ -414,6 +414,12 @@ footer { color: var(--text-muted); font-size: 13px; }
 .team-title h2 .code { color: var(--text-muted); font-weight: 400; }
 .team-title .sub { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
 .team-rule { margin-top: 6px; }
+.neighbours { display: grid; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.nb-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.nb-line .label { color: var(--text-muted); font-size: 12px; width: 110px; flex: none; }
+a.tied .gap { color: var(--text-muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+a.tied { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--text-primary); text-decoration: none; }
+a.tied:hover span { text-decoration: underline; }
 .pill.danger { color: var(--critical); background: color-mix(in srgb, var(--critical) 12%, transparent); }
 ul.chase { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
 ul.chase li { padding: 8px 12px; border-left: 3px solid var(--line); background: var(--page); border-radius: 0 6px 6px 0; }

@@ -939,8 +939,8 @@
       [:span.muted (str "still reporting lap " (inc reported-through) "…")]
       [:span.muted (str "lap " reported-through " reported")])))
 
-(defn- team-header [{:keys [country current-lap chase]}]
-  (let [{:keys [code name total-laps active runners division utc-offset site]} country
+(defn- team-header [{:keys [country current-lap chase tied-with]}]
+  (let [{:keys [code name total-laps active runners division utc-offset site rank]} country
         ahead (first (:ahead chase))
         n (count (:countries @db))]
     [:section.card.wide.team-head
@@ -956,14 +956,32 @@
         [reporting-text country current-lap]]]]
      [:div.rstats
       [stat-tile "Place" [:<> (place-text country) [:small (str " / " n)]]
-       (when (seq (:level chase)) (str (count (:level chase)) " level on " total-laps))]
+       (when (seq tied-with) (str "tied with " (count tied-with)))]
       [stat-tile "Team score" total-laps
        (cond
          ahead (str (:gap ahead) " behind " (:name ahead))
          (seq (:behind chase)) (str (- (:gap (first (:behind chase)))) " ahead of " (:name (first (:behind chase))))
          :else nil)]
       [stat-tile "Still in" [:<> active [:small (str " / " runners)]] nil]
-      [stat-tile "Lap" current-lap nil]]]))
+      [stat-tile "Lap" current-lap nil]]
+     ;; the neighbourhood: the same countries as in the chase below
+     (let [{:keys [ahead level behind]} chase
+           line (fn [label items]
+                  (when (seq items)
+                    [:div.nb-line
+                     [:span.label label]
+                     (for [{c :code nm :name gap :gap active :active} items]
+                       ^{:key c}
+                       [:a.tied {:href (str "#team/" c)
+                                 :title (str nm " " c (when active (str ", " active " still in")))}
+                        [flag c] [:span c]
+                        (when (and gap (not (zero? gap)))
+                          [:span.gap (if (pos? gap) (str "+" gap) (str "−" (- gap)))])])]))]
+       (when (or (seq ahead) (seq level) (seq behind))
+         [:div.neighbours
+          [line "Chasing" ahead]
+          [line (str "Level on " total-laps) (map (fn [c] {:code c :name (country-name c)}) level)]
+          [line "Chased by" behind]]))]))
 
 (defn- rival-sentence
   "The chase in words, for one rival `r` seen from `ours`."

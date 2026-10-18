@@ -79,6 +79,8 @@
            seats (seat-places all)
            still-going (remove :eliminated-after (vals countries))]
        {:country ours
+        ;; sharing the place (equal team score and farthest runner), from the same snapshot
+        :tied-with (->> others (filter #(= (:rank %) (:rank ours))) (mapv #(select-keys % [:code :name])))
         :settled-lap settled-lap
         :current-lap current-lap
         :runners (->> rs

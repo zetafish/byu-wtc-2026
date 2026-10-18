@@ -69,6 +69,8 @@
   ;; seats come from the roster; here the number in the id is the seat
   (let [seated (update derived :runners update-vals #(assoc % :rank (parse-long (subs (:id %) 1))))
         t (team/team seated "BBB")]
+    (testing "the countries sharing its place"
+      (is (= [{:code "EEE" :name "EEE"}] (:tied-with t))))
     (testing "unknown country"
       (is (nil? (team/team derived "ZZZ"))))
     (testing "runners best first, with their place in their seat"
