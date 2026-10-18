@@ -994,7 +994,8 @@
        [:label.toggle
         [:input {:type "checkbox" :checked show-out?
                  :on-change #(do (swap! db update :show-out-runners? not) (save-prefs!))}]
-        (str "Show eliminated (" n-out ")")])]))
+        ;; out and country winners: everyone who has stopped
+        (str "Show all (+" n-out " stopped)")])]))
 
 (defn- runner-row
   "One leaderboard row. A component of its own, so a row whose runner, star
@@ -1063,11 +1064,12 @@
                      (seq runner-filter) (filter #(contains? runner-filter (:country %)))
                      starred-only? (filter starred?)
                      (seq q) (filter #(str/includes? (str/lower-case (:name %)) q)))
-        out-runner? #(= "out" (:status %))
+        ;; out, or a country winner: either way no longer running
+        stopped? #(not= "running" (:status %))
         show-out? (or show-out-runners? (finished?))
-        n-out (count (filter out-runner? candidates))
+        n-out (count (filter stopped? candidates))
         ;; starred runners stay visible so they can still be unstarred
-        shown (-> (filter #(or show-out? (not (out-runner? %)) (starred? %)) candidates)
+        shown (-> (filter #(or show-out? (not (stopped? %)) (starred? %)) candidates)
                   (sort-runners (:runner-sort @db)))
         open-runner (when open (some #(when (= open (:id %)) %) (ranked runners)))]
     [:section.card.wide
@@ -1078,7 +1080,7 @@
      [runner-filters n-out show-out?]
      (if (empty? shown)
        [:div.empty (cond
-                     (seq candidates) "Everyone here is out. Tick \"Show eliminated\" to see them."
+                     (seq candidates) "Everyone here has stopped. Tick \"Show all\" to see them."
                      starred-only? "No starred runners here yet. Star (☆) a runner to add them."
                      :else "No runners match")]
        [:div.table-wrap.full

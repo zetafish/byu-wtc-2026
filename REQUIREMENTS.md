@@ -123,7 +123,7 @@ With two runners left (A and B):
 - **Visitor analytics:** Vercel Web Analytics shows where traffic comes from (referrers), countries and devices, and which views are looked at (each view as its own page, each team page too); cookie-free. [decided]
 - **Theme:** light, dark or system (the default), switched in the menu and remembered. [decided]
 - **New version notice:** a page left open during a deploy says a new version is out and offers a Reload button; it never reloads by itself. [decided]
-- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the runner leaderboard's "★ only" toggle, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
+- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the runner leaderboard's "★ only" toggle, and the runner leaderboard's "Show all" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
 ### Race view (was: Countries): ranking and comparison charts
@@ -166,7 +166,7 @@ With two runners left (A and B):
   - countries, from a "+ Country" picker, shown as removable chips; none means all;
   - a name search;
   - "★ only", for starred runners;
-  - "Show eliminated (n)". [decided]
+  - "Show all (+n stopped)". [decided]
 - **Columns:** position, name (with its star), country, seat, laps, best (from the roster), status, last lap time, fastest lap time, average lap time (of the timed laps), total time (the sum of the timed laps), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
 - **Sorting** [decided]: by position (default), or by last yard, average, fastest or total time, in both directions: click the column header (first quickest first, again slowest first; "Pos" goes back). Runners without a time go last either way; ties keep position order. The choice is remembered.
 - **Sparklines** of the lap times are always shown. All runners' lap times load once on the Runners view (~100 KB gzipped late in the race); each reload then fetches only the newest yards (~8 KB). [decided]
@@ -176,7 +176,7 @@ With two runners left (A and B):
   - a lap-time chart with the runner's laps as dots, the field's median lap time dashed, the 60:00 limit, and the fastest lap marked and labelled;
   - "All laps", a collapsed table of every lap: time, rest, field median and the difference to it.
   - Position is the leaderboard position, not the position within the lap. [assumed]
-- **Runners who are out** are hidden by default, behind the "Show eliminated" toggle. Starred runners stay visible. Country winners count as still shown. After the finish, everything is shown. [decided]
+- **Runners who have stopped** (out, or a country winner) are hidden by default, behind the "Show all (+n stopped)" toggle: the list is who is still running. Starred runners stay visible. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]
 
 ### Seats view
