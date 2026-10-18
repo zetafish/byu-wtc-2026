@@ -6,9 +6,7 @@
             [wtc.flags :refer [flag]]
             [wtc.panels :as panels]))
 
-(def max-selected 8)
-;; the Countries view's charts and Compare row, hidden for now: only the table
-(def ^:private show-charts? false)
+(def max-selected 10)  ; 8 colours, then the first two again, dashed
 (def poll-ms 60000)
 (def bell-poll-ms 20000)  ; around the bell, when runners finish and results are entered
 (def default-sim-poll-ms 10000)  ; a playing demo race steps one lap this often
@@ -26,7 +24,6 @@
                      :seat nil        ; seat ranking: nil = all seats overview
                      :results {}      ; [panel id, metric] -> query result
                      :variant {}      ; panel id -> index into the panel's :variants
-                     :zoom nil        ; panel id shown big in the zoom dialog
                      :open nil        ; runner id shown in the runner dialog
                      :history {}      ; runner id -> lap history, for the runner dialog
                      :median nil}))   ; the field's median lap time per lap [[lap s] ...]
@@ -53,7 +50,9 @@
                                                              :team-sort (:team-sort @db)
                                                              :race-view (:race-view @db)
                                                              :theme (:theme @db)
-                                                             :standings-filter (:standings-filter @db)})))
+                                                             :standings-filter (:standings-filter @db)
+                                                             :chart-range (:chart-range @db)
+                                                             :chart-group (:chart-group @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -67,7 +66,13 @@
         (.then (fn [res] (if (.-ok res) (.json res) (throw (js/Error. (str path " " (.-status res)))))))
         (.then #(js->clj % :keywordize-keys true)))))
 
-(defn- selected-codes [] (str/join "," (sort (keys (:selected @db)))))
+(declare group-codes pick-group! ordinal)
+
+(defn- selected-codes
+  "The countries the per-country charts query: the compared ones plus, with
+  a class picked, the whole class (drawn muted, as context)."
+  []
+  (str/join "," (sort (into (set (keys (:selected @db))) (group-codes (:chart-group @db))))))
 
 (declare fetch-runner-times!)
 
@@ -84,7 +89,8 @@
   ;; quick clicks fire overlapping requests; only the latest round may land
   (let [n (swap! fetch-seq inc)
         latest? #(= n @fetch-seq)]
-    (doseq [{:keys [id metric per-country?]} (when show-charts? (map effective panels/panels))]
+    ;; the charts only load on the Charts view
+    (doseq [{:keys [id metric per-country?]} (when (= :charts (:view @db)) (map effective panels/panels))]
       (-> (get-json "/api/query" (cond-> {:metric metric}
                                    per-country? (assoc :by "country" :countries (selected-codes))))
           (.then #(when (latest?) (swap! db assoc-in [:results [id metric]] (get-in % [:data :result]))))
@@ -139,8 +145,13 @@
                                 (get-json "/api/countries" {})
                                 (get-json "/api/runners" {})]))
       (.then (fn [[race countries runners]]
-               (swap! db assoc :race race :countries countries :runners runners
-                      :error nil :updated (js/Date.))))
+               (let [first? (empty? (:countries @db))]
+                 (swap! db assoc :race race :countries countries :runners runners
+                        :error nil :updated (js/Date.))
+                 ;; a remembered class needs the countries' classes to query
+                 ;; the charts' group needs the standings and classes: pick it now
+                 ;; a first visit starts with all countries (and all yards)
+                 (when first? (pick-group! (:chart-group @db "ALL"))))))
       (.catch #(swap! db assoc :error (.-message %)))))
 
 (defonce ^:private poll-timer (atom nil))
@@ -212,16 +223,6 @@
 
 ;; --- actions ---
 
-(defn- toggle-country! [code]
-  (swap! db update :selected
-         (fn [sel]
-           (cond
-             (contains? sel code) (dissoc sel code)
-             (>= (count sel) max-selected) sel
-             :else (assoc sel code (first (remove (set (vals sel)) (range 1 (inc max-selected))))))))
-  (save-prefs!)
-  (fetch-panels!))
-
 (defn- select-countries!
   "Compares the first `max-selected` of `codes`, replacing the selection.
   Countries already compared keep their colour slot; the rest take free ones."
@@ -236,6 +237,25 @@
   (fetch-panels!))
 
 (defn- ranked-codes [pred] (map :code (filter pred (sort-by :position (:countries @db)))))
+
+;; the quick selectors on the Charts view: a class (division) or everyone
+(def ^:private chart-groups
+  [["TOP" "Top 10"] ["SUPER" "Super Six"] ["AAA" "AAA"] ["AA" "AA"] ["A" "A"] ["ALL" "All"]])
+
+(defn- group-codes [g]
+  (case g
+    nil nil
+    "TOP" (take max-selected (ranked-codes any?))
+    (ranked-codes #(or (= g "ALL") (= g (:division %))))))
+
+(defn- pick-group!
+  "Shows one group on the per-country charts: its best-ranked countries
+  (up to the 8 colours) in colour, the rest of it as muted context lines.
+  Top 8 is the 8 best of all; All is the 8 best in colour and everyone
+  else in grey."
+  [g]
+  (swap! db assoc :chart-group g)
+  (select-countries! (group-codes g)))
 
 (defn- toggle-favourite! [code]
   (swap! db update :favourites #(if (contains? % code) (disj % code) (conj % code)))
@@ -366,13 +386,33 @@
   (let [{:keys [per-country? series-label series-order series-names]} panel
         selected (:selected @db)]
     (cond
+      (and per-country? (:pick? panel))
+      ;; every country of the group, muted; the group's leader (its best in the standings) stands out
+      (let [codes (group-codes (:chart-group @db))
+            group (set codes)
+            leader (first codes)]
+        (for [{:keys [metric values]} result
+              :let [code (:country metric)]
+              :when (contains? group code)]
+          {:key code :label (str (or (country-name code) code) " " code) :lead? (= code leader) :values values}))
+
       per-country?
       ;; only countries still ticked: a stale response must not flash a
-      ;; just-unticked country in a borrowed colour
-      (for [{:keys [metric values]} (sort-by #(get selected (get-in % [:metric :country])) result)
-            :let [code (:country metric)]
-            :when (contains? selected code)]
-        {:key code :label (str (or (country-name code) code) " " code) :color (color (get selected code 1)) :values values})
+      ;; just-unticked country in a borrowed colour. A picked class adds the
+      ;; rest of its countries as muted context lines, drawn first.
+      (let [context (set (remove selected (group-codes (:chart-group @db))))]
+        (concat
+         (for [{:keys [metric values]} result
+               :let [code (:country metric)]
+               :when (contains? context code)]
+           {:key code :label (str (or (country-name code) code) " " code) :context? true :values values})
+         (for [{:keys [metric values]} (sort-by #(get selected (get-in % [:metric :country])) result)
+               :let [code (:country metric)]
+               :when (contains? selected code)]
+           (let [slot (get selected code 1)]
+             {:key code :label (str (or (country-name code) code) " " code)
+              ;; 8 hues: slots 9 and 10 reuse 1 and 2, dashed
+              :color (color (inc (mod (dec slot) 8))) :dash? (> slot 8) :values values}))))
 
       series-label
       (let [by-key (into {} (map (fn [s] [(get-in s [:metric series-label]) s])) result)]
@@ -515,23 +555,32 @@
 (def ^:private y-formats {:mmss mmss})
 
 (defn- panel
-  "A chart card. `big?` renders it in the zoom dialog: a larger chart, with
-  its own legend."
-  [_ _]
+  "A chart card: title, view switch, Chart/Table toggle and the chart."
+  [_]
   (let [table? (r/atom false)]
-    (fn [p0 big?]
+    (fn [p0]
       (let [{:keys [id title subtitle kind variants] :as p} (effective p0)
             chosen (get-in @db [:variant id] 0)
             results (:results @db)
             rkey [id (:metric p)]
-            series (to-series p (get results rkey))
+            series (cond->> (to-series p (get results rkey))
+                     ;; "Last 12", in the Compare countries section, caps its charts' yard axis
+                     (and (:per-yard? p) (:per-country? p) (= :last-12 (:chart-range @db)))
+                     (map (fn [s] (let [to (reduce max 0 (map first (:values s)))]
+                                    (update s :values #(filterv (fn [[x]] (> x (- to 12))) %))))))
             opts {:series series :x-label (:x-label p) :y-label (:y-label p)
                   :fmt-y (y-formats (:y-format p)) :y-zero? (:y-zero? p true)
-                  ;; the Compare chips above the charts are their shared legend
-                  :legend? (or big? (not (:per-country? p)))
-                  :size (if big? :big :normal)}
-            zoomable? (and (not big?) (not @table?) (contains? results rkey))]
-        [:section.card
+                  :y-invert? (:y-invert? p) :y-max (:y-max p) :y-reach (:y-reach p)
+                  :y-domain (case (:y-field p)
+                              :place [1 (max 2 (count (:countries @db)))]
+                              :count [0 (max 1 (count (:countries @db)))]
+                              :runners [0 (max 1 (count (:runners @db)))]
+                              nil)
+                  ;; one line needs no label at its end: the title names it
+                  :direct-labels? (> (count series) 1)
+                  :legend? true
+                  :size (:size p :normal)}]
+        [:section.card {:class (when (:size p) "wide")}
          [:div.card-head
           [:div [:h2 title] (when subtitle [:p.sub subtitle])]
           [:div.head-actions
@@ -545,37 +594,26 @@
                                        (save-prefs!)
                                        (fetch-panels!))}
                  label])])
-           [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]
-           (when-not big?
-             [:button.ghost {:aria-label (str "Enlarge " title) :title "Enlarge"
-                             :on-click #(swap! db assoc :zoom id)} "⤢"])]]
-         [:div {:class (when zoomable? "zoomable")
-                :on-click (when zoomable? #(swap! db assoc :zoom id))}
+           [:button.ghost {:on-click #(swap! table? not)} (if @table? "Chart" "Table")]]]
+         [:div
           (cond
             (and (:per-country? p) (empty? (:selected @db)))
-            [chart/placeholder (str "Add countries above to compare them here (up to " max-selected ")")]
+            [chart/placeholder "Pick a group above"]
             (not (contains? results rkey)) [chart/placeholder ""]
             @table? [chart/data-table opts]
+            (:pick? p)
+            [chart/pick-chart
+             (assoc opts
+                    :title-fn #(if (= :runners (:pick-text p)) (str "Yard " %) (str "After yard " %))
+                    :label-fn (fn [{code :key}] [:span.tt-country [flag code] [:b (country-name code)] " " [:span.code code]])
+                    :text-fn (fn [y]
+                               (case (:pick-text p)
+                                 :gap (if (zero? y) "the leader" (str (- y) (if (= -1 y) " yard" " yards") " behind"))
+                                 :place (str (ordinal y) " place")
+                                 :runners (str y (if (= 1 y) " runner" " runners"))
+                                 (str y " yards"))))]
             (= kind :line) [chart/line-chart opts]
             :else [chart/bar-chart opts])]]))))
-
-(defn- zoom-dialog
-  "One panel, big, in a modal <dialog>. Esc, ✕ or a click on the backdrop
-  closes it."
-  [_]
-  (let [el (atom nil)
-        close #(some-> @el .close)]
-    (r/create-class
-     {:component-did-mount #(some-> @el .showModal)
-      :reagent-render
-      (fn [p]
-        [:dialog.zoom {:ref #(reset! el %)
-                       :on-close #(swap! db assoc :zoom nil)
-                       ;; the dialog itself is only hit outside the content: the backdrop
-                       :on-click #(when (= (.-target %) @el) (close))}
-         [:div.zoom-body
-          [:button.close {:aria-label "Close" :on-click close} "✕"]
-          [panel p true]]])})))
 
 ;; --- ranking ---
 
@@ -754,7 +792,7 @@
                 :let [fav? (contains? favourites code)]]
             ^{:key code}
             ;; the whole row opens the team page (the name is a link for keyboard and new tabs)
-            [:tr.clickable {:class [(when (and show-charts? (contains? selected code)) "selected") (when eliminated-after "out")]
+            [:tr.clickable {:class [(when eliminated-after "out")]
                             :on-click #(set! (.-hash js/location) (str "team/" code))}
               [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
                                   :aria-pressed fav?
@@ -1440,6 +1478,7 @@
 
 (def views
   [{:id :race :label "Race"}
+   {:id :charts :label "Charts"}
    {:id :team :label "Team"}
    {:id :runners :label "Runners"}
    {:id :seats :label "Seats"}])
@@ -1461,20 +1500,21 @@
                  team (assoc :team team)
                  changed? (assoc :team-data nil)))
     (when team (save-prefs!))
+    (when (= view :charts) (fetch-panels!))
     (fetch-team!)))
 
 (defn- nav-count [id]
   (let [{:keys [countries runners]} @db]
     (case id
       :race (count (remove out? countries))
-      :team nil
+      (:team :charts) nil
       :runners (count (filter running? runners))
       :seats (count seats))))
 
 (defn- nav-title [id]
   (case id
     :race "countries still in the race"
-    :team nil
+    (:team :charts) nil
     :runners "runners still in the race"
     :seats "seats"))
 
@@ -1509,38 +1549,49 @@
                 [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]
      [theme-toggle]]))
 
-(defn- comparing []
-  (let [{:keys [selected favourites]} @db]
-    [:div.comparing
-     [:span.label "Compare"]
-     [country-select {:on-pick toggle-country! :exclude (set (keys selected)) :label "Add a country to compare"
-                      :disabled (>= (count selected) max-selected)
-                      :placeholder (if (>= (count selected) max-selected) (str max-selected " compared, the most") "Add a country")}]
-     [:button.ghost {:on-click #(select-countries! (ranked-codes any?))} (str "Top " max-selected)]
-     (when (seq favourites)
-       [:button.ghost {:title (str "Your favourite countries, the best-ranked " max-selected " if more")
-                       :on-click #(select-countries! (ranked-codes (comp favourites :code)))} "★ Favourites"])
-     [:button.ghost {:on-click #(select-countries! []) :disabled (empty? selected)} "Clear"]
-     (if (empty? selected)
-       [:span.muted "no countries compared yet"]
-       (for [[code slot] (sort-by val selected)]
-         ^{:key code}
-         [:span.chip [:span.key-box {:style {:background (color slot)}}] [country-label code]
-          [:button.remove {:aria-label (str "Stop comparing " code) :on-click #(toggle-country! code)} "✕"]]))]))
+(defn- charts-view
+  "The race over time, in two sections: a group of countries (the group and
+  All yards | Last 12 right above their charts) and the whole field (no
+  controls)."
+  []
+  (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
+    [:<>
+     [:section.chart-section
+      [:div.section-head
+       [:h2 "Compare countries"]
+       [:p.sub "Pick a group of countries. Hover a line to see which country it is."]]
+      [:div.charts-bar
+       [:div.segmented {:role "group" :aria-label "Countries"}
+        (for [[g label] chart-groups]
+          ^{:key g}
+          [:button {:aria-pressed (= g (:chart-group @db))
+                    :title (let [n (count (group-codes g))]
+                             (if (<= n max-selected)
+                               (str "These " n " countries in colour")
+                               (str "The best " max-selected " of " n " in colour, the others in grey")))
+                    :on-click #(pick-group! g)} label])]
+       [:div.segmented {:role "group" :aria-label "Yards shown"}
+        (for [[v label] [[:all "All yards"] [:last-12 "Last 12"]]]
+          ^{:key v}
+          [:button {:aria-pressed (= v (:chart-range @db :all))
+                    :on-click #(do (swap! db assoc :chart-range v) (save-prefs!))} label])]]
+      [:div.grid
+       (for [p compare] ^{:key (:id p)} [panel p])]]
+     [:section.chart-section
+      [:div.section-head
+       [:h2 "The whole field"]
+       [:p.sub (str "All " (count (:countries @db)) " countries, no selection needed.")]]
+      [:div.grid
+       (for [p overall] ^{:key (:id p)} [panel p])]]]))
 
 (defn- view-body [view]
   (case view
     :team [team-view]
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
-    ;; race: the Compare chips, all charts (comparison row first), then the ranking
-    (if show-charts?
-      (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
-        [:<> [comparing]
-         [:div.grid
-          (for [p (concat compare overall)] ^{:key (:id p)} [panel p false])
-          [countries-table]]])
-      [:div.grid [drops-card] [countries-table]])))
+    :charts [charts-view]
+    ;; race: who went out at the last bell, then the standings
+    [:div.grid [drops-card] [countries-table]]))
 
 (defn- new-version-bar []
   (when (:new-version? @db)
@@ -1557,9 +1608,7 @@
     (if (or (:race @db) (:error @db))
       [:<> [header] [view-body (:view @db)]]
       [:div.loading "Loading live data…"])
-    [:footer "Unofficial. Data may lag the official results by a few minutes."]]
-   (when-let [p (some #(when (= (:id %) (:zoom @db)) %) panels/panels)]
-     ^{:key (:id p)} [zoom-dialog p])])
+    [:footer "Unofficial. Data may lag the official results by a few minutes."]]])
 
 (defonce root (delay (rdc/create-root (js/document.getElementById "app"))))
 
@@ -1567,7 +1616,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme standings-filter]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -1576,6 +1625,8 @@
            :race-view (if (= "runners" race-view) :runners :teams)
            :theme (case theme "light" :light "dark" :dark :system)
            :standings-filter (if (= "running" standings-filter) :running :all)
+           :chart-range (if (= "last-12" chart-range) :last-12 :all)
+           :chart-group (or (#{"TOP" "SUPER" "AAA" "AA" "A" "ALL"} chart-group) "ALL")
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)

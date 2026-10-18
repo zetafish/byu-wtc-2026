@@ -97,11 +97,14 @@
                           :tied (> (counts (place-key c)) 1)))
                  sorted)))
 
-(defn- started [{:keys [status laps]} current]
-  (case status
-    :running (max laps current)
-    :finished laps
-    (inc laps)))
+(defn- started
+  "The last lap a runner started: a DNS never started one."
+  [{:keys [status laps stop]} current]
+  (cond
+    (= :dns stop) 0
+    (= :running status) (max laps current)
+    (= :finished status) laps
+    :else (inc laps)))
 
 (defn derive-state
   [{:keys [countries runners laps]} {:keys [start now grace-s] :or {grace-s 900}}]

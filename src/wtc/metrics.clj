@@ -46,14 +46,47 @@
           (assoc-in [:metric :__name__] "team_score_gap")
           (update :values (fn [vs] (mapv (fn [[n y]] [n (- y (lead n 0))]) vs)))))))
 
-(defn- attrition [derived params]
-  (let [rs (filter #(= :out (:status %)) (select derived params))]
-    (for [[reason rrs] (sort-by key (group-by :reason rs))
+(defn- out-at
+  "The lap whose bell a runner went out at, as the official site counts it:
+  an RTC finished lap n and didn't start the next, an INC or OVER failed
+  lap n itself, a missing result is the lap after the last. nil for DNS."
+  [{:keys [laps stop]}]
+  (case stop :dns nil :rtc laps (inc laps)))
+
+(defn- attrition
+  "Runners out per lap, per reason: the stop code when the source gives one
+  (rtc, inc, over), else dnf or missing. DNS isn't a drop."
+  [derived params]
+  (let [rs (filter #(and (= :out (:status %)) (out-at %)) (select derived params))]
+    (for [[reason rrs] (sort-by key (group-by #(name (or (:stop %) (:reason %))) rs))
           s (grouped rrs params "attrition"
-                     (fn [xs] (let [freq (frequencies (map :started xs))]
+                     (fn [xs] (let [freq (frequencies (map out-at xs))]
                                 (mapv (fn [n] [n (get freq n 0)])
                                       (range 1 (inc (:current-lap derived)))))))]
-      (assoc-in s [:metric :reason] (name reason)))))
+      (assoc-in s [:metric :reason] reason))))
+
+(defn- team-rank
+  "Each country's place after every settled lap, by the official ranking:
+  team score, then the farthest runner, shared when both are equal."
+  [derived {:keys [countries] :as params}]
+  (let [by-country (group-by :country (vals (:runners derived)))
+        laps (range 1 (inc (:settled-lap derived)))
+        key-at (fn [rs n] (let [ls (map #(min (:laps %) n) rs)] [(reduce + 0 ls) (reduce max 0 ls)]))
+        places (into {} (for [n laps
+                              :let [ks (update-vals by-country #(key-at % n))
+                                    vs (vals ks)]]
+                          [n (update-vals ks (fn [k] (inc (count (filter #(pos? (compare % k)) vs)))))]))]
+    (for [c (sort (cond->> (keys by-country) (seq countries) (filter countries)))]
+      {:metric {:__name__ "team_rank" :country c}
+       :values (mapv (fn [n] [n (get-in places [n c])]) laps)})))
+
+(defn- countries-running
+  "How many countries are still in the race after each settled lap."
+  [derived _]
+  (let [cs (vals (:countries derived))]
+    [{:metric {:__name__ "countries_running"}
+      :values (mapv (fn [n] [n (count (filter #(let [a (:eliminated-after %)] (or (nil? a) (> a n))) cs))])
+                    (range 1 (inc (:settled-lap derived))))}]))
 
 (defn- lap-time [derived params]
   (for [r (sort-by :id (select derived params))]
@@ -89,7 +122,9 @@
   {"runners_started" {:doc "Runners starting lap n. by=country" :x "lap" :fn runners-started}
    "team_score" {:doc "Cumulative laps per country (team score) after lap n" :x "lap" :fn team-score}
    "team_score_gap" {:doc "Team score minus the leading country's team score after lap n (leader = 0)" :x "lap" :fn team-score-gap}
-   "attrition" {:doc "Runners out during/after lap n, per reason. by=country" :x "lap" :fn attrition}
+   "attrition" {:doc "Runners out at the bell of lap n, per reason (rtc, inc, over, dnf, missing). by=country" :x "lap" :fn attrition}
+   "team_rank" {:doc "Each country's place after lap n (official ranking); filter with countries=" :x "lap" :fn team-rank}
+   "countries_running" {:doc "Countries still in the race after lap n" :x "lap" :fn countries-running}
    "lap_time_seconds" {:doc "Lap times per runner; filter with runners= or countries=" :x "lap" :fn lap-time}
    "lap_time_median_seconds" {:doc "The field's median lap time per lap" :x "lap" :fn lap-time-median}
    "countries_by_active_runners" {:doc "Histogram: number of countries with k runners starting lap= (default current)" :x "active_runners" :fn countries-by-active}})

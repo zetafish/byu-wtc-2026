@@ -132,9 +132,6 @@ main { max-width: 1240px; min-width: 0; padding: 20px 16px 48px; display: grid; 
   .menu .theme { margin: 0 0 0 auto; flex: none; }
 }
 
-.comparing { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 32px; }
-.comparing .chip { padding: 4px 6px 4px 10px; gap: 6px; }
-.comparing .key-box { margin: 0; }
 button.remove {
   border: 0; background: none; color: var(--text-muted); cursor: pointer; font-size: 12px;
   padding: 2px 4px; border-radius: 4px;
@@ -274,6 +271,10 @@ line.crosshair { stroke: var(--text-primary); stroke-width: 1; opacity: .35; }
 circle.dot { stroke: var(--surface-1); stroke-width: 2; }
 circle.pt { pointer-events: none; }
 path.line.dash { stroke-width: 1.5; stroke-dasharray: 5 4; }
+path.line.context { stroke: var(--axis); stroke-width: 1; opacity: .7; }
+path.line.lead { stroke: var(--text-primary); stroke-width: 2; }
+path.line.picked { stroke: var(--accent); stroke-width: 2.5; }
+circle.dot.picked { fill: var(--accent); }
 line.ref { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 6 5; }
 text.ref-label { fill: var(--critical); font: 600 12px var(--body); }
 g.neutral line.ref { stroke: var(--text-muted); }
@@ -293,7 +294,6 @@ svg rect[tabindex]:focus-visible { outline: 2px solid var(--accent); }
 .tt-row strong { font-variant-numeric: tabular-nums; }
 .tt-label { color: var(--text-muted); }
 
-.zoomable { cursor: zoom-in; }
 dialog.zoom {
   width: min(1200px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0;
   border: 0; border-radius: 12px; background: transparent; color: var(--text-primary);
@@ -530,3 +530,12 @@ table.race-grid td { padding-top: 4px; padding-bottom: 4px; }
 .slot.dns { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); color: var(--text-muted); }
 .slot.win { background: var(--accent); color: #fff; font-weight: 600; }
 .slot-legend .slot { display: inline-block; width: 16px; height: 12px; padding: 0; vertical-align: -2px; margin-right: 4px; }
+
+/* Charts view: the Compare row and the yard range in one bar */
+.chart-section { margin-bottom: 28px; }
+.section-head { margin-bottom: 10px; }
+.section-head h2 { margin: 0; font: 800 22px/1.1 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+.section-head .sub { margin: 2px 0 0; }
+.charts-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.tt-country { display: inline-flex; align-items: center; gap: 6px; margin-right: 8px; }
+.tt-country .code { color: var(--text-muted); }

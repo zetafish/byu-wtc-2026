@@ -32,7 +32,7 @@
 (defn- scale [[d0 d1] [r0 r1]]
   (fn [v] (+ r0 (* (- r1 r0) (if (= d0 d1) 0.5 (/ (- v d0) (- d1 d0)))))))
 
-(defn- y-axis [series {:keys [y-zero? refs y-step y-invert? y-domain] :or {y-zero? true}} stacked?]
+(defn- y-axis [series {:keys [y-zero? refs y-step y-invert? y-domain y-reach] top :y-max :or {y-zero? true}} stacked?]
   (if-let [[lo hi] y-domain]
     ;; a fixed range, e.g. every place from 1 to the number of countries
     (let [ts (ticks lo hi 4 true false y-step)
@@ -47,8 +47,10 @@
         y-max (if (seq ys) (reduce max ys) 0)
         y-min (if (seq ys) (reduce min ys) 0)
         ;; y-zero? keeps 0 inside the axis, from below (counts) or above (gaps)
-        lo (if y-zero? (min 0 y-min) y-min)
-        hi (let [h (if y-zero? (max 0 y-max) y-max)] (if (<= h lo) (+ lo 1) h))
+        ;; :y-reach keeps at least that low a value on the axis (e.g. -10)
+        lo (cond-> (if y-zero? (min 0 y-min) y-min) y-reach (min y-reach))
+        ;; :y-max fixes the top (e.g. 0 for a gap to the leader)
+        hi (if top top (let [h (if y-zero? (max 0 y-max) y-max)] (if (<= h lo) (+ lo 1) h)))
         ts (ticks lo hi 4 false true y-step)
         ;; a place axis (inverted) starts at 1, not at the tick below it
         ts (if (and y-invert? (>= lo 1) (< (first ts) 1)) (assoc ts 0 1) ts)]
@@ -67,10 +69,12 @@
 (defn- legend [series kind]
   (when (> (count series) 1)
     [:ul.legend
-     (for [{:keys [key label color]} series]
+     (for [{:keys [key label color dash?]} series]
        ^{:key key}
        [:li [:span {:class (if (= kind :line) "key-line" "key-box")
-                    :style {:background color}}]
+                    :style {:background (if dash?
+                                          (str "repeating-linear-gradient(90deg, " color " 0 5px, transparent 5px 8px)")
+                                          color)}}]
         label])]))
 
 (defn- tooltip [{:keys [left title rows]}]
@@ -124,12 +128,16 @@
   lines (a limit, in the critical colour; :neutral? for a baseline),
   `:marks` [{:x :y :label :color}] labelled points, `:direct-labels? false`,
   `:y-step` a fixed y tick distance, `:y-invert? true` for a place axis
-  (low values at the top), `:y-domain [lo hi]` a fixed y range.
-  A series can have `:dash? true` and `:dots? true`."
+  (low values at the top), `:y-domain [lo hi]` a fixed y range, `:y-max` a
+  fixed top with `:y-reach` the least the axis goes down to.
+  A series can have `:dash? true` and `:dots? true`, or `:context? true`: a
+  thin muted line for the shape of the field, without legend, label or
+  tooltip row."
   [_]
   (let [hover (r/atom nil)]
     (fn [{:keys [series fmt-y fmt-x x-label y-label refs marks] :as opts}]
-      (let [labels? (and (:direct-labels? opts true) (<= 1 (count series) 4))
+      (let [focus (remove :context? series)
+            labels? (and (:direct-labels? opts true) (<= 1 (count focus) 4))
             [w h] (sizes (:size opts :normal))
             m {:l 44 :r (if labels? 44 12) :t 24 :b 30 :w w :h h}
             xs (xs-of series)
@@ -142,7 +150,7 @@
         (if (empty? xs)
           [placeholder "No data yet"]
           [:div.chart
-           (when (:legend? opts true) [legend series :line])
+           (when (and (:legend? opts true) (seq focus)) [legend focus :line])
            [:div.plot
             [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
@@ -152,10 +160,10 @@
                [:g {:class (when neutral? "neutral")}
                 [:line.ref {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (sy y) :y2 (sy y)}]
                 (when label [:text.ref-label {:x (- (:w m) (:r m)) :y (- (sy y) 6) :text-anchor "end"} label])])
-             (for [{:keys [key color values dash? dots?]} series]
+             (for [{:keys [key color values dash? dots? context?]} series]
                ^{:key key}
                [:g
-                [:path.line {:class (when dash? "dash")
+                [:path.line {:class (cond dash? "dash" context? "context")
                              :d (str "M" (str/join "L" (map (fn [[x y]] (str (sx x) "," (sy y))) values)))
                              :stroke color}]
                 (when dots?
@@ -165,10 +173,10 @@
                ^{:key (str "mark" x)}
                [:g [:circle.dot {:cx (sx x) :cy (sy y) :r 5 :fill color}]
                 (when label [:text.mark-label {:x (sx x) :y (+ (sy y) 18) :text-anchor "middle"} label])])
-             (when labels? [direct-labels series sx sy])
+             (when labels? [direct-labels focus sx sy])
              (when hx
                [:g [:line.crosshair {:x1 (sx hx) :x2 (sx hx) :y1 (:t m) :y2 (- (:h m) (:b m))}]
-                (for [{:keys [key color values]} series
+                (for [{:keys [key color values]} focus
                       :let [y (some (fn [[x y]] (when (= x hx) y)) values)]
                       :when y]
                   ^{:key key} [:circle.dot {:cx (sx hx) :cy (sy y) :r 4 :fill color}])])
@@ -186,11 +194,69 @@
             (when hx
               [tooltip {:left (* 100 (/ (sx hx) (:w m)))
                         :title (str (or x-label "x") " " (fmt fmt-x hx))
-                        :rows (->> series
+                        :rows (->> focus
                                    (keep (fn [{:keys [values] :as s}]
                                            (when-let [y (some (fn [[x y]] (when (= x hx) y)) values)]
                                              (assoc s :y y :value (fmt fmt-y y)))))
                                    (sort-by (comp - :y)))}])]])))))
+
+(defn pick-chart
+  "Many lines, muted, with the ones that matter (`:lead? true`) in the text
+  colour. Hovering picks the line nearest the pointer at that x, plus every
+  line on the same value there (they overlap), and names them: `:title-fn`
+  (x -> title), `:label-fn` (series -> hiccup, e.g. a flag and name) and
+  `:text-fn` (y -> text). Takes the line-chart axis options."
+  [_]
+  (let [hover (r/atom nil)]  ; {:x data-x :py svg-y}
+    (fn [{:keys [series fmt-y fmt-x x-label y-label title-fn label-fn text-fn] :as opts}]
+      (let [[w h] (sizes (:size opts :normal))
+            m {:l 44 :r 12 :t 24 :b 30 :w w :h h}
+            xs (xs-of series)
+            {y-ticks :ticks y-dom :domain} (y-axis series opts false)
+            sx (scale [(first xs) (last xs)] [(:l m) (- (:w m) (:r m))])
+            sy (scale y-dom (cond-> [(- (:h m) (:b m)) (:t m)] (:y-invert? opts) reverse))
+            invert (fn [px] (+ (first xs) (* (- (last xs) (first xs))
+                                             (/ (- px (:l m)) (- (:w m) (:l m) (:r m))))))
+            {hx :x py :py} @hover
+            at (fn [s] (some (fn [[x y]] (when (= x hx) y)) (:values s)))
+            near (when hx
+                   (some->> series (keep #(when-let [y (at %)] [% y (js/Math.abs (- (sy y) py))]))
+                            seq (apply min-key #(nth % 2))))
+            ;; only when the pointer is close to a line; overlapping lines come along
+            picked (when (and near (< (nth near 2) 14))
+                     (filter #(= (second near) (at %)) series))
+            picked-keys (set (map :key picked))]
+        (if (empty? xs)
+          [placeholder "No data yet"]
+          [:div.chart
+           [:div.plot
+            [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
+             [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
+                     :x-ticks (ticks (first xs) (last xs) 8 true false) :x-label x-label :y-label y-label}]
+             ;; muted first, then the lead, then the picked on top
+             (for [{:keys [key values lead?]} (sort-by (fn [s] [(contains? picked-keys (:key s)) (boolean (:lead? s))]) series)]
+               ^{:key key}
+               [:path.line {:class (cond (contains? picked-keys key) "picked" lead? "lead" :else "context")
+                            :d (str "M" (str/join "L" (map (fn [[x y]] (str (sx x) "," (sy y))) values)))}])
+             (when (seq picked)
+               [:g [:line.crosshair {:x1 (sx hx) :x2 (sx hx) :y1 (:t m) :y2 (- (:h m) (:b m))}]
+                [:circle.dot.picked {:cx (sx hx) :cy (sy (second near)) :r 4}]])
+             [:rect {:x (:l m) :y 0 :width (- (:w m) (:l m) (:r m)) :height (:h m) :fill "transparent"
+                     :on-pointer-move (fn [e]
+                                        (let [rect (.getBoundingClientRect (.-currentTarget e))]
+                                          (reset! hover {:x (nearest xs (invert (pointer->x e m)))
+                                                         :py (* (- (.-clientY e) (.-top rect)) (/ (:h m) (.-height rect)))})))
+                     :on-pointer-leave #(reset! hover nil)}]]
+            (when (seq picked)
+              (let [left (* 100 (/ (sx hx) (:w m)))]
+                [:div.tooltip {:style (if (> left 60)
+                                        {:right (str (- 100 left) "%") :margin-right 12}
+                                        {:left (str left "%") :margin-left 12})}
+                 [:div.tt-title (title-fn hx)]
+                 (for [s (take 8 picked)]
+                   ^{:key (:key s)}
+                   [:div.tt-row [label-fn s] [:span.tt-label (text-fn (at s))]])
+                 (when (> (count picked) 8) [:div.tt-row [:span.tt-label (str "and " (- (count picked) 8) " more")]])]))]])))))
 
 (defn- bar-path
   "Bar anchored to the baseline with a rounded data end (top)."

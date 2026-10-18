@@ -56,7 +56,9 @@
   (let [d (race/derive-state (model/sanitize snap)
                              {:start start :now (.plusSeconds start (* 100 3600)) :grace-s 900})]
     (is (= {:status :out :reason :dnf :stop :rtc} (select-keys (get-in d [:runners "NED-01"]) [:status :reason :stop])))
-    (is (= 42 (get-in d [:runners "NED-01" :laps])))))
+    (is (= 42 (get-in d [:runners "NED-01" :laps])))
+    (testing "a DNS never started a lap"
+      (is (= 0 (get-in d [:runners "POR-02" :started]))))))
 
 (deftest rejects-unknown-shape
   (is (thrown? clojure.lang.ExceptionInfo (official/parse {} {"teams" []}))))

@@ -117,7 +117,7 @@ With two runners left (A and B):
   - before the start, the start time in the visitor's local time;
   - a data-source or connection problem, with a note that the last good data is shown.
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
-- A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Team, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
+- A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Charts [decided], Team, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
 - **Theme:** light, dark or system (the default), switched in the menu and remembered. [decided]
@@ -127,7 +127,7 @@ With two runners left (A and B):
 
 ### Race view (was: Countries): ranking and comparison charts
 
-**For now the view shows only the table:** the charts and the Compare row are hidden (`show-charts?` in `wtc.app`), and their queries aren't fetched. The descriptions below stay for when they come back. [decided]
+**The charts live on their own Charts page** (`#charts`), not above the standings, where they took attention from the ranking. [decided] It has two sections, so each control sits by the charts it drives: "Compare countries" (the group buttons and the per-country charts) and "The whole field" (no selection). [decided] The Race page has the out-at-the-bell line and the standings.
 - **Top:** a "Compare" row with all the selection controls, then a chip per compared country, each with a ✕. Then the charts in two rows: first the two comparison charts, then the two all-country charts.
 - **Bottom:** the countries table. [decided]
 - **Out at this bell** [decided]: one line above the table sums up who went out at the last completed yard ("Out at yard 27: 20 runners · 11 RTC · 7 INC · 2 OVER"); "Show" lists them by country, with the stop reason (RTC / INC / OVER); arrows step through earlier yards. An RTC counts at the yard they finished (they didn't start the next), an INC or OVER at the yard they didn't finish, as on the official site.
@@ -142,7 +142,7 @@ With two runners left (A and B):
 - **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites feed the search box and the "★ Favourites" button. [decided]
   - **All | Still running** [decided]: a switch in the table head (remembered). Still running hides the countries whose race is over; places stay the official ones, so the numbers skip where an eliminated country ranks.
   - No "★ only" filter on the standings (removed): the table always shows every country. Favourite countries still come first in the pickers and the "Out at yard N" list. [decided]
-- **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
+- **The Charts page starts on All countries and All yards** on a first visit; after that the group and the yard range are remembered. [decided]
 - **Clicking a country row** opens its team page (anywhere on the row but the star). The expanded runner grid below the row is gone: the team page shows the runners. [decided]
 - **Eliminated countries always show**, in their place by team score, greyed out with a grey flag: their score still counts in the ranking. [decided]
 - The table always shows every row, without an inner scroll. [decided]
@@ -150,9 +150,12 @@ With two runners left (A and B):
   - **comparison:** runners starting each lap, and team score per lap, one line per compared country. Team score has two views:
     - **"Gap to leader"** (the default): laps behind the leading country of all countries at each lap, so the leader is at 0. A cumulative total makes the top countries' lines overlap, and this shows the differences. [decided]
     - **"Total"**: the cumulative team score.
-  - **all countries:** runners out per lap, split into "did not finish" and "no result", and a histogram of countries by runners still in. [brief]
+  - **all countries:** countries still running and runners still running per yard (a DNS never started a yard, so it isn't counted); drops by yard, split by stop code (RTC, INC, OVER, else did not finish / no result), counted at the bell as the official site does; and a histogram of countries by runners still in. [decided]
+  - **Groups instead of a country picker** [decided]: one button group, Top 10, Super Six, AAA, AA, A and All (All on a first visit, then remembered). A group shows its best-ranked 10 countries in colour (8 hues, so places 9 and 10 reuse the first two, dashed) and the rest of it as grey context lines. No country chips: each chart has its own legend.
+  - **Lines named on hover** [decided], on both comparison charts (the race yard by yard and runners starting each yard): all of the group's countries in grey, its leader in black; hovering a line names that country, or every country on the same point where lines overlap: "After yard n", flag, country and the value (yards behind, yards or place).
+  - **The race yard by yard** has three views: Gap to leader, Yards (team score) and Rank (place per yard, 1 at the top, the whole field). "All yards | Last 12", in the Compare countries section, caps the yard axis of its charts; the whole-field charts always show every yard. [decided]
 - Every chart can switch to a table view.
-- **Clicking a chart**, or its ⤢ button, opens it big in an overlay. The overlay has its own legend and the same view switch and table toggle. Esc, ✕ or a click outside closes it. [decided]
+- **No chart zoom** (removed): the comparison charts are full width and large instead. [decided]
 
 ### Runners view: the individual leaderboard
 - A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided]

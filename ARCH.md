@@ -100,7 +100,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
     - 0 finishers give `{:after (dec lap) :winner nil}`.
   - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:farthest` (the most laps of one runner), `:position` (the order: total laps, then farthest, then active runners, then code), `:rank` (the official place: shared, with `:tied true`, only when total laps and farthest are both equal), `:eliminated-after` and `:winner` `{:id :name :laps}`.
   - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:stop` when the source gave one, `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds :stop}`, optionally with `:inferred true`, `:suspect true` or `:too-fast true`; `:seconds` is nil for inferred or suspect laps.
-    - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1.
+    - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1; for a DNS it's 0 (they never started a lap).
   - **Phase:** `:pre`, `:live` or `:finished`. When finished, `:final-lap` is the last lap anyone started, and `:current-lap` and `:settled-lap` are capped there, so the chart axes stop growing. `:race-laps` is the race length: the last lap anyone completed, which is `:final-lap` with a winner and one less when the last runners all DNF.
 - **`wtc.ingest`:** a single-thread scheduler.
   - Each source is isolated, with a timeout, 3 attempts and exponential backoff. A failed fetch keeps the last good dataset live.
@@ -113,7 +113,9 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `runners_started`
   - `team_score`
   - `team_score_gap`: team score minus the leader's at each lap; the leader is taken over all countries, so a line doesn't move when others are compared
-  - `attrition`
+  - `attrition`: runners out at the bell of each lap, per stop code (rtc, inc, over) or reason (dnf, missing); an RTC counts at the lap they finished, DNS not at all
+  - `team_rank`: each country's place after every settled lap, by the official ranking
+  - `countries_running`: countries still in the race after each settled lap
   - `lap_time_seconds`
   - `lap_time_median_seconds`: the field's median lap time per lap (the runner dialog's dashed line)
   - `countries_by_active_runners`
@@ -148,14 +150,14 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - The views are in `views`; the URL hash selects the view.
   - The seat ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
   - `/api/runners` rows carry `:last-seconds`, `:fastest-seconds`, `:avg-seconds` and `:total-seconds` (the last and fastest timed laps, their rounded mean, and their sum) instead of the history. Sparkline data comes from one unfiltered `lap_time_seconds` query (all runners), or, with a country filter on the leaderboard, queries for those countries plus the starred runners. A row's detail chart fetches `/api/runners/:id`.
-  - `:zoom` holds the panel id shown big. `zoom-dialog` renders `[panel p true]` in a modal `<dialog>`; `chart/line-chart` and `bar-chart` take `:size :normal|:big`.
-  - Each round of chart queries gets a sequence number (`fetch-seq`), and responses from an older round are dropped, so quick clicks can't leave stale charts.
+  - `chart/line-chart` and `bar-chart` take `:size :normal|:wide|:big` (viewBox sizes); a panel picks one with `:size`. There is no chart zoom.
+  - Each round of chart queries gets a sequence number (`fetch-seq`), and responses from an older round are dropped, so quick clicks can't leave stale charts. The panel queries only run on the Charts view (and when switching to it), so other views cost nothing for them.
   - Preferences are kept in localStorage under `wtc-prefs`, with every access in try/catch.
   - **New version:** a release build runs the shadow-cljs hook `wtc.build/write-version`, which writes `public/version.json` (a hash of `index.html`, `style.css` and `main.js`; git-ignored). The page fetches it at start (`no-store`), checks again every 5 minutes while visible and whenever the tab comes back, and shows a notice with a Reload button when it differs. In hot reload there is no such file, so it never checks.
 - **`wtc.panels`:** the list of charts. **Adding a chart means adding a backend metric to `wtc.metrics/registry`, then a map here.** The panel keys:
   - `:id`, `:title`, `:subtitle`, `:metric`, `:kind` (`:line` or `:bar`), `:x-label`, `:y-label`;
   - either `:per-country? true` (one series per selected country, queried with `by=country`) or `:series-label :k` (one series per value of label `:k`, with `:series-order` and `:series-names`);
-  - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`;
+  - optionally `:y-format :mmss` (seconds as m:ss) and `:y-zero? false`, `:y-invert? true` (a place axis), `:y-field :place|:count` (the y range is the whole field), `:per-yard? true` (x is the yard, so "Last 12" caps it);
   - optionally `:variants [{:label :metric :subtitle :y-label} …]`: switchable views of one panel, shown as a segmented control. The chosen variant's keys override the panel's, the first is the default, and the choice is remembered per browser. Results are cached per `[panel-id metric]`, so switching back is instant.
 
   `:y-zero?` (default true) keeps 0 on the y-axis, from below for counts or from above for negative values like gaps.
