@@ -18,8 +18,9 @@
   --warning: #e8590c;
   --hover: color-mix(in srgb, var(--accent) 6%, transparent);
   --selected: color-mix(in srgb, var(--accent) 10%, transparent);
-  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-  --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  /* Noto Sans TC only for what the Latin fonts lack: Chinese runner names */
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, "Noto Sans TC", sans-serif;
+  --body: "Barlow", "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
   --series-1: #2a78d6;
   --series-2: #eb6834;
   --series-3: #1baf7a;

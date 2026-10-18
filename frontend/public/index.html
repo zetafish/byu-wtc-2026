@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Barlow:wght@400;500;600&display=block">
+  <!-- Chinese runner names (TPE): a fallback for devices without a CJK font.
+       Google serves it in unicode-range slices, so only the characters on the
+       page download; swap, so it never holds up the Latin text -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600&display=swap">
   <link rel="stylesheet" href="/css/style.css">
   <!-- the saved theme before first paint, so a dark page doesn't flash light -->
   <script>try { var t = JSON.parse(localStorage.getItem("wtc-prefs") || "{}").theme;
