@@ -348,11 +348,17 @@ label.toggle {
 .pill.out .icon { color: var(--critical); }
 .pill.win { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
 td.name { font-weight: 600; }
+/* a country, everywhere: [flag] name code */
+.clabel { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; vertical-align: middle; }
+.clabel .cname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clabel .code { color: var(--text-muted); font-weight: 400; flex: none; }
+.flag { width: 20px; height: 15px; flex: none; border-radius: 2px; box-shadow: 0 0 0 1px var(--line); object-fit: cover; }
+.flag.none { display: inline-block; background: var(--line); }
 /* runner leaderboard: fixed column widths, the name takes the rest */
-table.runners { table-layout: fixed; min-width: 1000px; }
+table.runners { table-layout: fixed; min-width: 1120px; }
 table.runners td { overflow: hidden; text-overflow: ellipsis; }
 table.runners col.pos { width: 56px; }
-table.runners col.country { width: 72px; }
+table.runners col.country { width: 190px; }
 table.runners col.n { width: 52px; }
 table.runners col.status { width: 165px; }
 table.runners col.time { width: 72px; }

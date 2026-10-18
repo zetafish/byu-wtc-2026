@@ -3,6 +3,7 @@
             [reagent.core :as r]
             [reagent.dom.client :as rdc]
             [wtc.chart :as chart]
+            [wtc.flags :refer [flag]]
             [wtc.panels :as panels]))
 
 (def max-selected 8)
@@ -211,6 +212,12 @@
 
 (defn- country-name [code] (some #(when (= code (:code %)) (:name %)) (:countries @db)))
 
+(defn- country-label
+  "A country as [flag] name code, everywhere it's shown."
+  [code]
+  (let [nm (or (country-name code) code)]
+    [:span.clabel {:title (str nm " " code)} [flag code] [:span.cname nm] " " [:span.code code]]))
+
 (defn- to-series [panel result]
   (let [{:keys [per-country? series-label series-order series-names]} panel
         selected (:selected @db)]
@@ -221,7 +228,7 @@
       (for [{:keys [metric values]} (sort-by #(get selected (get-in % [:metric :country])) result)
             :let [code (:country metric)]
             :when (contains? selected code)]
-        {:key code :label (or (country-name code) code) :color (color (get selected code 1)) :values values})
+        {:key code :label (str (or (country-name code) code) " " code) :color (color (get selected code 1)) :values values})
 
       series-label
       (let [by-key (into {} (map (fn [s] [(get-in s [:metric series-label]) s])) result)]
@@ -352,7 +359,7 @@
           [:ol.podium
            (for [{:keys [code name rank tied total-laps]} podium]
              ^{:key code}
-             [:li [:span.pos (str (when tied "=") rank ".")] [:b name] [:span (str total-laps " laps")]])]]))
+             [:li [:span.pos (str (when tied "=") rank ".")] [:b [country-label code]] [:span (str total-laps " laps")]])]]))
      (when (or error (seq failing))
        [:p.notice [:span.icon "⚠"]
         (if error
@@ -516,7 +523,7 @@
                                   :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
                     (if fav? "★" "☆")]]
               [:td.num (when tied "=") rank]
-              [:td.name name " " [:span.muted code]]
+              [:td.name [country-label code]]
               [:td.num active " / " runners]
               [:td.num total-laps]
               [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
@@ -577,8 +584,8 @@
             [:section.card.runner-card
              [:div.card-head
               [:div [:h2 name]
-               [:p.sub (str (or (country-name country) country) " · seat " (:rank runner)
-                            (when (:bib runner) (str " · bib " (:bib runner))) " ")
+               [:p.sub [country-label country]
+                (str " · seat " (:rank runner) (when (:bib runner) (str " · bib " (:bib runner))) " ")
                 [status-badge runner]]]]
              (if-not hist
                [:div.loading "Loading…"]
@@ -633,7 +640,7 @@
         ^{:key code} [:option {:value code} name])]
      (for [code (sort runner-filter)]
        ^{:key code}
-       [:span.chip (or (country-name code) code)
+       [:span.chip [country-label code]
         [:button.remove {:aria-label (str "Remove " code) :on-click #(toggle-filter! code)} "✕"]])
      [:input.search {:type "search" :placeholder "Search runner" :value query :aria-label "Search runner"
                      :on-change #(swap! db assoc :query (.. % -target -value))}]
@@ -698,7 +705,7 @@
                                       :on-click (fn [e] (.stopPropagation e) (toggle-star! id))}
                         (if (starred? runner) "★" "☆")]
               name]
-             [:td country]
+             [:td [country-label country]]
              [:td.num (:rank runner)]
              [:td.num laps]
              [:td.num (or (:best-yards runner) "–")]
@@ -759,7 +766,7 @@
        (if (> (count leaders) 1)
          [:<> [:td.muted (str (count leaders) " tied")] [:td]]
          [:<> [:td.name (:name lead "–")]
-          [:td (when lead [:<> [country-key (:country lead)] (:country lead)])]])
+          [:td (when lead [:<> [country-key (:country lead)] [country-label (:country lead)]])]])
        [:td.num (:laps lead)]
        [:td [seat-state-pill sum]]])]])
 
@@ -774,7 +781,7 @@
       [:tr {:class (when-not (running? r) "out")}
        [:td.num pos]
        [:td.name name]
-       [:td [country-key country] country]
+       [:td [country-key country] [country-label country]]
        [:td.num laps]
        [:td.num (or best-yards "–")]
        [:td [status-badge r]]])]])
@@ -862,7 +869,7 @@
                                                   add!)))}]
          [:datalist {:id "country-options"}
           (for [{:keys [code name]} options]
-            ^{:key code} [:option {:value name} (str (when (contains? favourites code) "★ ") code)])]]))))
+            ^{:key code} [:option {:value name} (str (when (contains? favourites code) "★ ") name " " code)])]]))))
 
 (defn- comparing []
   (let [{:keys [selected favourites]} @db]
@@ -878,7 +885,7 @@
        [:span.muted "no countries compared yet"]
        (for [[code slot] (sort-by val selected)]
          ^{:key code}
-         [:span.chip [:span.key-box {:style {:background (color slot)}}] (or (country-name code) code)
+         [:span.chip [:span.key-box {:style {:background (color slot)}}] [country-label code]
           [:button.remove {:aria-label (str "Stop comparing " code) :on-click #(toggle-country! code)} "✕"]]))]))
 
 (defn- view-body [view]
