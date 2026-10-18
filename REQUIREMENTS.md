@@ -6,6 +6,7 @@ Where a requirement comes from:
 - **[brief]**: the original brief (the old `SPEC.md`).
 - **[decided]**: decided by the owner during development.
 - **[assumed]**: an assumption that still needs confirming. These are also listed under Open questions.
+- **[proposed]**: a design idea from a brainstorm with the owner, not yet confirmed or built (see §5, Redesign).
 
 ## 1. Goal and scope
 
@@ -164,6 +165,75 @@ With two runners left (A and B):
 ### Seats view
 - An overview of all 15 seats: the leader (or "N tied"), their country, laps, and seat state. Click a seat, or pick it in the selector, for that seat's full ranking (position, runner, country, laps, best, status). [decided]
 
+### Redesign: pages [proposed]
+
+Goal: beat the official site (reviewed in `docs/official-site.md`) on focused information. The official site shows everything on one long page. A fan who opens ours at 3 am wants three answers in seconds: **what changed, who is in danger, and how are my countries doing.** Every page answers its question above the fold, and is designed for a phone (400 px) first.
+
+Three zoom levels plus one side quest, each with its own route, so it can be linked and the back button works:
+
+| Route | Page | Question it answers |
+|---|---|---|
+| `#` | Home (replaces the Countries view) [decided] | What's happening in the race right now? |
+| `#team/NED` | Team | How is my country doing, and who's near us? |
+| `#runner/NED-01`, `#compare/NED-01,BEL-03` | Runner, compare | How is this runner doing, against others? |
+| `#seats`, `#seats/3` | Seats | Who's winning each seat's invite? |
+
+#### Home: the race at a glance [proposed]
+No selection needed. **Home replaces the Countries view.** [decided]
+- **Clock:** the current lap, time to the next bell, and how many countries are still reporting the last lap.
+- **The last lap in one sentence:** e.g. "Lap 23: 12 out, Cuba eliminated, Malaysia's winner decided."
+- **Danger:** countries down to 2 runners (the next drop ends them), countries about to be overtaken (see the chase panel), and seat races down to 2–3 runners. The official site has none of this.
+- **Compact standings:** the top 10, favourites pinned, ties folded ("20 countries level on 345").
+- **Your team:** if the viewer has picked a team, one line with a link to its page.
+- **The comparison charts move to home.** [decided] Quick selectors pick the compared countries by class: Super Six, AAA, AA, A (next to today's "Top 8" and the country picker). [decided] This needs the feed's `division` (see Data).
+- **Left out on purpose:** the map, 2024 comparison curves, broadcast mode and the time machine. They add length, not answers.
+
+#### Team page [proposed]
+Where most viewers will spend their time: people follow their own country and know its runners.
+- **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
+- **Switching teams** must be effortless: a picker with favourites on top, ← → for the neighbours in the standings, and the site remembers the viewer's team (home card, menu).
+- **Header:** flag, name, place ("=1"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
+- **Team-rule state in plain words:** "safe: 9 in", or "2 left: the next drop ends the race".
+- **Chase panel:** the race seen from this country's position (below).
+- **Runners table:** seat, laps, last lap, average lap, rest margin, status, and **seat rank** ("2nd of 41 in seat 3"), linking to the seat. That's our unique angle.
+- **Lap grid:** runners × laps, shaded by lap time, with what the official one lacks: slowest laps, a runner whose times drift up, the margin to the bell.
+- **The team over time:** runners still in per lap, place per lap.
+
+#### Chase panel [proposed]
+"Are we being chased, where is the danger, are we catching the country ahead?"
+- **The arithmetic:** each lap, a country gains exactly as many yards as it has runners still in. So the gap between two countries changes by the difference in their runners still in, and "laps to pass" is gap ÷ that difference. Shown in words:
+  - catching up: "Belgium is 12 ahead with 6 in; you have 9. You gain 3 per lap and pass them in 4 laps if nobody drops."
+  - chased: "Japan is 5 behind with 11 in. They gain 2 per lap and pass you in 3 laps."
+  - out of reach: "Spain is 40 behind with 3 in. They can't catch you while you have more runners."
+- **A country whose race is over** has a frozen score: a fixed target ("you pass Malaysia in 2 laps, as long as you keep 2 runners").
+- **Neighbours:** the 2–3 countries just ahead and just behind (ties folded), each with gap, runners in, closing speed and laps to pass, or "can't catch you".
+- **Gap chart:** this country as the zero line, the neighbours' gaps over the laps; lines heading for zero are closing in. The viewer can add any other country as a rival line.
+- **Honest:** "if nobody drops" is always explicit; it updates every lap and never pretends to predict.
+- **Early in the race** everyone is level, so the panel shows attrition instead ("15 in; the field averages 12") until the gaps open up.
+- **Later, maybe:** a clearly labelled projection of the final team score from the runners' best qualifying results (the official site's "% of prediction"). Speculative, so after the arithmetic version.
+
+#### Runner page and comparison [proposed]
+- **The runner dialog gets a URL** (`#runner/NED-01`), so it can be shared, and links to the runner's team and seat.
+- **Compare 2–4 runners from any country:** a "compare" tick on any runner (team page, leaderboard, seats); a tray shows "Compare (3)". The view overlays their lap times (one series colour each), rest margin per lap, and the key figures side by side. Capped at 4, beyond that the chart is spaghetti.
+- **Shortcuts:** "compare with the seat leader", "with the team's other runners".
+
+#### Seats [proposed]
+The side quest; we have it, the official site doesn't.
+- The overview of 15 seats (leader, runners left, decided), and a race per seat, linked from team and runner pages.
+- Maybe a "closest seat race" item on home.
+
+#### Other ideas [proposed]
+- **Timeline:** a running log of events: drops with their reason, eliminations, winners, lead changes. The home sentence comes from it, and afterwards it tells the race's story.
+- **After the race:** records (longest team, seat winners, fastest laps) and a final summary.
+- **Shareable links with a preview** ("Netherlands =1 after lap 30").
+- **Probably not:** the map, broadcast mode, notifications.
+
+#### Data this needs [proposed]
+From the official feed, which the adapter doesn't carry yet:
+- stop reasons (RTC / INC / OVER) and DNS as its own state (timeline, team page);
+- `utcOffset` and `site` (local time at the team's site);
+- `division`, for the class selectors on home [decided]; `gender` (optional).
+
 ## 6. Look
 
 - The race-board style of `../upfront-live`, which the owner prefers. Details are in `DESIGN.md`. [decided]
@@ -187,6 +257,10 @@ With two runners left (A and B):
 | Live trackers, position in loop | Dropped | No GPX, and every country has its own loop. |
 
 ## 9. Open questions and to do
+
+- [ ] **Redesign (§5, [proposed]):** decided so far: home replaces the Countries view; the comparison charts go to home, with class quick selectors; the team page is its own route, reached by clicking a country and from the menu. Still open:
+  - Which page first? Proposed: the team page with the chase panel.
+  - Does home keep a full standings table below the compact one, or does "all countries" become a toggle?
 
 - [x] **Real data adapters:** `wtc.source.official` (the one in use) and `wtc.source.sheet` (manual fallback).
 - [x] **Late countries:** a country that reports late is never shown as out meanwhile. The official feed's `reportedThrough` says how far each country has reported. Only for a source without it does a runner without a result count as out 45 min after the lap's bell (`GRACE_SECONDS = 2700` in `fly.prod.toml`; the default is 15 min). [decided]
