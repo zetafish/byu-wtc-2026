@@ -696,7 +696,7 @@
           [:td.num rank]
           [:td.name [country-label code]]
           [:td.num total-laps]
-          [:td.num active [:small (str " / " runners)]]
+          [:td.num {:title (str active " of " runners " still in")} active]
           [:td.num (or (mmss avg) "–")]
           [:td [:div.slots {:style {:grid-template-columns (str "repeat(" (max slots 1) ", minmax(0, 1fr))")}}
                 (for [{:keys [id name laps] :as r} rs

@@ -525,7 +525,7 @@ table.race-grid td { padding-top: 4px; padding-bottom: 4px; }
 /* our brand: green for still racing, orange only for the winner */
 .slot.running { border-color: var(--good); }
 .slot.done { background: color-mix(in srgb, var(--good) 22%, transparent); }
-.slot.awaiting { border: 1.5px dashed var(--good); }
+.slot.awaiting { border: 1.5px dashed var(--good); font-style: italic; }
 .slot.out { background: var(--grid); color: var(--text-muted); }
 .slot.dns { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); color: var(--text-muted); }
 .slot.win { background: var(--accent); color: #fff; font-weight: 600; }
