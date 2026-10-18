@@ -118,7 +118,7 @@ With two runners left (A and B):
 - A **left menu** to switch views: Countries, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
-- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the "★ only" toggles, and the "show eliminated" toggles. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
+- **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the "★ only" toggles, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
 ### Countries view: ranking and comparison charts
@@ -132,10 +132,10 @@ With two runners left (A and B):
   - "Clear" empties it. [decided]
   - Countries that stay compared after "Top 8" or "★ Favourites" keep their colour. [decided]
 - **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites feed the search box and the "★ Favourites" button. [decided]
-  - A "★ only" toggle in the table head shows only favourite countries, eliminated ones included. "Show eliminated" is hidden while it's on. With no favourites, the table says how to add some. [decided]
+  - A "★ only" toggle in the table head shows only favourite countries, eliminated ones included. With no favourites, the table says how to add some. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
 - **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]
-- **Eliminated countries** are hidden by default, with an opt-in "Show eliminated (n)" toggle. Compared and favourite countries stay visible. After the finish, everything is shown. [decided]
+- **Eliminated countries always show**, in their place by team score, greyed out with a grey flag: their score still counts in the ranking. [decided]
 - The table always shows every row, without an inner scroll. [decided]
 - **Charts** work like Grafana: the backend serves visualisations as standard JSON in a Prometheus-like shape. The frontend draws them generically, so adding a chart is cheap. [brief] The charts are:
   - **comparison:** runners starting each lap, and team score per lap, one line per compared country. Team score has two views:
@@ -183,7 +183,7 @@ Three zoom levels plus one side quest, each with its own route, so it can be lin
 No selection needed. **Home replaces the Countries view.** [decided]
 - **Clock:** the current lap, time to the next bell, and how many countries are still reporting the last lap.
 - **The last lap in one sentence:** e.g. "Lap 23: 12 out, Cuba eliminated, Malaysia's winner decided."
-- **Danger:** countries down to 2 runners (the next drop ends them), countries about to be overtaken (see the chase panel), and seat races down to 2–3 runners. The official site has none of this.
+- **Danger:** countries down to 1 runner, countries about to be overtaken (see the chase panel), and seat races down to 2–3 runners. The official site has none of this.
 - **Compact standings:** the top 10, favourites pinned, ties folded ("20 countries level on 345").
 - **Your team:** if the viewer has picked a team, one line with a link to its page.
 - **The comparison charts move to home.** [decided] Quick selectors pick the compared countries by class: Super Six, AAA, AA, A (next to today's "Top 8" and the country picker). [decided] This needs the feed's `division` (see Data).
@@ -195,7 +195,7 @@ Where most viewers will spend their time: people follow their own country and kn
 - **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
 - **Switching teams** must be effortless: a picker with favourites on top, ← → for the neighbours in the standings, and the site remembers the viewer's team (home card, menu).
 - **Header:** flag, name, place ("=1"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
-- **Team-rule state in plain words:** "safe: 9 in", or "2 left: the next drop ends the race".
+- **Team-rule state in few words:** "9 in", "2 in" (green: two can go on for a long time), "1 left", "none left"; the rule is in the tooltip. [decided]
 - **Chase panel:** the race seen from this country's position (below).
 - **Runners table:** seat, laps, last lap, average lap, rest margin, status, and **seat rank** ("2nd of 41 in seat 3"), linking to the seat. That's our unique angle.
 - **Lap grid:** runners × laps, shaded by lap time, with what the official one lacks: slowest laps, a runner whose times drift up, the margin to the bell.

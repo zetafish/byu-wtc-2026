@@ -19,7 +19,6 @@
                      :favourites-only? false ; countries table: only favourites
                      :query ""        ; leaderboard name search (not stored)
                      :expanded nil    ; country code whose runners are shown in the table
-                     :show-out? false ; list eliminated countries too
                      :show-out-runners? false ; list eliminated runners too
                      :view :countries ; menu view, mirrors the URL hash
                      :team nil        ; team page: country code (#team/CODE), remembered
@@ -43,7 +42,6 @@
                                 (js/JSON.stringify (clj->js {:selected (:selected @db)
                                                              :starred (vec (:starred @db))
                                                              :favourites (vec (:favourites @db))
-                                                             :show-out (:show-out? @db)
                                                              :show-out-runners (:show-out-runners? @db)
                                                              :runner-filter (vec (:runner-filter @db))
                                                              :starred-only (:starred-only? @db)
@@ -578,25 +576,16 @@
        (str "Show " name " in the runner leaderboard →")]]]))
 
 (defn- countries-table []
-  (let [{:keys [countries selected favourites favourites-only? show-out? expanded]} @db
+  (let [{:keys [countries selected favourites favourites-only? expanded]} @db
         lead (reduce max 0 (map :total-laps countries))
         fav? #(contains? favourites (:code %))
-        candidates (cond->> countries favourites-only? (filter fav?))
-        n-out (count (filter out? candidates))
-        ;; compared and favourite countries stay visible, so they can still be unstarred
-        show-out? (or show-out? (finished?))
-        shown (filter #(or show-out? (not (out? %)) (contains? selected (:code %)) (fav? %)) candidates)]
+        ;; eliminated countries always show, greyed: their score still counts
+        shown (cond->> countries favourites-only? (filter fav?))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
        [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for its runners."]]
-      ;; "★ only" last: right-aligned, it stays put when "Show eliminated" hides
       [:div.head-actions
-       (when (and (pos? n-out) (not favourites-only?) (not (finished?)))
-         [:label.toggle
-          [:input {:type "checkbox" :checked show-out?
-                   :on-change #(do (swap! db update :show-out? not) (save-prefs!))}]
-          (str "Show eliminated (" n-out ")")])
        [:label.toggle
         [:input {:type "checkbox" :checked favourites-only?
                  :on-change #(do (swap! db update :favourites-only? not) (save-prefs!))}]
@@ -951,12 +940,15 @@
   to 1 or 0 runners without being decided yet."
   [{:keys [active eliminated-after winner]} current-lap]
   (cond
-    winner [:span.pill.win (str "★ won by " (:name winner) " on lap " eliminated-after)]
-    eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after ", no winner")]
-    (zero? active) [:span.pill.danger "none left: the race ends, no winner"]
-    (= active 1) [:span.pill.danger (str "1 left: finishing lap " current-lap " wins the race")]
-    (= active 2) [:span.pill.danger "2 left: the next drop ends the race"]
-    :else [:span.pill.in [:span.dot.in] (str "safe: " active " still in")]))
+    winner [:span.pill.win {:title "The last runner of this country to finish a lap alone"}
+            (str "★ " (:name winner) " · lap " eliminated-after)]
+    eliminated-after [:span.pill.out {:title "No runner finished a lap alone, so no winner"}
+                      [:span.icon "✕"] (str "out after lap " eliminated-after)]
+    (zero? active) [:span.pill.danger {:title "Nobody is still running this lap"} "none left"]
+    (= active 1) [:span.pill.danger {:title "If this runner finishes the lap alone, they're the country's winner"} "1 left"]
+    ;; 2 is no danger: two runners can carry a country for a long time (Belgium)
+    :else [:span.pill.in {:title "A country continues while at least 2 runners finish each lap"}
+           [:span.dot.in] (str active " in")]))
 
 (defn- reporting-text [{:keys [reported-through eliminated-after]} current-lap]
   (when (and reported-through (not eliminated-after))
@@ -1055,9 +1047,7 @@
         ^{:key k}
         [:div.nb-line {:class cls}
          [:span.label (case cls "danger" (str "⚠ " label) "chance" (str "✓ " label) label)]
-         (if (and (= k :level) many-level?)
-           [:span (str (count items) " countries")]
-           (for [r items] ^{:key (:code r)} [rival-chip r (#{:catching-you :catching} k)]))])]
+         (for [r items] ^{:key (:code r)} [rival-chip r (#{:catching-you :catching} k)])])]
      (when (and early? field-active)
        [:p.chase-note (str nm " has " (:active country) " in; countries still going average " field-active ".")])
      (when-not early?
@@ -1311,7 +1301,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (if (= "history" chase-view) :history :numbers)
@@ -1323,7 +1313,6 @@
            :runner-filter (set runner-filter)
            :starred-only? (true? starred-only)
            :favourites-only? (true? favourites-only)
-           :show-out? (true? show-out)
            :show-out-runners? (true? show-out-runners)))
   (go-to-hash!)
   ;; a tab coming back to the front catches up at once
