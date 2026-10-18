@@ -1132,11 +1132,13 @@
   (let [{:keys [code name total-laps active runners division utc-offset site rank]} country
         n (count (:countries @db))]
     [:section.card.wide.team-head
-     [team-switcher "Switch team"]
      [:div.team-title
       [flag code]
       [:div
-       [:h2 name " " [:span.code code]]
+       ;; the picker right next to the name it switches away from
+       [:div.team-name-row
+        [:h2 name " " [:span.code code]]
+        [team-switcher "Switch team"]]
        [:div.team-rule [team-rule-text country current-lap]]
        [:p.sub
         (when division [:span (get class-names division division)])
