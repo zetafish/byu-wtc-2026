@@ -88,6 +88,10 @@
                                   :let [[t _] (totals-at (by-country c) n)
                                         [o _] (our-totals (dec n))]]
                               [n (- t o)])))
+           ;; runners who finished lap n, up to the last lap the country reported
+           finishers-of (fn [c] (let [crs (by-country c)]
+                                  (mapv (fn [n] [n (count (filter #(>= (:laps %) n) crs))])
+                                        (range 1 (inc (reported (get countries c)))))))
            others (remove #(= code (:code %)) (sort-by :position (vals countries)))
            seats (seat-places all)
            still-going (remove :eliminated-after (vals countries))]
@@ -112,13 +116,15 @@
                                       (range 1 (inc current-lap)))
                     :team-score (mapv (fn [n [t _]] [n t]) laps our-totals)
                     :place (mapv (fn [n] [n ((places-at by-country n) code)]) laps)}
-        :chase (let [with-series #(mapv (fn [r] (assoc r :series (series-of (:code r)))) %)
+        :chase (let [with-series #(mapv (fn [r] (assoc r :series (series-of (:code r))
+                                                         :finishers (finishers-of (:code r)))) %)
                      side (fn [pred order]
                             (->> others (filter #(pred (:total-laps %) (:total-laps ours))) order
                                  (mapv #(rival ours %))))]
                  {:ahead (with-series (pick-rivals (side > reverse) n-rivals))
                   :level (with-series (side = identity))   ; all of them
                   :behind (with-series (pick-rivals (side < identity) n-rivals))
+                  :finishers (finishers-of code)
                   :field-active (when (seq still-going)
                                   (/ (Math/round (* 10.0 (/ (reduce + (map :active still-going)) (count still-going))))
                                      10.0))})}))))

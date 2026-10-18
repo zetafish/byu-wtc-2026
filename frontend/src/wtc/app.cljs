@@ -1019,9 +1019,21 @@
                                                         #(or (:laps-to-pass %) 0)
                                                         #(abs (:gap %)))
                                                   (concat ahead behind)))))
-        series (map-indexed (fn [i {:keys [code name series]}]
-                              {:key code :label (str name " " code) :color (color (inc i)) :values series})
+        view (:chase-view @db :numbers)
+        series (map-indexed (fn [i {:keys [code name series finishers]}]
+                              {:key code :label (str name " " code) :color (color (inc i))
+                               :values (if (= view :runners) finishers series)})
                             (filter (comp charted :code) (concat (reverse ahead) behind)))
+        ;; on the runners chart this team is a line too: muted and dashed, as the gap chart's zero
+        series (cond-> (vec series)
+                 (= view :runners) (conj {:key c :label (str nm " " c) :color "var(--text-muted)"
+                                          :dash? true :values (:finishers chase)}))
+        series (if (= :last-12 (:chase-range @db :all))
+                 (let [to (reduce max 0 (map (comp first last :values) series))]
+                   (map (fn [s] (update s :values #(filterv (fn [[x]] (> x (- to 12))) %))) series))
+                 series)
+        rivals-note (when (> (count (concat ahead behind)) 8)
+                      " With more than 8 rivals, the chart shows those with an overtake first, then the nearest.")
         early? (and (empty? ahead) (empty? behind))
         many-level? (> (count level) 4)
         row (fn [{:keys [code name gap gain active laps-to-pass] :as r}]
@@ -1058,11 +1070,11 @@
        [:p.chase-note (str nm " has " (:active country) " in; countries still going average " field-active ".")])
      (when-not early?
        [:div.segmented.chase-switch {:role "group" :aria-label "Chase details"}
-        (for [[v label] [[:numbers "Numbers"] [:history "Over time"]]]
+        (for [[v label] [[:numbers "Numbers"] [:history "Gap over time"] [:runners "Runners in"]]]
           ^{:key v}
-          [:button {:aria-pressed (= v (:chase-view @db :numbers))
+          [:button {:aria-pressed (= v view)
                     :on-click #(do (swap! db assoc :chase-view v) (save-prefs!))} label])])
-     (when (and (seq rivals) (or early? (= :numbers (:chase-view @db :numbers))))
+     (when (and (seq rivals) (or early? (= :numbers view)))
        [:div.table-wrap
         [:table.chase-table
          [:thead [:tr [:th "Country"] [:th.num {:title "Their team score minus this team's"} "Gap"]
@@ -1077,27 +1089,33 @@
           [:tr.you {:key "self"} [:td [country-label c]] [:td.num "0"]
            [:td.num (:active country)] [:td] [:td.muted "this team"]]
           (map row behind)]]])
-     (when (and (not early?) (= :history (:chase-view @db :numbers)))
+     (when (and (not early?) (#{:history :runners} view))
        [:<>
         [:div.segmented.chase-range {:role "group" :aria-label "Laps shown"}
          (for [[v label] [[:all "All laps"] [:last-12 "Last 12"]]]
            ^{:key v}
            [:button {:aria-pressed (= v (:chase-range @db :all))
                      :on-click #(do (swap! db assoc :chase-range v) (save-prefs!))} label])]
-        [chart/line-chart {:series (if (= :last-12 (:chase-range @db :all))
-                                     (let [to (reduce max 0 (map (comp first last :values) series))]
-                                       (map (fn [s] (update s :values #(filterv (fn [[x]] (> x (- to 12))) %))) series))
-                                     series)
-                           :refs [{:y 0 :label (:name country) :neutral? true}]
-                           :y-zero? false :x-label "lap" :y-label "laps ahead of this team" :size :wide
-                           :legend? true}]
-        [:p.chart-note
+        (if (= view :runners)
+          ^{:key "runners"}
+          [chart/line-chart {:series series :y-zero? false :x-label "lap" :y-label "runners who finished the lap"
+                             :size :wide :legend? true}]
+          ^{:key "gap"}
+          [chart/line-chart {:series series :refs [{:y 0 :label (:name country) :neutral? true}]
+                             :y-zero? false :x-label "lap" :y-label "laps ahead of this team" :size :wide
+                             :legend? true}])
+        (if (= view :runners)
+          [:p.chart-note
+           "How many runners each country had finish each lap; " nm " is the dashed line. "
+           "Each lap a country's team score grows by this number, so the gap to " nm
+           " changes by the difference between its line and the dashed one. A line ends at the last lap the country has reported."
+           rivals-note]
+          [:p.chart-note
          "Each line is a country's team score minus " (:name country) "'s after each lap. "
          "Above the dashed line it's ahead, below it behind. A line going up is gaining on "
          (:name country) " (more runners in), going down is losing ground, flat means as many runners in; "
          "crossing the dashed line is an overtake. A line ends at the last lap both countries have reported."
-         (when (> (count (concat ahead behind)) 8)
-           " With more than 8 rivals, the chart shows those with an overtake first, then the nearest.")]])]))
+         rivals-note])])]))
 
 (defn- team-runners [{:keys [runners settled-lap]}]
   (let [ranked-all (ranked (:runners @db))
@@ -1320,7 +1338,7 @@
   (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range]} (load-prefs)]
     (swap! db assoc
            :team team
-           :chase-view (if (= "history" chase-view) :history :numbers)
+           :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})

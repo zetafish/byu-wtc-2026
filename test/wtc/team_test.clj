@@ -50,6 +50,10 @@
   (testing "the gap over the laps, as theirs minus ours"
     (is (= [[1 0] [2 0] [3 1] [4 2] [5 3] [6 4]]
            (:series ((by-code (get-in (team/team derived "BBB") [:chase :ahead])) "AAA")))))
+  (testing "runners who finished each lap, for this team and its rivals"
+    (let [{:keys [finishers ahead]} (:chase (team/team derived "BBB"))]
+      (is (= [[1 3] [2 3] [3 2] [4 2] [5 2] [6 2]] finishers))
+      (is (= [[1 3] [2 3] [3 3] [4 3] [5 3] [6 3]] (:finishers ((by-code ahead) "AAA"))))))
   (testing "a gap line stops at the last lap both countries have reported"
     (let [d (assoc-in derived [:countries "AAA" :reported-through] 4)]
       (is (= [[1 0] [2 0] [3 1] [4 2]]
