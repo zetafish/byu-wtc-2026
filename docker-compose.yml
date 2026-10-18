@@ -11,6 +11,7 @@ services:
       POLL_SECONDS: ${POLL_SECONDS:-60}
       CLOCK_START: ${CLOCK_START:-}
       SOURCES: ${SOURCES:-}
+      GRACE_SECONDS: ${GRACE_SECONDS:-900}
 
   web:
     build: ./frontend

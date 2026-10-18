@@ -12,7 +12,7 @@ PORT ?= 8090
 ifdef DEMO
 CLOCK_START ?= 2026-10-18T18:00:00Z
 endif
-export PORT CLOCK_START
+export PORT CLOCK_START SOURCES GRACE_SECONDS
 
 help: ## List targets
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}' 
