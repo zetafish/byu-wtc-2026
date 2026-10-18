@@ -21,7 +21,7 @@
                      :favourites-only? false ; countries table: only favourites
                      :query ""        ; leaderboard name search (not stored)
                      :show-out-runners? false ; list eliminated runners too
-                     :view :countries ; menu view, mirrors the URL hash
+                     :view :race      ; menu view, mirrors the URL hash
                      :team nil        ; team page: country code (#team/CODE), remembered
                      :team-data nil   ; /api/team/CODE of that country
                      :seat nil        ; seat ranking: nil = all seats overview
@@ -502,7 +502,7 @@
           [:ol.podium
            (for [{:keys [code name rank tied total-laps]} podium]
              ^{:key code}
-             [:li [:span.pos (str (when tied "=") rank ".")] [:b [country-label code]] [:span (str total-laps " yards")]])]]))
+             [:li [:span.pos (str rank ".")] [:b [country-label code]] [:span (str total-laps " yards")]])]]))
      (when (or error (seq failing))
        [:p.notice [:span.icon "⚠"]
         (if error
@@ -605,7 +605,7 @@
         shown (cond->> countries favourites-only? (filter fav?))]
     [:section.card.wide
      [:div.card-head
-      [:div [:h2 "Countries"]
+      [:div [:h2 "Standings"]
        [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for the team page."]]
       [:div.head-actions
        [:label.toggle
@@ -632,7 +632,7 @@
                                   :aria-pressed fav?
                                   :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
                     (if fav? "★" "☆")]]
-              [:td.num (when tied "=") rank]
+              [:td.num {:title (when tied "shared place")} rank]
               [:td.name [country-label code]]
               [:td.num active " / " runners]
               [:td.num total-laps]
@@ -994,18 +994,25 @@
       [stat-tile "Still in" [:<> active [:small (str " / " runners)]] nil]
       [stat-tile "Yard" current-lap nil]]]))
 
+(defn- ahead-of?
+  "Whether a rival ranks above country `ours`: more yards, or as many and
+  ahead on the tie-break (its :position, the official order)."
+  [{:keys [gap position]} ours]
+  (or (pos? gap) (and (zero? gap) (< position (:position ours)))))
+
 (defn- chase-bucket
-  "Which way a rival goes, seen from our country: :catching-you (behind or
-  level, gaining on us), :catching (ahead or level, we gain on them),
-  :cant-catch (behind, not gaining), :out-of-reach (ahead, we're not
-  gaining), or :level (level, as many runners in)."
-  [{:keys [gap gain]}]
-  (cond
-    (and (<= gap 0) (neg? gain)) :catching-you
-    (and (>= gap 0) (pos? gain)) :catching
-    (neg? gap) :cant-catch
-    (pos? gap) :out-of-reach
-    :else :level))
+  "Which way a rival goes, seen from our country: :catching-you (below us,
+  gaining), :catching (above us, we gain), :cant-catch (below, not gaining),
+  :out-of-reach (above, we're not gaining), or :level (as many yards and
+  runners in). Above and below follow the place, tie-break included."
+  [{:keys [gap gain] :as r} ours]
+  (let [above? (ahead-of? r ours)]
+    (cond
+      (and (zero? gap) (zero? gain)) :level
+      (and (not above?) (neg? gain)) :catching-you
+      (and above? (pos? gain)) :catching
+      above? :out-of-reach
+      :else :cant-catch)))
 
 ;; The page is about one country and the viewer may be from anywhere, so the
 ;; chase says "this team", never "you".
@@ -1016,6 +1023,13 @@
    [:cant-catch "Can't catch this team" nil]
    [:out-of-reach "Out of reach" nil]])
 
+;; once this team is out its score is final: nobody is a danger any more,
+;; the others will pass it or not
+(def ^:private buckets-when-out
+  [[:catching-you "Will pass this team" nil]
+   [:level "Level" nil]
+   [:cant-catch "Stays behind" nil]])
+
 (defn- in-laps [n] (if (= 1 n) "next yard" (str "in " n " yards")))
 
 (defn- rival-chip [{:keys [code name laps-to-pass]} with-laps?]
@@ -1025,10 +1039,17 @@
 
 (defn- chase-card [{:keys [country chase]}]
   (let [{:keys [ahead level behind field-active]} chase
+        ;; level countries go above or below this one by the tie-break
+        [level-above level-below] ((juxt filter remove) #(ahead-of? % country) level)
+        ;; once out, nothing ahead can change: only being overtaken can
+        out? (:eliminated-after country)
+        ahead (if out? [] ahead)
+        level-above (if out? [] level-above)
+        level (concat level-above level-below)
         c (:code country)
         nm (:name country)
         rivals (concat (reverse ahead) level behind)
-        by-bucket (group-by chase-bucket rivals)
+        by-bucket (group-by #(chase-bucket % country) rivals)
         ;; 8 series colours: overtakes first (soonest first), then the nearest
         charted (set (map :code (take 8 (sort-by (juxt #(if (:laps-to-pass %) 0 1)
                                                         #(or (:laps-to-pass %) 0)
@@ -1052,7 +1073,7 @@
         early? (and (empty? ahead) (empty? behind))
         many-level? (> (count level) 4)
         row (fn [{:keys [code name gap gain active laps-to-pass] :as r}]
-              (let [b (chase-bucket r)]
+              (let [b (chase-bucket r country)]
                 ^{:key code}
                 [:tr
                  [:td [country-label code]]
@@ -1060,21 +1081,28 @@
                  [:td.num (str active " vs " (:active country))]
                  [:td.num {:class (cond (pos? gain) "gain" (neg? gain) "loss")}
                   (cond (pos? gain) (str "+" gain " ▲") (neg? gain) (str "−" (- gain) " ▼") :else "")]
-                 [:td {:class (case b :catching-you "danger" :catching "chance" "muted")}
-                  (case b
-                    :catching-you (str "passes this team " (in-laps laps-to-pass))
-                    :catching (str "this team passes " (in-laps laps-to-pass))
-                    :level "staying level"
-                    :cant-catch "can't catch this team"
-                    :out-of-reach "out of reach")]]))]
+                 [:td {:class (if (:eliminated-after country) "muted" (case b :catching-you "danger" :catching "chance" "muted"))}
+                  (if (:eliminated-after country)
+                    (case b
+                      :catching-you (str "passes this team " (in-laps laps-to-pass))
+                      :level "level"
+                      "stays behind")
+                    (case b
+                      :catching-you (str "passes this team " (in-laps laps-to-pass))
+                      :catching (str "this team passes " (in-laps laps-to-pass))
+                      :level "staying level"
+                      :cant-catch "can't catch this team"
+                      :out-of-reach "out of reach"))]]))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "The chase"]
-       [:p.sub (str "Who " nm " can catch and who can catch " nm ", if nobody drops.")]]]
+       [:p.sub (if (:eliminated-after country)
+                 (str "Who can still pass " nm ", if nobody drops.")
+                 (str "Who " nm " can catch and who can catch " nm ", if nobody drops."))]]]
      (when (:eliminated-after country)
        [:p.chase-note (str (:name country) "'s race is over: its team score is final at " (:total-laps country) ".")])
      [:div.buckets
-      (for [[k label cls] buckets
+      (for [[k label cls] (if (:eliminated-after country) buckets-when-out buckets)
             :let [items (sort-by #(or (:laps-to-pass %) 999) (by-bucket k))]
             :when (seq items)]
         ^{:key k}
@@ -1100,9 +1128,10 @@
           (map row (reverse ahead))
           (if many-level?
             [:tr.muted {:key "level"} [:td {:col-span 5} (str (count level) " countries level with " nm " on " (:total-laps country))]]
-            (map row level))
+            (map row level-above))
           [:tr.you {:key "self"} [:td [country-label c]] [:td.num "0"]
            [:td.num (:active country)] [:td] [:td.muted "this team"]]
+          (when-not many-level? (map row level-below))
           (map row behind)]]])
      (when (and (not early?) (#{:history :runners} view))
        [:<>
@@ -1264,7 +1293,7 @@
 ;; it survives a reload, can be linked and works with the back button.
 
 (def views
-  [{:id :countries :label "Countries"}
+  [{:id :race :label "Race"}
    {:id :team :label "Team"}
    {:id :runners :label "Runners"}
    {:id :seats :label "Seats"}])
@@ -1276,7 +1305,8 @@
         [v code] (str/split h #"/" 2)]
     (cond
       (= v "team") (cond-> {:view :team} (seq code) (assoc :team (str/upper-case code)))
-      :else {:view (or (some #(when (= v (name (:id %))) (:id %)) views) :countries)})))
+      ;; #countries was the Race view's old name: old links still land there
+      :else {:view (or (some #(when (= v (name (:id %))) (:id %)) views) :race)})))
 
 (defn- go-to-hash! []
   (let [{:keys [view team]} (parse-hash)
@@ -1290,14 +1320,14 @@
 (defn- nav-count [id]
   (let [{:keys [countries runners]} @db]
     (case id
-      :countries (count (remove out? countries))
+      :race (count (remove out? countries))
       :team nil
       :runners (count (filter running? runners))
       :seats (count seats))))
 
 (defn- nav-title [id]
   (case id
-    :countries "countries still in the race"
+    :race "countries still in the race"
     :team nil
     :runners "runners still in the race"
     :seats "seats"))
@@ -1339,7 +1369,7 @@
     :team [team-view]
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
-    ;; countries: the Compare chips, all charts (comparison row first), then the ranking
+    ;; race: the Compare chips, all charts (comparison row first), then the ranking
     (if show-charts?
       (let [{compare true overall false} (group-by (comp boolean :per-country?) panels/panels)]
         [:<> [comparing]

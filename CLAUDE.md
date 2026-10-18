@@ -38,8 +38,8 @@ Before the race starts, a real-time clock shows nothing. `DEMO=1` runs a demo ra
 - **Backend:** `make test`, then `curl localhost:8090/api/race` (look at `phase` and `current-lap`) and `curl 'localhost:8090/api/query?metric=…'`. `docker compose up -d --build app` rebuilds it.
 - **Frontend:** there are no frontend tests, so look at it.
   - `web-dev` hot-reloads `frontend/src` at http://localhost:8092. `docker compose logs --tail 5 web-dev` shows compile errors and warnings.
-  - Open a view by hash (`/#countries`, `/#runners`, `/#seats`). The comparison charts need countries ticked in the Countries table; nothing is ticked on a first visit. Sparklines on the leaderboard only show when it's filtered.
-  - For screenshots, use headless Chrome: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --virtual-time-budget=8000 --window-size=1300,900 --screenshot=<scratchpad>/x.png 'http://localhost:8092/#countries'`. Then read the PNG. Phone widths under ~500 px get clipped.
+  - Open a view by hash (`/#race`, `/#team/NED`, `/#runners`, `/#seats`; `#countries` is the old name of `#race`). The Race view shows only the countries table for now (its charts are hidden). Sparklines on the leaderboard only show when it's filtered.
+  - For screenshots, use headless Chrome: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --virtual-time-budget=8000 --window-size=1300,900 --screenshot=<scratchpad>/x.png 'http://localhost:8092/#race'`. Then read the PNG. Phone widths under ~500 px get clipped.
   - The nginx site on :8091 serves the *release* build, so it only changes after `docker compose up -d --build web`.
 - **The race state of the local stack:**
   - `make up DEMO=1` writes `CLOCK_START` to `.env`, and the Makefile `-include`s it. From then on `make run` runs the demo clock too, until `make demo-off`.

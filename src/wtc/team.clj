@@ -40,13 +40,20 @@
   [gap gain]
   (when (pos? gain) (inc (quot gap gain))))
 
+(defn- pace
+  "Laps a country will keep adding per lap: its runners still in, but 0 once
+  it's out or down to its last runner (that lap is its last, by the team
+  rule), so it can't catch anyone over many laps."
+  [{:keys [active eliminated-after]}]
+  (if (or eliminated-after (< active 2)) 0 active))
+
 (defn- rival
   "One country seen from ours. :gap is theirs minus ours (positive: they're
   ahead); :gain is how much we gain on them per lap (negative: they gain)."
   [ours theirs]
   (let [gap (- (:total-laps theirs) (:total-laps ours))
-        gain (- (:active ours) (:active theirs))]
-    (merge (select-keys theirs [:code :name :rank :tied :total-laps :active :eliminated-after])
+        gain (- (pace ours) (pace theirs))]
+    (merge (select-keys theirs [:code :name :rank :position :tied :total-laps :active :eliminated-after])
            {:gap gap
             :gain gain
             :laps-to-pass (cond

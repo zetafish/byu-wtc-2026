@@ -61,6 +61,16 @@
       (is (= [[1 0] [2 0] [3 -1] [4 -2]]
              (:series ((by-code (get-in (team/team d "AAA") [:chase :behind])) "BBB")))))))
 
+(deftest out-or-last-runner
+  (testing "a country down to its last runner adds no more laps: it can't catch anyone"
+    (let [d (assoc-in derived [:countries "DDD" :active] 1)
+          bbb ((by-code (get-in (team/team d "DDD") [:chase :ahead])) "BBB")]
+      (is (= {:gap 2 :gain -2 :laps-to-pass nil} (select-keys bbb [:gap :gain :laps-to-pass])))))
+  (testing "a country that's out stands still: AAA (3 in) passes CCC, 6 ahead, in 3 laps"
+    (let [d (assoc-in derived [:countries "CCC" :eliminated-after] 6)
+          ccc ((by-code (get-in (team/team d "AAA") [:chase :ahead])) "CCC")]
+      (is (= {:gap 6 :gain 3 :laps-to-pass 3} (select-keys ccc [:gap :gain :laps-to-pass]))))))
+
 (deftest catching-up
   ;; JJJ 6+6+4+4+4 = 24 with 2 still in; KKK 6+6+6 = 18 with 3 still in:
   ;; KKK gains 1 a lap on a gap of 6, so it's strictly ahead after 7 laps

@@ -63,7 +63,7 @@ With two runners left (A and B):
 
 ### Countries
 - Countries are ranked by **team score**: the total laps of all their runners. This is the official ranking. [decided]
-- With equal team scores, the country whose race went farther (its farthest single runner) ranks higher. That's the official tie-break. With both equal, the countries share the place, shown as "=1", and are listed by runners still in, then by code. [decided]
+- With equal team scores, the country whose race went farther (its farthest single runner) ranks higher. That's the official tie-break. With both equal, the countries share the place, shown as the same number without "=" (1, 1, 1, then 4; the tooltip says "shared place"), and are listed by runners still in, then by code. [decided]
 
 ### Seats
 - Every team runner has a **seat**, 1–15. All runners in the same seat compete across countries, and each seat's winner is invited to the Individual Big's Backyard Ultra. [decided]
@@ -117,14 +117,14 @@ With two runners left (A and B):
   - before the start, the start time in the visitor's local time;
   - a data-source or connection problem, with a note that the last good data is shown.
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
-- A **left menu** to switch views: Countries, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
+- A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Team, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
 - **New version notice:** a page left open during a deploy says a new version is out and offers a Reload button; it never reloads by itself. [decided]
 - **Viewer preferences are remembered per browser:** the compared countries, favourite countries, starred runners, the leaderboard's country filter, the "★ only" toggles, and the runner leaderboard's "show eliminated" toggle. They're stored in browser storage, not cookies, so API requests stay cookie-free for the CDN. [decided]
 - **Every control acts on what's next to it:** no choice in one view silently changes another view. [decided]
 
-### Countries view: ranking and comparison charts
+### Race view (was: Countries): ranking and comparison charts
 
 **For now the view shows only the table:** the charts and the Compare row are hidden (`show-charts?` in `wtc.app`), and their queries aren't fetched. The descriptions below stay for when they come back. [decided]
 - **Top:** a "Compare" row with all the selection controls, then a chip per compared country, each with a ✕. Then the charts in two rows: first the two comparison charts, then the two all-country charts.
@@ -199,7 +199,7 @@ Built: the switcher (picker with favourites, ← → by standings, ☆), the hea
 Where most viewers will spend their time: people follow their own country and know its runners.
 - **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
 - **Switching teams** must be effortless: a picker with favourites on top, ← → for the neighbours in the standings, and the site remembers the viewer's team (home card, menu).
-- **Header:** flag, name, place ("=1"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
+- **Header:** flag, name, place ("1 / 67", "tied with N"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
 - **Team-rule state in few words:** "9 in", "2 in" (green: two can go on for a long time), "1 left", "none left"; the rule is in the tooltip. [decided]
 - **Chase panel:** the race seen from this country's position (below).
 - **Runners table:** seat, laps, last lap, average lap, rest margin, status, and **seat rank** ("2nd of 41 in seat 3"), linking to the seat. That's our unique angle.
@@ -208,6 +208,7 @@ Where most viewers will spend their time: people follow their own country and kn
 
 #### Chase panel [decided, built without the projection]
 "Are we being chased, where is the danger, are we catching the country ahead?"
+- **Out or on the last runner:** a country that is out, or down to its last runner (by the team rule that yard is its last), adds no more yards: it can still be passed but can never catch anyone. On an out country's own page nothing is a danger: rivals "Will pass this team" or "Stay behind", and countries ahead are left out: only being overtaken can change. [decided]
 - **The arithmetic:** each lap, a country gains exactly as many yards as it has runners still in. So the gap between two countries changes by the difference in their runners still in, and "laps to pass" is gap ÷ that difference. Shown in words:
   - catching up: "Belgium is 12 ahead with 6 in; you have 9. You gain 3 per lap and pass them in 4 laps if nobody drops."
   - chased: "Japan is 5 behind with 11 in. They gain 2 per lap and pass you in 3 laps."
