@@ -31,7 +31,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 
 ## Layout
 
-- A **left menu** (200 px, sticky, full height) holds the brand and the views Race, Charts, Team, Runners and Seats. Each item has a small count, explained by a tooltip.
+- A **left menu** (200 px, sticky, full height) holds the brand and the views Race, Charts, Team, Runners and Seats. The items are just names: no counts and no team code.
   - The active item has an orange left bar and a tint.
   - Below **760 px**, the menu becomes a sticky top tab bar with an orange underline, and the brand is hidden.
 - **Content** is at most 1240 px wide. The header (title, stats, chips, notices, finished banner) is on every view, and the chosen view goes below it.

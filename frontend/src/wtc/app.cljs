@@ -1503,21 +1503,6 @@
     (when (= view :charts) (fetch-panels!))
     (fetch-team!)))
 
-(defn- nav-count [id]
-  (let [{:keys [countries runners]} @db]
-    (case id
-      :race (count (remove out? countries))
-      (:team :charts) nil
-      :runners (count (filter running? runners))
-      :seats (count seats))))
-
-(defn- nav-title [id]
-  (case id
-    :race "countries still in the race"
-    (:team :charts) nil
-    :runners "runners still in the race"
-    :seats "seats"))
-
 (defn- apply-theme!
   "Light or dark on <html data-theme>; system leaves it to the OS setting."
   [theme]
@@ -1544,9 +1529,7 @@
         ^{:key id}
         [:li [:a {:href (if (= id :team) (str "#team/" (:team @db)) (str "#" (name id)))
                   :aria-current (when (= id view) "page")}
-              (if (= id :team)
-                [:<> label (when-let [t (:team @db)] [:span.count {:title "the team you looked at last"} t])]
-                [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]
+              label]])]
      [theme-toggle]]))
 
 (defn- charts-view
