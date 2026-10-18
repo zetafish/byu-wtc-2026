@@ -6,7 +6,8 @@
             [jsonista.core :as j]
             [reitit.ring :as ring]
             [ring.middleware.params :refer [wrap-params]]
-            [wtc.metrics :as metrics])
+            [wtc.metrics :as metrics]
+            [wtc.team :as team])
   (:import (java.time Instant)))
 
 (def ^:private mapper
@@ -79,6 +80,10 @@
                (if-let [r (get-in (derived) [:runners id])]
                  (json r)
                  (json 404 {:error "not found"} "no-store")))
+     :team (fn [{{:keys [code]} :path-params}]
+             (if-let [t (team/team (derived) code)]
+               (json t)
+               (json 404 {:error "not found"} "no-store")))
      :metrics (fn [_] (json (update-vals metrics/registry #(dissoc % :fn))))
      :query (fn [{{:strs [metric by countries runners lap]} :query-params}]
               (let [r (metrics/query (derived) metric
@@ -100,6 +105,7 @@
         ["/api/countries" {:get (:countries h)}]
         ["/api/runners" {:get (:runners h)}]
         ["/api/runners/:id" {:get (:runner h)}]
+        ["/api/team/:code" {:get (:team h)}]
         ["/api/metrics" {:get (:metrics h)}]
         ["/api/query" {:get (:query h)}]]
        {:data {:middleware [wrap-params]}})

@@ -188,7 +188,8 @@ No selection needed. **Home replaces the Countries view.** [decided]
 - **The comparison charts move to home.** [decided] Quick selectors pick the compared countries by class: Super Six, AAA, AA, A (next to today's "Top 8" and the country picker). [decided] This needs the feed's `division` (see Data).
 - **Left out on purpose:** the map, 2024 comparison curves, broadcast mode and the time machine. They add length, not answers.
 
-#### Team page [proposed]
+#### Team page [decided, first version built]
+Built: the switcher (picker with favourites, ← → by standings, ☆), the header (place, team score and gap, still in, current lap, class, site, local time, reporting status, team-rule pill), the chase panel with its gap chart, the runners table with seat race, the lap grid, and runners-in and place per lap. Not yet: a "vs rival" comparison, drifting-runner hints in the lap grid.
 Where most viewers will spend their time: people follow their own country and know its runners.
 - **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
 - **Switching teams** must be effortless: a picker with favourites on top, ← → for the neighbours in the standings, and the site remembers the viewer's team (home card, menu).
@@ -199,7 +200,7 @@ Where most viewers will spend their time: people follow their own country and kn
 - **Lap grid:** runners × laps, shaded by lap time, with what the official one lacks: slowest laps, a runner whose times drift up, the margin to the bell.
 - **The team over time:** runners still in per lap, place per lap.
 
-#### Chase panel [proposed]
+#### Chase panel [decided, built without the projection]
 "Are we being chased, where is the danger, are we catching the country ahead?"
 - **The arithmetic:** each lap, a country gains exactly as many yards as it has runners still in. So the gap between two countries changes by the difference in their runners still in, and "laps to pass" is gap ÷ that difference. Shown in words:
   - catching up: "Belgium is 12 ahead with 6 in; you have 9. You gain 3 per lap and pass them in 4 laps if nobody drops."

@@ -21,7 +21,8 @@
   - laps[i] is lap i+1, finished, with that many seconds (nil: no time
     recorded). A stop, or DNS, is a :dnf on the lap after the last.
   - reportedThrough, the last yard a nation has finished entering, is the
-    country's :reported-through.
+    country's :reported-through; division, utcOffset and site become
+    :division, :utc-offset and :site.
   - Excluded nations and hidden runners are left out.
 
   Polls send the last ETag, so an unchanged feed costs a 304.
@@ -108,7 +109,10 @@
     {:countries (for [n nations :let [code (get ours (get n "code"))]
                       :when (not (excluded (get n "code")))]
                   (cond-> {:code code :name (get-in roster [:countries code] (get n "name"))}
-                    (int? (get n "reportedThrough")) (assoc :reported-through (get n "reportedThrough"))))
+                    (int? (get n "reportedThrough")) (assoc :reported-through (get n "reportedThrough"))
+                    (string? (get n "division")) (assoc :division (get n "division"))
+                    (number? (get n "utcOffset")) (assoc :utc-offset (get n "utcOffset"))
+                    (string? (get n "site")) (assoc :site (get n "site"))))
      :runners (map #(select-keys % [:id :name :country]) runners)
      :laps (for [{:keys [id laps out?]} runners
                  lap (concat (map-indexed (fn [i s]

@@ -111,7 +111,8 @@
     (+ (:l m) px)))
 
 (defn line-chart
-  "Options beyond the series: `:refs` [{:y :label}] dashed horizontal lines,
+  "Options beyond the series: `:refs` [{:y :label :neutral?}] dashed horizontal
+  lines (a limit, in the critical colour; :neutral? for a baseline),
   `:marks` [{:x :y :label :color}] labelled points, `:direct-labels? false`,
   `:y-step` a fixed y tick distance.
   A series can have `:dash? true` and `:dots? true`."
@@ -136,9 +137,10 @@
             [:svg {:view-box (str "0 0 " (:w m) " " (:h m)) :role "img" :aria-label y-label}
              [frame {:m m :sy sy :y-ticks y-ticks :fmt-y fmt-y :sx sx :fmt-x fmt-x
                      :x-ticks (ticks (first xs) (last xs) 8 true false) :x-label x-label :y-label y-label}]
-             (for [{:keys [y label]} refs]
+             (for [{:keys [y label neutral?]} refs]
                ^{:key (str "ref" y)}
-               [:g [:line.ref {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (sy y) :y2 (sy y)}]
+               [:g {:class (when neutral? "neutral")}
+                [:line.ref {:x1 (:l m) :x2 (- (:w m) (:r m)) :y1 (sy y) :y2 (sy y)}]
                 (when label [:text.ref-label {:x (- (:w m) (:r m)) :y (- (sy y) 6) :text-anchor "end"} label])])
              (for [{:keys [key color values dash? dots?]} series]
                ^{:key key}

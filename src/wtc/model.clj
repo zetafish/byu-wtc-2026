@@ -11,7 +11,8 @@
   and may be missing. A lap that's absent hasn't been reported yet.
   `:reported-through` (optional) is the last lap the country has fully
   reported: a runner without a result up to there is out, and no runner is
-  out for a missing result after it, however late.
+  out for a missing result after it, however late. `:division` (the class:
+  SUPER, AAA, AA, A), `:utc-offset` (hours) and `:site` are optional too.
   Runner ids must be stable and identical across sources, because sources
   are merged per [runner-id lap]."
   (:require [malli.core :as m]))
@@ -22,7 +23,10 @@
   [:map
    [:code [:string {:min 1}]]
    [:name :string]
-   [:reported-through {:optional true} [:maybe [:int {:min 0}]]]])
+   [:reported-through {:optional true} [:maybe [:int {:min 0}]]]
+   [:division {:optional true} [:maybe :string]]
+   [:utc-offset {:optional true} [:maybe number?]]
+   [:site {:optional true} [:maybe :string]]])
 
 (def Runner
   [:map
@@ -50,7 +54,7 @@
   :rejected) rather than failing the whole snapshot."
   [{:keys [countries runners laps]}]
   (let [[runners bad-r] (index Runner [:id :name :country :bib] :id runners)
-        [countries bad-c] (index Country [:code :name :reported-through] :code countries)
+        [countries bad-c] (index Country [:code :name :reported-through :division :utc-offset :site] :code countries)
         [laps bad-l] (index Lap [:runner-id :lap :status :seconds]
                             (juxt :runner-id :lap) laps)
         known (into {} (filter (fn [[[id] _]] (contains? runners id))) laps)

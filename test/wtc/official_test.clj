@@ -31,6 +31,9 @@
   (testing "reportedThrough is the country's :reported-through"
     (is (= {"ALG" 3 "NED" 2 "POR" 2 "TPE" 2}
            (into {} (map (juxt :code :reported-through)) (:countries snap)))))
+  (testing "division, utcOffset and site are carried"
+    (is (= {:division "AAA" :utc-offset 2 :site "Leersum, Utrecht"}
+           (select-keys (first (filter #(= "NED" (:code %)) (:countries snap))) [:division :utc-offset :site]))))
   (testing "every runner is matched to a roster id, also in other scripts"
     (is (every? #(re-matches #"[A-Z]{3}-\d\d" %) (map :id (:runners snap))))
     (is (= "ALG-01" (:id (first (filter #(= "Madjid Bentalha" (:name %)) (:runners snap)))))))

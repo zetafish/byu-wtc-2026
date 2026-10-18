@@ -21,6 +21,8 @@
                      :show-out? false ; list eliminated countries too
                      :show-out-runners? false ; list eliminated runners too
                      :view :countries ; menu view, mirrors the URL hash
+                     :team nil        ; team page: country code (#team/CODE), remembered
+                     :team-data nil   ; /api/team/CODE of that country
                      :seat nil        ; seat ranking: nil = all seats overview
                      :results {}      ; [panel id, metric] -> query result
                      :variant {}      ; panel id -> index into the panel's :variants
@@ -46,7 +48,8 @@
                                                              :starred-only (:starred-only? @db)
                                                              :favourites-only (:favourites-only? @db)
                                                              :variant (:variant @db)
-                                                             :sim-poll-ms (:sim-poll-ms @db)})))
+                                                             :sim-poll-ms (:sim-poll-ms @db)
+                                                             :team (:team @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -115,9 +118,18 @@
                               (assoc :median (get-in m [:data :result 0 :values]))))))
       (.catch #(js/console.warn %))))
 
+(defn- fetch-team!
+  "The team page's data, for the team in the URL."
+  []
+  (when-let [code (and (= :team (:view @db)) (:team @db))]
+    (-> (get-json (str "/api/team/" (js/encodeURIComponent code)) {})
+        (.then #(when (= code (:team @db)) (swap! db assoc :team-data %)))
+        (.catch #(js/console.warn %)))))
+
 (defn refresh! []
   ;; charts load alongside the rest instead of after it, so they don't pop in late
   (fetch-panels!)
+  (fetch-team!)
   (some-> (:open @db) fetch-runner-detail!)
   (-> (js/Promise.all (clj->js [(get-json "/api/race" {})
                                 (get-json "/api/countries" {})
@@ -213,10 +225,13 @@
 (defn- country-name [code] (some #(when (= code (:code %)) (:name %)) (:countries @db)))
 
 (defn- country-label
-  "A country as [flag] name code, everywhere it's shown."
+  "A country as [flag] name code, everywhere it's shown, linking to its team
+  page. The click doesn't reach the row or chip around it."
   [code]
   (let [nm (or (country-name code) code)]
-    [:span.clabel {:title (str nm " " code)} [flag code] [:span.cname nm] " " [:span.code code]]))
+    [:a.clabel {:href (str "#team/" code) :title (str nm " " code ": team page")
+                :on-click #(.stopPropagation %)}
+     [flag code] [:span.cname nm] " " [:span.code code]]))
 
 (defn- to-series [panel result]
   (let [{:keys [per-country? series-label series-order series-names]} panel
@@ -802,29 +817,286 @@
        [:div.table-wrap.full
         (if seat [seat-table runners seat] [seats-overview runners])])]))
 
+;; --- team page ---
+;; One country: how it's doing, who's near it (the chase), its runners. All
+;; from /api/team/CODE (see wtc.team on the backend).
+
+(defn- ordinal [n]
+  (str n (if (<= 11 (mod n 100) 13)
+           "th"
+           (case (mod n 10) 1 "st" 2 "nd" 3 "rd" "th"))))
+
+(defn- place-text [{:keys [rank tied]}] (str (when tied "=") rank))
+
+(defn- plural [n word]
+  (str n " " (cond (= 1 n) word
+                   (str/ends-with? word "y") (str (subs word 0 (dec (count word))) "ies")
+                   :else (str word "s"))))
+
+(defn- local-time
+  "The time now at a UTC offset in hours, as hh:mm."
+  [offset]
+  (let [d (js/Date. (+ (.now js/Date) (* offset 3600000)))]
+    (str (.padStart (str (.getUTCHours d)) 2 "0") ":" (.padStart (str (.getUTCMinutes d)) 2 "0"))))
+
+(def ^:private class-names {"SUPER" "Super Six"})
+
+(defn- go-team! [code] (set! (.. js/window -location -hash) (str "team/" code)))
+
+(defn- team-switcher [code]
+  (let [{:keys [countries favourites]} @db
+        ordered (vec (sort-by :position countries))
+        i (first (keep-indexed #(when (= code (:code %2)) %1) ordered))
+        prev (when (and i (pos? i)) (ordered (dec i)))
+        next (when i (get ordered (inc i)))
+        fav? (contains? favourites code)]
+    [:div.team-switch
+     [:button.ghost {:disabled (nil? prev) :on-click #(go-team! (:code prev))
+                     :title (when prev (str "Ahead: " (:name prev))) :aria-label "Country ahead in the standings"} "←"]
+     [:select.seat {:value (or code "") :aria-label "Team"
+                    :on-change #(some-> (.. % -target -value) not-empty go-team!)}
+      (when-not code [:option {:value ""} "Pick a country"])
+      (when (seq favourites)
+        [:optgroup {:label "★ Favourites"}
+         (for [{c :code nm :name} (sort-by :name (filter #(favourites (:code %)) countries))]
+           ^{:key c} [:option {:value c} (str nm " " c)])])
+      [:optgroup {:label "All countries"}
+       (for [{c :code nm :name} (sort-by :name countries)]
+         ^{:key c} [:option {:value c} (str nm " " c)])]]
+     [:button.ghost {:disabled (nil? next) :on-click #(go-team! (:code next))
+                     :title (when next (str "Behind: " (:name next))) :aria-label "Country behind in the standings"} "→"]
+     (when code
+       [:button.star {:aria-label (if fav? "Unfavourite" "Favourite") :aria-pressed fav?
+                      :title (if fav? "Remove from favourites" "Add to favourites")
+                      :on-click #(toggle-favourite! code)}
+        (if fav? "★" "☆")])]))
+
+(defn- team-rule-text [{:keys [active eliminated-after winner]}]
+  (cond
+    winner [:span.pill.win (str "★ won by " (:name winner) " on lap " eliminated-after)]
+    eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after ", no winner")]
+    (= active 2) [:span.pill.danger "2 left: the next drop ends the race"]
+    :else [:span.pill.in [:span.dot.in] (str "safe: " active " still in")]))
+
+(defn- reporting-text [{:keys [reported-through eliminated-after]} current-lap]
+  (when (and reported-through (not eliminated-after))
+    (if (< reported-through (dec current-lap))
+      [:span.muted (str "still reporting lap " (inc reported-through) "…")]
+      [:span.muted (str "lap " reported-through " reported")])))
+
+(defn- team-header [{:keys [country current-lap chase]}]
+  (let [{:keys [code name total-laps active runners division utc-offset site]} country
+        ahead (first (:ahead chase))
+        n (count (:countries @db))]
+    [:section.card.wide.team-head
+     [:div.team-title
+      [flag code]
+      [:div
+       [:h2 name " " [:span.code code]]
+       [:div.team-rule [team-rule-text country]]
+       [:p.sub
+        (when division [:span (get class-names division division)])
+        (when site [:span site])
+        (when utc-offset [:span (str (local-time utc-offset) " local")])
+        [reporting-text country current-lap]]]]
+     [:div.rstats
+      [stat-tile "Place" [:<> (place-text country) [:small (str " / " n)]]
+       (when (seq (:level chase)) (str (count (:level chase)) " level on " total-laps))]
+      [stat-tile "Team score" total-laps
+       (cond
+         ahead (str (:gap ahead) " behind " (:name ahead))
+         (seq (:behind chase)) (str (- (:gap (first (:behind chase)))) " ahead of " (:name (first (:behind chase))))
+         :else nil)]
+      [stat-tile "Still in" [:<> active [:small (str " / " runners)]] nil]
+      [stat-tile "Lap" current-lap nil]]]))
+
+(defn- rival-sentence
+  "The chase in words, for one rival `r` seen from `ours`."
+  [ours {:keys [code name gap gain laps-to-pass active eliminated-after total-laps]}]
+  (let [we-out? (:eliminated-after ours)
+        who [:b name]
+        ins (str " with " active " in")]
+    (cond
+      (pos? gap)
+      (cond
+        we-out? [:<> who " is " gap " ahead: out of reach now."]
+        eliminated-after [:<> who " finished on " total-laps ". You pass them in " (plural laps-to-pass "lap")
+                          ", as long as 2 of yours keep going."]
+        (pos? gain) [:<> who " is " gap " ahead" ins "; you have " (:active ours) ". You gain " gain
+                     " a lap and pass them in " (plural laps-to-pass "lap") " if nobody drops."]
+        (zero? gain) [:<> who " is " gap " ahead" ins ", as many as you: the gap stays."]
+        :else [:<> who " is " gap " ahead" ins " and pulls away by " (- gain) " a lap."])
+      :else
+      (let [behind (- gap)]
+        (cond
+          eliminated-after [:<> who " finished on " total-laps ", " behind " behind: can't catch you any more."]
+          (neg? gain) [:<> who " is " behind " behind" ins ". They gain " (- gain) " a lap and pass you in "
+                       (plural laps-to-pass "lap") " if nobody drops."]
+          (zero? gain) [:<> who " is " behind " behind" ins ", as many as you: the gap stays."]
+          :else [:<> who " is " behind " behind" ins ". They can't catch you while you have more runners."])))))
+
+(defn- danger? [{:keys [gap laps-to-pass]}] (and (neg? gap) laps-to-pass (<= laps-to-pass 2)))
+
+(defn- chase-card [{:keys [country chase]}]
+  (let [{:keys [ahead level behind field-active]} chase
+        rivals (concat (reverse ahead) behind)
+        series (map-indexed (fn [i {:keys [code name series]}]
+                              {:key code :label (str name " " code) :color (color (inc i)) :values series})
+                            rivals)
+        early? (and (empty? ahead) (empty? behind))]
+    [:section.card.wide
+     [:div.card-head
+      [:div [:h2 "The chase"]
+       [:p.sub "Each lap a country gains as many laps as it has runners still in, so the gaps move by the difference in runners."]]]
+     [:ul.chase
+      (when (:eliminated-after country)
+        [:li.level (str (:name country) "'s race is over: its team score is final at " (:total-laps country) ".")])
+      (when (seq level)
+        [:li.level (str "Level on " (:total-laps country) " with " (plural (count level) "other country") ".")
+         (when field-active
+           (str " You have " (:active country) " in; countries still going average " field-active "."))])
+      (for [r ahead] ^{:key (:code r)} [:li [rival-sentence country r]])
+      (for [r behind] ^{:key (:code r)} [:li {:class (when (danger? r) "danger")} [rival-sentence country r]])]
+     (when-not early?
+       [chart/line-chart {:series series :refs [{:y 0 :label (:name country) :neutral? true}]
+                          :y-zero? false :x-label "lap" :y-label "laps ahead of you" :size :wide
+                          :legend? true}])]))
+
+(defn- team-runners [{:keys [runners settled-lap]}]
+  (let [ranked-all (ranked (:runners @db))
+        open (:open @db)
+        open-runner (when open (some #(when (= open (:id %)) %) ranked-all))]
+    [:section.card.wide
+     (when open-runner ^{:key open} [runner-dialog open-runner (count (:runners @db))])
+     [:div.card-head
+      [:div [:h2 "Runners"]
+       [:p.sub "Their seat, and their place among all runners in that seat (the race for the individual invites). Click a runner for their lap times."]]]
+     [:div.table-wrap.full
+      [:table.team-runners
+       [:thead [:tr [:th.num "Seat"] [:th "Runner"] [:th.num "Laps"] [:th "Status"]
+                [:th.num "Last lap"] [:th.num "Avg"]
+                [:th.num {:title "Rest per lap, average of the last 3 timed laps"} "Margin"]
+                [:th {:title "Place among all runners in this seat"} "Seat race"]]]
+       [:tbody
+        (for [{:keys [id name rank laps last-seconds avg-seconds margin-seconds seat-place seat-runners] :as r} runners]
+          ^{:key id}
+          [:tr.clickable {:class (when (= "out" (:status r)) "out")
+                          :on-click #(do (fetch-runner-detail! id) (swap! db assoc :open id))}
+           [:td.num rank]
+           [:td.name name]
+           [:td.num laps]
+           [:td [status-badge r]]
+           [:td.num (or (mmss last-seconds) "–")]
+           [:td.num (or (mmss avg-seconds) "–")]
+           [:td.num (or (mmss margin-seconds) "–")]
+           [:td (when seat-place
+                  [:a {:href "#seats" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seat rank))}
+                   (str (ordinal seat-place) " of " seat-runners)])]])]]]]))
+
+(defn- lap-shade
+  "0-4 by lap time: under 46 min, 46-49, 49-53, 53-57, 57 or more."
+  [s]
+  (cond (< s 2760) 0 (< s 2940) 1 (< s 3180) 2 (< s 3420) 3 :else 4))
+
+(defn- lap-grid [{:keys [runners settled-lap current-lap]}]
+  (let [n (max 1 (if (pos? settled-lap) current-lap 1))]
+    [:section.card.wide
+     [:div.card-head
+      [:div [:h2 "Every lap, every runner"]
+       [:p.sub "One cell per lap, darker is slower. Red is the lap a runner didn't finish; striped is a finished lap without a time."]]]
+     [:div.lap-grid-wrap
+      [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
+       (for [{:keys [id name history]} runners
+             :let [by-lap (into {} (map (juxt :lap identity)) history)]]
+         ^{:key id}
+         [:<>
+          [:span.lg-name name]
+          (for [l (range 1 (inc n))
+                :let [{:keys [status seconds inferred]} (by-lap l)]]
+            ^{:key l}
+            [:span {:class (cond
+                             (= "dnf" status) "lg dnf"
+                             seconds (str "lg s" (lap-shade seconds))
+                             (= "finished" status) "lg notime"
+                             :else "lg none")
+                    :title (str name ", lap " l ": "
+                                (cond (= "dnf" status) "did not finish"
+                                      seconds (mmss seconds)
+                                      (= "finished" status) (if inferred "finished (missed registration)" "finished, no time")
+                                      :else "–"))}])])]]
+     [:ul.legend.lg-legend
+      (for [[i t] (map-indexed vector ["under 46:00" "46–49" "49–53" "53–57" "57:00 or more"])]
+        ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
+      [:li [:span.lg.dnf] "did not finish"]
+      [:li [:span.lg.notime] "no time"]]]))
+
+(defn- team-over-time [{:keys [over-time country]}]
+  [:section.card
+   [:div.card-head [:div [:h2 "Runners still in"] [:p.sub "Runners starting each lap"]]]
+   [chart/line-chart {:series [{:key "in" :label (:name country) :color (color 1) :values (:runners-in over-time)}]
+                      :x-label "lap" :y-label "runners" :legend? false}]])
+
+(defn- team-place [{:keys [over-time country]}]
+  [:section.card
+   [:div.card-head [:div [:h2 "Place"] [:p.sub "After each lap (1 is first; ties share a place)"]]]
+   [chart/line-chart {:series [{:key "place" :label (:name country) :color (color 1) :values (:place over-time)}]
+                      :x-label "lap" :y-label "place" :y-zero? false :legend? false}]])
+
+(defn- team-view []
+  (let [{:keys [team team-data]} @db]
+    [:<>
+     [team-switcher team]
+     (cond
+       (nil? team) [:div.grid [:section.card.wide [:div.empty "Pick a country above to see its team page."]]]
+       (nil? team-data) [:div.loading "Loading…"]
+       :else [:div.grid
+              [team-header team-data]
+              [chase-card team-data]
+              [team-runners team-data]
+              [lap-grid team-data]
+              [team-over-time team-data]
+              [team-place team-data]])]))
+
 ;; --- views ---
 ;; The left menu switches between views. The view lives in the URL hash so
 ;; it survives a reload, can be linked and works with the back button.
 
 (def views
   [{:id :countries :label "Countries"}
+   {:id :team :label "Team"}
    {:id :runners :label "Runners"}
    {:id :seats :label "Seats"}])
 
-(defn- hash-view []
-  (let [h (subs (.. js/window -location -hash) 1)]
-    (or (some #(when (= h (name (:id %))) (:id %)) views) :countries)))
+(defn- parse-hash
+  "{:view v} from the URL hash, plus :team for #team/CODE."
+  []
+  (let [h (subs (.. js/window -location -hash) 1)
+        [v code] (str/split h #"/" 2)]
+    (cond
+      (= v "team") (cond-> {:view :team} (seq code) (assoc :team (str/upper-case code)))
+      :else {:view (or (some #(when (= v (name (:id %))) (:id %)) views) :countries)})))
+
+(defn- go-to-hash! []
+  (let [{:keys [view team]} (parse-hash)
+        changed? (and team (not= team (:team @db)))]
+    (swap! db #(cond-> (assoc % :view view)
+                 team (assoc :team team)
+                 changed? (assoc :team-data nil)))
+    (when team (save-prefs!))
+    (fetch-team!)))
 
 (defn- nav-count [id]
   (let [{:keys [countries runners]} @db]
     (case id
       :countries (count (remove out? countries))
+      :team nil
       :runners (count (filter running? runners))
       :seats (count seats))))
 
 (defn- nav-title [id]
   (case id
     :countries "countries still in the race"
+    :team nil
     :runners "runners still in the race"
     :seats "seats"))
 
@@ -835,9 +1107,11 @@
      [:ul
       (for [{:keys [id label]} views]
         ^{:key id}
-        [:li [:a {:href (str "#" (name id))
+        [:li [:a {:href (if (= id :team) (str "#team/" (:team @db)) (str "#" (name id)))
                   :aria-current (when (= id view) "page")}
-              label [:span.count {:title (nav-title id)} (nav-count id)]]])]]))
+              (if (= id :team)
+                [:<> label (when-let [t (:team @db)] [:span.count {:title "your team"} t])]
+                [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]]))
 
 (defn- country-picker
   "Search box with suggestions; picking a suggestion, or Enter, adds the country."
@@ -890,6 +1164,7 @@
 
 (defn- view-body [view]
   (case view
+    :team [team-view]
     :runners [:div.grid [runners-table]]
     :seats [:div.grid [seats-card]]
     ;; countries: the Compare chips, all charts (comparison row first), then the ranking
@@ -917,8 +1192,9 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team]} (load-prefs)]
     (swap! db assoc
+           :team team
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
@@ -929,9 +1205,9 @@
            :favourites-only? (true? favourites-only)
            :show-out? (true? show-out)
            :show-out-runners? (true? show-out-runners)))
-  (swap! db assoc :view (hash-view))
+  (go-to-hash!)
   (.addEventListener js/window "hashchange"
-                     #(do (swap! db assoc :view (hash-view)) (js/window.scrollTo 0 0)))
+                     #(do (go-to-hash!) (js/window.scrollTo 0 0)))
   (render)
   ;; the first poll waits for the first load, which says if it's a simulation
   (-> (refresh!) (.then schedule-poll!)))

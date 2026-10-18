@@ -108,6 +108,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - The state lives in memory only. On boot, each source's dataset starts from its own saved snapshot (`wtc.source/saved`; only the official source has one, with `:snapshot`), else empty until the first fetch. The official feed holds the whole race, so nothing else is kept.
   - `refresh!` merges, enriches and derives.
   - `make-clock` provides real time, or the fixed moment of a demo race: state `:sim` `{at end-lap}`, there only when `CLOCK_START` is set. A demo race stands still until `control-sim` moves it (jump to a lap, or step k laps), always to a moment with the previous lap settled. `sim-end-lap` works out the demo race's last lap once at boot (the sources fetched as if a month had passed), for the slider. In a demo every API response is `Cache-Control: no-store`. The position lives in memory only, so an app restart puts the race back at `CLOCK_START`.
+- **`wtc.team`:** the team page's data for one country, from the derived state (pure). The chase rests on one fact: each lap a country gains as many yards as it has runners still in, so a rival's `:gap` (theirs minus ours) changes by `:gain` (our runners in minus theirs) per lap, and `:laps-to-pass` is when one becomes strictly ahead, if nobody drops. Each rival carries its gap per lap as `:series`. `:place` per lap uses the official tie-break.
 - **`wtc.metrics`:** visualisation queries, in a Prometheus-like shape: `{:status "success" :data {:resultType "matrix" :xAxis "lap" :result [{:metric {...} :values [[x y]…]}]}}`. **To add a visualisation, add an entry to `registry`.** The current entries:
   - `runners_started`
   - `team_score`
@@ -137,6 +138,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | `/api/countries` | countries sorted by `:position` |
 | `/api/runners?country=NED&history=true` | runners by laps; `history` adds the per-lap history |
 | `/api/runners/:id` | one runner, with history |
+| `/api/team/:code` | the team page: `country`, `runners` (with `seat-place`/`seat-runners`, last/avg lap, rest margin, history), `over-time` (`runners-in`, `team-score`, `place` per lap) and `chase` (`ahead`, `level`, `behind`, `field-active`); 404 for an unknown code |
 | `/api/metrics` | the metric registry, with docs |
 | `/api/query?metric=…&by=country&countries=A,B&runners=x,y&lap=n` | one metric result |
 
