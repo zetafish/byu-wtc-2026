@@ -203,7 +203,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   - `app`: the backend on :8090.
   - `web`: the nginx-served release build on :8091. It uses `resolver 127.0.0.11` with a variable upstream, so a backend restart doesn't leave a stale IP.
   - `web-dev`: `shadow-cljs watch` with hot reload on :8092, and the shadow-cljs UI on :9630.
-- **Database:** always Neon, also locally. `DATABASE_URL` in `.env` points at the branch `local` of the Neon project `bigs-live-demo`, never at the production project; compose and `make run` refuse to start without it. `make db-reset` resets `local` to its parent `main` (the hosted demo's data) with `neonctl`, and only ever in `bigs-live-demo` (`NEON_PROJECT_ID`). `make run-mem` uses the in-memory store.
+- **Database:** optional locally. Without `DATABASE_URL`, compose, `make run` and the REPL use the in-memory store. With it, `DATABASE_URL` in `.env` points at the branch `local` of the Neon project `bigs-live-demo`, never at the production project. `make db-reset` resets `local` to its parent `main` (the hosted demo's data) with `neonctl`, and only ever in `bigs-live-demo` (`NEON_PROJECT_ID`). `make run-mem` uses the in-memory store.
 - **Ports** avoid 8080 and 8787, which local `bb` servers often use.
 - **`DEMO=1`** writes `CLOCK_START` (default `2026-10-18T18:00:00Z`, lap 31) to `.env`, which compose reads, so a plain `docker compose up` is a demo too. A restart puts the race back at `CLOCK_START`.
 - **REPL:** `make repl` starts nREPL on 7888; then run `(user/start)` or `(user/restart)` from `dev/user.clj`.

@@ -13,9 +13,9 @@ NEON_BRANCH ?= local
 # restart puts the race back at CLOCK_START. `make demo-off` goes back to
 # real time.
 #
-# The database is always Neon: put DATABASE_URL (the branch `local` of the
-# Neon project bigs-live-demo)
-# in .env. Only `make run-mem` and the tests work without it.
+# Without DATABASE_URL the backend uses its in-memory store. To use Postgres,
+# put DATABASE_URL (the branch `local` of the Neon project bigs-live-demo,
+# never the production project bigs-live) in .env.
 -include .env
 ifdef DEMO
 CLOCK_START ?= 2026-10-18T18:00:00Z
@@ -36,16 +36,16 @@ else
 	clojure -M:test -n $(T)
 endif
 
-run: ## Run the backend on the JVM against DATABASE_URL (Neon)
-	$(need-db)clojure -M:run
+run: ## Run the backend on the JVM (Neon if DATABASE_URL is set, else in memory)
+	clojure -M:run
 
-run-mem: ## Run the backend on the JVM with the in-memory store
+run-mem: ## Run the backend on the JVM in memory, even if DATABASE_URL is set
 	DATABASE_URL= clojure -M:run
 
 repl: ## Start nREPL on 7888 (then (user/start))
 	clojure -M:dev:nrepl
 
-up: ## Build and run the stack in Docker (app, web, web-dev) against DATABASE_URL (Neon)
+up: ## Build and run the stack in Docker (app, web, web-dev); Neon if DATABASE_URL is set
 ifdef DEMO
 	@{ grep -v '^CLOCK_START=' .env 2>/dev/null; printf 'CLOCK_START=%s\n' $(CLOCK_START); } > .env.tmp && mv .env.tmp .env
 endif
