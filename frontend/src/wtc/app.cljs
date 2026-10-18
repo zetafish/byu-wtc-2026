@@ -1198,10 +1198,6 @@
     :winner [:span.pill.win "★ winner"]
     :tie [:span.pill.out (str "tie · " (count leaders))]))
 
-(defn- country-key [code]
-  (when-let [slot (get (:selected @db) code)]
-    [:span.key-box {:style {:background (color slot)}}]))
-
 (defn- seats-overview [runners]
   [:table
    [:thead [:tr [:th.num "Seat"] [:th "Leader"] [:th "Country"] [:th.num "Yards"] [:th "State"]]]
@@ -1215,7 +1211,7 @@
        (if (> (count leaders) 1)
          [:<> [:td.muted (str (count leaders) " tied")] [:td]]
          [:<> [:td.name (:name lead "–")]
-          [:td (when lead [:<> [country-key (:country lead)] [country-label (:country lead)]])]])
+          [:td (when lead [country-label (:country lead)])]])
        [:td.num (:laps lead)]
        [:td [seat-state-pill sum]]])]])
 
@@ -1230,7 +1226,7 @@
       [:tr {:class (when-not (running? r) "out")}
        [:td.num pos]
        [:td.name name]
-       [:td [country-key country] [country-label country]]
+       [:td [country-label country]]
        [:td.num laps]
        [:td.num (or best-yards "–")]
        [:td [status-badge r]]])]])

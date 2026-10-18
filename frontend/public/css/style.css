@@ -257,7 +257,6 @@ input:focus-visible, button:focus-visible, tr:focus-visible { outline: 2px solid
 }
 .legend li { display: flex; align-items: center; gap: 6px; }
 .key-line { display: inline-block; width: 16px; height: 2px; border-radius: 1px; }
-.key-box { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 
 .plot { position: relative; }
 .plot svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -411,7 +410,6 @@ button.star {
   color: var(--star); padding: 0 2px;
 }
 button.star:disabled { color: var(--axis); cursor: not-allowed; }
-td.name .key-box { margin-right: 6px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
 .filters-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 10px; }
