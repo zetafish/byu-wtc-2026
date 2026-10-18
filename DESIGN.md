@@ -71,7 +71,7 @@ Charts follow the dataviz method: pick the form first, colour last, and validate
 - **Series colours** are `--series-1..8`, the validated dataviz palette, re-checked against `#ffffff` and `#15232a`. Don't add hues and don't use the accent.
 - **Colour follows the country, not its rank.** A compared country takes the lowest free slot, and the survivors keep their colour when one is removed. Because there are 8 hues, at most 8 countries can be compared. Leaderboard country filters have no colour, so they don't use slots.
 - **Non-per-country series** (for example attrition by reason) take slots in their fixed `:series-order`.
-- **Marks:** 2 px lines and recessive grid lines and axes. One y-axis only; never a dual axis.
+- **Marks:** 2 px lines and recessive grid lines and axes. One y-axis only; never a dual axis. A place axis is inverted (`:y-invert? true`): 1 at the top, so climbing the standings goes up. It always shows the whole field (`:y-domain [1 n]`, n the number of countries), both ends labelled.
 - **Labels:**
   - 2 or more series always get a legend, and up to 4 also get direct labels at the line end. A single series has no legend; the title names it.
   - **The exception is the comparison charts:** the Compare chips above them, with a colour key per country, are their shared legend, so the charts have none of their own (`:legend? false`). That keeps the chart height fixed while countries are added.

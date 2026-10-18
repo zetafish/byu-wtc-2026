@@ -32,7 +32,14 @@
 (defn- scale [[d0 d1] [r0 r1]]
   (fn [v] (+ r0 (* (- r1 r0) (if (= d0 d1) 0.5 (/ (- v d0) (- d1 d0)))))))
 
-(defn- y-axis [series {:keys [y-zero? refs y-step] :or {y-zero? true}} stacked?]
+(defn- y-axis [series {:keys [y-zero? refs y-step y-invert? y-domain] :or {y-zero? true}} stacked?]
+  (if-let [[lo hi] y-domain]
+    ;; a fixed range, e.g. every place from 1 to the number of countries
+    (let [ts (ticks lo hi 4 true false y-step)
+          step (if (next ts) (- (second ts) (first ts)) 1)
+          ;; both ends labelled; drop a tick that would crowd one
+          inner (filter #(and (> (- % lo) (* 0.4 step)) (> (- hi %) (* 0.4 step))) ts)]
+      {:ticks (vec (concat [lo] inner [hi])) :domain [lo hi]})
   (let [ys (concat (if stacked?
                      (vals (apply merge-with + (map #(into {} (:values %)) series)))
                      (mapcat #(map second (:values %)) series))
@@ -42,8 +49,10 @@
         ;; y-zero? keeps 0 inside the axis, from below (counts) or above (gaps)
         lo (if y-zero? (min 0 y-min) y-min)
         hi (let [h (if y-zero? (max 0 y-max) y-max)] (if (<= h lo) (+ lo 1) h))
-        ts (ticks lo hi 4 false true y-step)]
-    {:ticks ts :domain [(first ts) (max (last ts) hi)]}))
+        ts (ticks lo hi 4 false true y-step)
+        ;; a place axis (inverted) starts at 1, not at the tick below it
+        ts (if (and y-invert? (>= lo 1) (< (first ts) 1)) (assoc ts 0 1) ts)]
+    {:ticks ts :domain [(first ts) (max (last ts) hi)]})))
 
 (defn- xs-of [series] (vec (sort (distinct (mapcat #(map first (:values %)) series)))))
 
@@ -114,7 +123,8 @@
   "Options beyond the series: `:refs` [{:y :label :neutral?}] dashed horizontal
   lines (a limit, in the critical colour; :neutral? for a baseline),
   `:marks` [{:x :y :label :color}] labelled points, `:direct-labels? false`,
-  `:y-step` a fixed y tick distance.
+  `:y-step` a fixed y tick distance, `:y-invert? true` for a place axis
+  (low values at the top), `:y-domain [lo hi]` a fixed y range.
   A series can have `:dash? true` and `:dots? true`."
   [_]
   (let [hover (r/atom nil)]
@@ -125,7 +135,7 @@
             xs (xs-of series)
             {y-ticks :ticks y-dom :domain} (y-axis series opts false)
             sx (scale [(first xs) (last xs)] [(:l m) (- (:w m) (:r m))])
-            sy (scale y-dom [(- (:h m) (:b m)) (:t m)])
+            sy (scale y-dom (cond-> [(- (:h m) (:b m)) (:t m)] (:y-invert? opts) reverse))
             invert (fn [px] (+ (first xs) (* (- (last xs) (first xs))
                                              (/ (- px (:l m)) (- (:w m) (:l m) (:r m))))))
             hx @hover]

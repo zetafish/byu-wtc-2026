@@ -1271,7 +1271,9 @@
   [:section.card
    [:div.card-head [:div [:h2 "Place"] [:p.sub "After each yard (1 is first; ties share a place)"]]]
    [chart/line-chart {:series [{:key "place" :label (:name country) :color (color 1) :values (:place over-time)}]
-                      :x-label "yard" :y-label "place" :y-zero? false :legend? false}]])
+                      :x-label "yard" :y-label "place" :y-invert? true :legend? false
+                      ;; the whole field, 1 to the number of countries
+                      :y-domain [1 (max 2 (count (:countries @db)))]}]])
 
 (defn- team-view []
   (let [{:keys [team team-data]} @db]
