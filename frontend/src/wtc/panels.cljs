@@ -17,33 +17,33 @@
 
 (def panels
   [{:id :started
-    :title "Runners starting each lap"
+    :title "Runners starting each yard"
     :metric "runners_started"
     :per-country? true
     :kind :line
-    :x-label "lap" :y-label "runners"}
+    :x-label "yard" :y-label "runners"}
    {:id :score
     :title "Team score"
     :per-country? true
     :kind :line
-    :x-label "lap"
+    :x-label "yard"
     ;; the total hides small differences between the top countries; the gap shows them
-    :variants [{:label "Gap to leader" :metric "team_score_gap" :y-label "laps behind"
-                :subtitle "Laps behind the leading country (of all countries)"}
-               {:label "Total" :metric "team_score" :y-label "laps"
-                :subtitle "Total laps by all runners of a country"}]}
+    :variants [{:label "Gap to leader" :metric "team_score_gap" :y-label "yards behind"
+                :subtitle "Yards behind the leading country (of all countries)"}
+               {:label "Total" :metric "team_score" :y-label "yards"
+                :subtitle "Total yards by all runners of a country"}]}
    {:id :attrition
-    :title "Runners out per lap"
+    :title "Runners out per yard"
     :subtitle "All countries"
     :metric "attrition"
     :series-label :reason
     :series-order ["dnf" "missing"]
     :series-names {"dnf" "Did not finish" "missing" "No result"}
     :kind :bar
-    :x-label "lap" :y-label "runners"}
+    :x-label "yard" :y-label "runners"}
    {:id :histogram
     :title "Countries by runners still in"
-    :subtitle "Current lap, all countries"
+    :subtitle "Current yard, all countries"
     :metric "countries_by_active_runners"
     :kind :bar
     :x-label "runners in" :y-label "countries"}])

@@ -108,6 +108,7 @@ With two runners left (A and B):
 ## 5. The site
 
 ### On every view
+- **The site says yard, not lap:** every text a visitor sees uses yard (BYU's word for a loop). Code, API and docs keep "lap". [decided]
 - **Header:**
   - the current lap, runners in the race, and countries in the race;
   - chips for in race, out, ★ country winners, and "X of 69 countries eliminated" ("done" after the finish);
@@ -138,7 +139,7 @@ With two runners left (A and B):
 - **Favourite countries:** a ☆ toggle on each row of the Countries table. Favourites feed the search box and the "★ Favourites" button. [decided]
   - A "★ only" toggle in the table head shows only favourite countries, eliminated ones included. With no favourites, the table says how to add some. [decided]
 - **Nothing is preselected:** a first visit starts with no countries compared, because preselecting is too opinionated. The comparison charts then say to add countries above. The selection persists across refreshes and reloads, and the auto-refresh never changes it. [decided]
-- **Clicking a country row** opens that country's runners in a compact grid below the row: seat, name, laps, and an in/out/winner mark. The grid also has a link to the runner leaderboard filtered to that country. One country is open at a time. [decided]
+- **Clicking a country row** opens its team page (anywhere on the row but the star). The expanded runner grid below the row is gone: the team page shows the runners. [decided]
 - **Eliminated countries always show**, in their place by team score, greyed out with a grey flag: their score still counts in the ranking. [decided]
 - The table always shows every row, without an inner scroll. [decided]
 - **Charts** work like Grafana: the backend serves visualisations as standard JSON in a Prometheus-like shape. The frontend draws them generically, so adding a chart is cheap. [brief] The charts are:

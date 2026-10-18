@@ -20,7 +20,6 @@
                      :starred-only? false
                      :favourites-only? false ; countries table: only favourites
                      :query ""        ; leaderboard name search (not stored)
-                     :expanded nil    ; country code whose runners are shown in the table
                      :show-out-runners? false ; list eliminated runners too
                      :view :countries ; menu view, mirrors the URL hash
                      :team nil        ; team page: country code (#team/CODE), remembered
@@ -266,9 +265,9 @@
 ;; the official stop codes, short for pills and long for tooltips
 (def ^:private stop-short {"rtc" "RTC" "inc" "INC" "over" "OVER" "dns" "did not start"})
 (def ^:private stop-long
-  {"rtc" "RTC: didn't start the next lap"
-   "inc" "INC: started a lap, didn't finish it"
-   "over" "OVER: finished a lap over the hour"
+  {"rtc" "RTC: didn't start the next yard"
+   "inc" "INC: started a yard, didn't finish it"
+   "over" "OVER: finished a yard over the hour"
    "dns" "did not start the race"})
 
 (defn- out-text [{:keys [reason stop]}]
@@ -434,20 +433,20 @@
          [:p [:span.icon.info "◎"] [:b "Simulation. "]
           (when mock-data "Mock data, not real results. ")
           (when controls
-            (str "Demo race at lap " current-lap " of " end ", "
-                 (if playing? (str "playing one lap every " (/ every 1000) " s.") "paused.")))]
+            (str "Demo race at yard " current-lap " of " end ", "
+                 (if playing? (str "playing one yard every " (/ every 1000) " s.") "paused.")))]
          (when controls
            [:div.sim-controls
             [:div.transport
-             [:button.ghost {:title "Previous lap" :aria-label "Previous lap"
+             [:button.ghost {:title "Previous yard" :aria-label "Previous yard"
                              :disabled (<= current-lap 1) :on-click #(pause-and! {:action "step" :by -1})} "⏮"]
              [:button.ghost.play {:title (if playing? "Pause" "Play") :aria-label (if playing? "Pause" "Play")
                                   :disabled (and (not playing?) (>= current-lap end))
                                   :on-click toggle-play!}
               (if playing? "⏸" "▶")]
-             [:button.ghost {:title "Next lap" :aria-label "Next lap"
+             [:button.ghost {:title "Next yard" :aria-label "Next yard"
                              :disabled (>= current-lap end) :on-click #(pause-and! {:action "step" :by 1})} "⏭"]]
-            [:input.scrub {:type "range" :min 1 :max end :step 1 :value lap :aria-label "Race lap"
+            [:input.scrub {:type "range" :min 1 :max end :step 1 :value lap :aria-label "Race yard"
                            :style {"--progress" (str (* 100 (/ (dec lap) (max 1 (dec end)))) "%")}
                            :on-change (fn [e]
                                         ;; keeps playing or paused; no step while dragging
@@ -459,9 +458,9 @@
                                                          #(-> (control-sim! {:action "jump" :lap n})
                                                               (.then (fn [] (reset! scrub nil))))
                                                          300))))}]
-            [:span.sim-lap (str "Lap " lap " / " end)]
-            [:span.sim-label "Lap every"]
-            [:div.segmented {:role "group" :aria-label "Step one lap every"}
+            [:span.sim-lap (str "Yard " lap " / " end)]
+            [:span.sim-label "Yard every"]
+            [:div.segmented {:role "group" :aria-label "Step one yard every"}
              (for [[v text] sim-polls]
                ^{:key v}
                [:button {:aria-pressed (= v every) :on-click #(set-sim-poll! v)} text])]])]))))
@@ -473,10 +472,11 @@
      [:header
       [:h1 [:small "Big's Backyard Ultra · Unofficial"] "World Team Championship 2026"]
       [:div.stats
-       [stat "lap" "Lap" (:current-lap race "–")]
+       [stat "lap" "Yard" (:current-lap race "–")]
        [stat "Runners in race" (:running race "–")]
        [stat "Countries in race" (count (filter #(pos? (:active %)) countries))]]]
-     [:p.disclaimer "Unofficial live stats, computed from the published results. May differ from the official standings."
+     [:p.disclaimer "Unofficial live stats, computed from the published results. May differ from the "
+      [:a {:href "https://wtc2026.bigsbackyardultra.com/" :target "_blank" :rel "noopener"} "official standings"] "."
       (when updated [:span.muted " Updated " (.toLocaleTimeString updated) "."])]
      (when (:runners race)
        (let [by-status (frequencies (map :status (:runners @db)))]
@@ -487,9 +487,6 @@
             [:span.chip (str "★ " (get by-status "finished") " country winners")])
           [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries "
                            (if (= "finished" (:phase race)) "done" "eliminated"))]]))
-     (when (:new-version? @db)
-       [:p.notice.new-version [:span.icon.info "↻"] "A new version of this site is out. "
-        [:button.link {:on-click #(.reload js/location)} "Reload"]])
      (when (:simulation race) [sim-panel race])
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
@@ -497,15 +494,15 @@
              (.toLocaleString (js/Date. (:start race)) js/undefined
                               #js {:weekday "long" :day "numeric" :month "long"
                                    :hour "2-digit" :minute "2-digit"})
-             " (your local time). Charts fill in after the first lap.")])
+             " (your local time). Charts fill in after the first yard.")])
      (when (= "finished" (:phase race))
        (let [podium (take 3 (sort-by :position countries))]
          [:div.finished
-          [:h2 (str "Race finished after " (:race-laps race) " laps")]
+          [:h2 (str "Race finished after " (:race-laps race) " yards")]
           [:ol.podium
            (for [{:keys [code name rank tied total-laps]} podium]
              ^{:key code}
-             [:li [:span.pos (str (when tied "=") rank ".")] [:b [country-label code]] [:span (str total-laps " laps")]])]]))
+             [:li [:span.pos (str (when tied "=") rank ".")] [:b [country-label code]] [:span (str total-laps " yards")]])]]))
      (when (or error (seq failing))
        [:p.notice [:span.icon "⚠"]
         (if error
@@ -598,32 +595,10 @@
                    [[] nil 0]
                    (map-indexed vector sorted)))))
 
-(defn- mini-status [{:keys [status] :as r}]
-  (case status
-    "running" [:span.dot.in {:title "in race"}]
-    "finished" [:span.win {:title "country winner"} "★"]
-    [:span.icon {:title (str "out · " (out-text r))} "✕"]))
-
 ;; --- countries ---
 
-(defn- country-runners [{:keys [code name]}]
-  (let [rs (->> (:runners @db)
-                (filter #(= code (:country %)))
-                (sort-by (juxt (comp - :laps) #(if (running? %) 0 1) :rank)))]
-    [:tr.detail
-     [:td {:col-span 8}
-      [:ul.squad
-       (for [{:keys [id rank laps] :as r} rs]
-         ^{:key id}
-         [:li {:class (when-not (running? r) "out")}
-          [:span.seat {:title "seat"} rank] [:span.who (:name r)] [:b laps] [mini-status r]])]
-      [:a.change {:href "#runners"
-                  :on-click #(do (swap! db assoc :runner-filter #{code} :query "")
-                                 (save-prefs!) (fetch-panels!))}
-       (str "Show " name " in the runner leaderboard →")]]]))
-
 (defn- countries-table []
-  (let [{:keys [countries selected favourites favourites-only? expanded]} @db
+  (let [{:keys [countries selected favourites favourites-only?]} @db
         lead (reduce max 0 (map :total-laps countries))
         fav? #(contains? favourites (:code %))
         ;; eliminated countries always show, greyed: their score still counts
@@ -631,7 +606,7 @@
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Countries"]
-       [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for its runners."]]
+       [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand with \"★ only\". Click a row for the team page."]]
       [:div.head-actions
        [:label.toggle
         [:input {:type "checkbox" :checked favourites-only?
@@ -644,17 +619,15 @@
        [:div.table-wrap.full
         [:table
          [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "In race"] [:th.num "Team score"]
-                  [:th.num {:title "Laps behind the leading country's team score"} "Gap"]
-                  [:th "Status"] [:th]]]
+                  [:th.num {:title "Yards behind the leading country's team score"} "Gap"]
+                  [:th "Status"]]]
          [:tbody
           (for [{:keys [code name rank tied active runners total-laps eliminated-after winner] :as c} shown
-                :let [fav? (contains? favourites code)
-                      open? (= expanded code)
-                      toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
+                :let [fav? (contains? favourites code)]]
             ^{:key code}
-            [:<>
-             [:tr.clickable {:class [(when (and show-charts? (contains? selected code)) "selected") (when eliminated-after "out")]
-                             :on-click toggle-open}
+            ;; the whole row opens the team page (the name is a link for keyboard and new tabs)
+            [:tr.clickable {:class [(when (and show-charts? (contains? selected code)) "selected") (when eliminated-after "out")]
+                            :on-click #(set! (.-hash js/location) (str "team/" code))}
               [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
                                   :aria-pressed fav?
                                   :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
@@ -665,17 +638,13 @@
               [:td.num total-laps]
               [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
               [:td (cond
-                     winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
-                     eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+                     winner [:span.pill.win (str "★ " (:name winner) " · yard " eliminated-after)]
+                     eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after yard " eliminated-after)]
                      ;; down to 1 or 0 while the lap isn't settled: this lap decides the country's race
-                     (<= active 1) [:span.pill.danger {:title "the team rule: a country goes on while 2 runners finish each lap"}
+                     (<= active 1) [:span.pill.danger {:title "the team rule: a country goes on while 2 runners finish each yard"}
                                     (if (zero? active) "none left" "1 left")]
                      :else
-                     [:span.pill.in [:span.dot.in] "in race"])]
-              [:td [:button.expand {:aria-expanded open? :aria-label (str "Runners of " name)
-                                    :on-click (fn [e] (.stopPropagation e) (toggle-open))}
-                    (if open? "▾" "▸")]]]
-             (when open? [country-runners c])])]]])]))
+                     [:span.pill.in [:span.dot.in] "in race"])]])]]])]))
 
 ;; --- runner leaderboard ---
 
@@ -731,13 +700,13 @@
                [:div.loading "Loading…"]
                [:<>
                 [:div.rstats
-                 [stat-tile "Laps" laps]
+                 [stat-tile "Yards" laps]
                  [stat-tile "Distance" (str (.toFixed (* laps lap-km) 1) " km")]
-                 [stat-tile "Fastest lap" (mmss (:seconds fastest)) (some->> (:lap fastest) (str "lap "))]
-                 [stat-tile "Average lap" (mmss average)
+                 [stat-tile "Fastest yard" (mmss (:seconds fastest)) (some->> (:lap fastest) (str "yard "))]
+                 [stat-tile "Average yard" (mmss average)
                   (when average (str (mmss (js/Math.round (/ average lap-km))) " /km"))]
-                 [stat-tile "Last lap" (mmss (:seconds last)) (some->> (:lap last) (str "lap "))]
-                 [stat-tile "Margin" (mmss margin) "rest per lap, average of the last 3"]
+                 [stat-tile "Last yard" (mmss (:seconds last)) (some->> (:lap last) (str "yard "))]
+                 [stat-tile "Margin" (mmss margin) "rest per yard, average of the last 3"]
                  [stat-tile "Total rest" (hm rest) "between finishing and the next start"]
                  [stat-tile "Position" [:<> pos [:small (str " / " n-runners)]] "on the leaderboard"]]
                 [chart/line-chart
@@ -748,17 +717,17 @@
                   :marks (when fastest [{:x (:lap fastest) :y (:seconds fastest)
                                          :color "var(--good)" :label "fastest"}])
                   :legend? false :direct-labels? false
-                  :y-zero? false :y-step 300 :fmt-y mmss :x-label "lap" :y-label "lap time" :size :wide}]
+                  :y-zero? false :y-step 300 :fmt-y mmss :x-label "yard" :y-label "yard time" :size :wide}]
                 [:ul.legend.runner-legend
                  [:li [:span.key-line {:style {:background "var(--series-1)"}}] name]
                  [:li [:span.key-line.dash] "field median"]
                  [:li [:span.key-line.dash.limit] "limit 60:00"]
-                 [:li [:span.dot {:style {:background "var(--good)"}}] "fastest lap"]]
+                 [:li [:span.dot {:style {:background "var(--good)"}}] "fastest yard"]]
                 [:details.all-laps
-                 [:summary "All laps"]
+                 [:summary "All yards"]
                  [:div.table-wrap
                   [:table
-                   [:thead [:tr [:th.num "Lap"] [:th.num "Time"] [:th.num "Rest"]
+                   [:thead [:tr [:th.num "Yard"] [:th.num "Time"] [:th.num "Rest"]
                             [:th.num "Field median"] [:th.num "vs median"]]]
                    [:tbody
                     (for [{:keys [lap seconds]} (reverse hist)
@@ -809,7 +778,7 @@
      (when open-runner ^{:key open} [runner-dialog open-runner (count runners)])
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
-       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the runner's figures and lap times."]]]
+       [:p.sub "All runners of all countries. Star (☆) runners to keep them at hand with \"★ only\". Click a row for the runner's figures and yard times."]]]
      [runner-filters n-out show-out?]
      (if (empty? shown)
        [:div.empty (cond
@@ -821,13 +790,13 @@
         [:table.runners
          [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.n] [:col.status]
           [:col.time] [:col.time] [:col.time] [:col.total] [:col.spark]]
-         [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Laps"]
-                  [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
+         [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
+                  [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
                   [:th "Status"]
-                  [:th.num "Last lap"] [:th.num "Fastest"]
-                  [:th.num {:title "Average of the timed laps"} "Avg"]
-                  [:th.num {:title "Sum of the timed laps"} "Total"]
-                  [:th "Lap times"]]]
+                  [:th.num "Last yard"] [:th.num "Fastest"]
+                  [:th.num {:title "Average of the timed yards"} "Avg"]
+                  [:th.num {:title "Sum of the timed yards"} "Total"]
+                  [:th "Yard times"]]]
          [:tbody
           (for [{:keys [id name country laps pos] :as runner} shown
                 :let [times (get lap-times id)]]
@@ -892,7 +861,7 @@
 
 (defn- seats-overview [runners]
   [:table
-   [:thead [:tr [:th.num "Seat"] [:th "Leader"] [:th "Country"] [:th.num "Laps"] [:th "State"]]]
+   [:thead [:tr [:th.num "Seat"] [:th "Leader"] [:th "Country"] [:th.num "Yards"] [:th "State"]]]
    [:tbody
     (for [n seats
           :let [{:keys [leaders] :as sum} (seat-summary runners n)
@@ -909,8 +878,8 @@
 
 (defn- seat-table [runners n]
   [:table
-   [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Laps"]
-            [:th.num {:title "Best backyard result (laps) in the 2026 qualifying period"} "Best"]
+   [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Yards"]
+            [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
             [:th "Status"]]]
    [:tbody
     (for [{:keys [id name country laps best-yards pos] :as r} (seat-ranking runners n)]
@@ -987,21 +956,21 @@
   to 1 or 0 runners without being decided yet."
   [{:keys [active eliminated-after winner]} current-lap]
   (cond
-    winner [:span.pill.win {:title "The last runner of this country to finish a lap alone"}
-            (str "★ " (:name winner) " · lap " eliminated-after)]
-    eliminated-after [:span.pill.out {:title "No runner finished a lap alone, so no winner"}
-                      [:span.icon "✕"] (str "out after lap " eliminated-after)]
-    (zero? active) [:span.pill.danger {:title "Nobody is still running this lap"} "none left"]
-    (= active 1) [:span.pill.danger {:title "If this runner finishes the lap alone, they're the country's winner"} "1 left"]
+    winner [:span.pill.win {:title "The last runner of this country to finish a yard alone"}
+            (str "★ " (:name winner) " · yard " eliminated-after)]
+    eliminated-after [:span.pill.out {:title "No runner finished a yard alone, so no winner"}
+                      [:span.icon "✕"] (str "out after yard " eliminated-after)]
+    (zero? active) [:span.pill.danger {:title "Nobody is still running this yard"} "none left"]
+    (= active 1) [:span.pill.danger {:title "If this runner finishes the yard alone, they're the country's winner"} "1 left"]
     ;; 2 is no danger: two runners can carry a country for a long time (Belgium)
-    :else [:span.pill.in {:title "A country continues while at least 2 runners finish each lap"}
+    :else [:span.pill.in {:title "A country continues while at least 2 runners finish each yard"}
            [:span.dot.in] (str active " in")]))
 
 (defn- reporting-text [{:keys [reported-through eliminated-after]} current-lap]
   (when (and reported-through (not eliminated-after))
     (if (< reported-through (dec current-lap))
-      [:span.muted (str "still reporting lap " (inc reported-through) "…")]
-      [:span.muted (str "lap " reported-through " reported")])))
+      [:span.muted (str "still reporting yard " (inc reported-through) "…")]
+      [:span.muted (str "yard " reported-through " reported")])))
 
 (defn- team-header [{:keys [country current-lap tied-with]}]
   (let [{:keys [code name total-laps active runners division utc-offset site rank]} country
@@ -1023,7 +992,7 @@
        (when (seq tied-with) (str "tied with " (count tied-with)))]
       [stat-tile "Team score" total-laps nil]
       [stat-tile "Still in" [:<> active [:small (str " / " runners)]] nil]
-      [stat-tile "Lap" current-lap nil]]]))
+      [stat-tile "Yard" current-lap nil]]]))
 
 (defn- chase-bucket
   "Which way a rival goes, seen from our country: :catching-you (behind or
@@ -1047,7 +1016,7 @@
    [:cant-catch "Can't catch this team" nil]
    [:out-of-reach "Out of reach" nil]])
 
-(defn- in-laps [n] (if (= 1 n) "next lap" (str "in " n " laps")))
+(defn- in-laps [n] (if (= 1 n) "next yard" (str "in " n " yards")))
 
 (defn- rival-chip [{:keys [code name laps-to-pass]} with-laps?]
   [:a.tied {:href (str "#team/" code) :title (str name " " code)}
@@ -1125,7 +1094,7 @@
         [:table.chase-table
          [:thead [:tr [:th "Country"] [:th.num {:title "Their team score minus this team's"} "Gap"]
                   [:th.num {:title "Their runners still in vs this team's"} "Runners"]
-                  [:th.num {:title "What this team gains on them each lap: its runners in minus theirs"} "This team gains / lap"]
+                  [:th.num {:title "What this team gains on them each yard: its runners in minus theirs"} "This team gains / yard"]
                   [:th "Overtake"]]]
          [:tbody
           (map row (reverse ahead))
@@ -1137,30 +1106,30 @@
           (map row behind)]]])
      (when (and (not early?) (#{:history :runners} view))
        [:<>
-        [:div.segmented.chase-range {:role "group" :aria-label "Laps shown"}
-         (for [[v label] [[:all "All laps"] [:last-12 "Last 12"]]]
+        [:div.segmented.chase-range {:role "group" :aria-label "Yards shown"}
+         (for [[v label] [[:all "All yards"] [:last-12 "Last 12"]]]
            ^{:key v}
            [:button {:aria-pressed (= v (:chase-range @db :all))
                      :on-click #(do (swap! db assoc :chase-range v) (save-prefs!))} label])]
         (if (= view :runners)
           ^{:key "runners"}
-          [chart/line-chart {:series series :y-zero? false :x-label "lap" :y-label "runners who finished the lap"
+          [chart/line-chart {:series series :y-zero? false :x-label "yard" :y-label "runners who finished the yard"
                              :size :wide :legend? true}]
           ^{:key "gap"}
           [chart/line-chart {:series series :refs [{:y 0 :label (:name country) :neutral? true}]
-                             :y-zero? false :x-label "lap" :y-label "laps ahead of this team" :size :wide
+                             :y-zero? false :x-label "yard" :y-label "yards ahead of this team" :size :wide
                              :legend? true}])
         (if (= view :runners)
           [:p.chart-note
-           "How many runners each country had finish each lap; " nm " is the dashed line. "
-           "Each lap a country's team score grows by this number, so the gap to " nm
-           " changes by the difference between its line and the dashed one. A line ends at the last lap the country has reported."
+           "How many runners each country had finish each yard; " nm " is the dashed line. "
+           "Each yard a country's team score grows by this number, so the gap to " nm
+           " changes by the difference between its line and the dashed one. A line ends at the last yard the country has reported."
            rivals-note]
           [:p.chart-note
-         "Each line is a country's team score minus " (:name country) "'s after each lap. "
+         "Each line is a country's team score minus " (:name country) "'s after each yard. "
          "Above the dashed line it's ahead, below it behind. A line going up is gaining on "
          (:name country) " (more runners in), going down is losing ground, flat means as many runners in; "
-         "crossing the dashed line is an overtake. A line ends at the last lap both countries have reported."
+         "crossing the dashed line is an overtake. A line ends at the last yard both countries have reported."
          rivals-note])])]))
 
 (defn- team-runners [{:keys [runners settled-lap]}]
@@ -1171,12 +1140,12 @@
      (when open-runner ^{:key open} [runner-dialog open-runner (count (:runners @db))])
      [:div.card-head
       [:div [:h2 "Runners"]
-       [:p.sub "Their seat, and their place among all runners in that seat (the race for the individual invites). Click a runner for their lap times."]]]
+       [:p.sub "Their seat, and their place among all runners in that seat (the race for the individual invites). Click a runner for their yard times."]]]
      [:div.table-wrap.full
       [:table.team-runners
-       [:thead [:tr [:th.num "Seat"] [:th "Runner"] [:th.num "Laps"] [:th "Status"]
-                [:th.num "Last lap"] [:th.num "Avg"]
-                [:th.num {:title "Rest per lap, average of the last 3 timed laps"} "Margin"]
+       [:thead [:tr [:th.num "Seat"] [:th "Runner"] [:th.num "Yards"] [:th "Status"]
+                [:th.num "Last yard"] [:th.num "Avg"]
+                [:th.num {:title "Rest per yard, average of the last 3 timed yards"} "Margin"]
                 [:th {:title "Place among all runners in this seat"} "Seat race"]]]
        [:tbody
         (for [{:keys [id name rank laps last-seconds avg-seconds margin-seconds seat-place seat-runners] :as r} runners]
@@ -1212,8 +1181,8 @@
                            "did not finish")
         seconds (str (mmss seconds) " · rest " (mmss (- 3600 seconds)))
         (= "finished" status) (if inferred "finished (missed registration)" "finished, no time")
-        (= "winner" (:reason runner)) (str "country winner after lap " (:laps runner))
-        (not= "running" (:status runner)) (str "out after lap " (:laps runner))
+        (= "winner" (:reason runner)) (str "country winner after yard " (:laps runner))
+        (not= "running" (:status runner)) (str "out after yard " (:laps runner))
         (= l current-lap) "running it now"
         :else "no result yet"))
 
@@ -1230,8 +1199,8 @@
                                    :name (:name r) :lap l :text (lap-text lap r l current-lap)})))]
         [:section.card.wide
          [:div.card-head
-          [:div [:h2 "Every lap, every runner"]
-           [:p.sub "One cell per lap. Hover or tap a cell for its lap time, or why the runner stopped."]]]
+          [:div [:h2 "Every yard, every runner"]
+           [:p.sub "One cell per yard. Hover or tap a cell for its yard time, or why the runner stopped."]]]
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
            (for [{:keys [id name history stop] :as r} runners
@@ -1251,11 +1220,11 @@
                                   (and (= "running" (:status r)) (= l current-lap)) "lg running"
                                   :else "lg none")
                                 (when (and (= name (:name @tip)) (= l (:lap @tip))) "hover")]
-                        :aria-label (str name ", lap " l ": " (lap-text lap r l current-lap))
+                        :aria-label (str name ", yard " l ": " (lap-text lap r l current-lap))
                         :on-mouse-enter #(show! % r l lap)
                         :on-click #(show! % r l lap)}]))])]]
          (when-let [{:keys [x y name lap text]} @tip]
-           [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · lap " lap " · " text)])
+           [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          [:ul.legend.lg-legend
           (for [[i t] (map-indexed vector ["under 46:00" "46–49" "49–53" "53–57" "57:00 or more"])]
             ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
@@ -1265,15 +1234,15 @@
 
 (defn- team-over-time [{:keys [over-time country]}]
   [:section.card
-   [:div.card-head [:div [:h2 "Runners still in"] [:p.sub "Runners starting each lap"]]]
+   [:div.card-head [:div [:h2 "Runners still in"] [:p.sub "Runners starting each yard"]]]
    [chart/line-chart {:series [{:key "in" :label (:name country) :color (color 1) :values (:runners-in over-time)}]
-                      :x-label "lap" :y-label "runners" :legend? false}]])
+                      :x-label "yard" :y-label "runners" :legend? false}]])
 
 (defn- team-place [{:keys [over-time country]}]
   [:section.card
-   [:div.card-head [:div [:h2 "Place"] [:p.sub "After each lap (1 is first; ties share a place)"]]]
+   [:div.card-head [:div [:h2 "Place"] [:p.sub "After each yard (1 is first; ties share a place)"]]]
    [chart/line-chart {:series [{:key "place" :label (:name country) :color (color 1) :values (:place over-time)}]
-                      :x-label "lap" :y-label "place" :y-zero? false :legend? false}]])
+                      :x-label "yard" :y-label "place" :y-zero? false :legend? false}]])
 
 (defn- team-view []
   (let [{:keys [team team-data]} @db]
@@ -1379,8 +1348,15 @@
           [countries-table]]])
       [:div.grid [countries-table]])))
 
+(defn- new-version-bar []
+  (when (:new-version? @db)
+    [:div.new-version {:role "status"}
+     [:span "A new version of this site is out."]
+     [:button {:on-click #(.reload js/location)} "Reload"]]))
+
 (defn- app []
   [:div.layout
+   [new-version-bar]
    [nav]
    [:main
     ;; render the page once, with data, instead of filling in piece by piece

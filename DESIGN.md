@@ -47,7 +47,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 - **Compare row:** "Compare" label, a search box (native `<datalist>` suggestions; Enter takes the best match), ghost buttons "Top 8", "★ Favourites" and "Clear", then the chips. Controls come before the chips so they don't move as chips are added. At narrow widths the row wraps.
 - **Country label:** a country is always shown as [flag] name code (`country-label` in `wtc.app`): a 20×15 flag with a hairline border, the name, and the IOC code in muted text. The name truncates with an ellipsis, never the code. Flags are SVGs in `frontend/public/flags` (flag-icons 7.5.0, MIT), mapped from IOC codes in `wtc.flags`; AIN has no flag and gets an empty frame of the same size. Chart legends can't hold images, so they show name and code only. Countries are picked with `country-select`, not a native `<select>` (whose options can't show flags): a button with the current country, and a popup with a search box, favourites first, ↑ ↓ / Enter / Esc. The team switcher, the leaderboard's "+ Country" filter and the compare picker all use it. The runner table's Country column is 190 px for it.
 - **Favourite star:** ☆/★ in the first column of the Countries table, styled like the runner stars. The table shows no series colour; compared rows only get the selected background.
-- **Country squad grid:** in the expanded row below a country, a compact multi-column grid (`ul.squad`): seat number, name, laps, and a small mark (green dot for in, ★ for winner, red ✕ for out, with the reason in the tooltip).
+- **Countries table rows** open the team page: a click anywhere on the row except the star; the name is a real link for the keyboard and new tabs. There is no expanded row any more.
 - **Filter bar** (`.filters`): a picker, chips, a search input and toggles in one wrapping row above the leaderboard table.
 - **Pills:**
   - `in` (green dot, "in race");
@@ -93,13 +93,14 @@ Charts follow the dataviz method: pick the form first, colour last, and validate
 
 ## Copy
 
+- **Yards, never laps:** Big's Backyard Ultra calls a loop a yard, so every text on the site says yard (yards, yard time, "out after yard N"), as the official site does. The code, the API and these docs still say lap (`:laps`, `current-lap`). [decided]
 - Titles are short and uppercase through CSS, not in the source.
 - **Wording:**
   - "in race", "out", "country winner", "out after lap N" (the last lap the country completed);
   - "did not finish" and "no result" for the two out reasons; the official stop codes RTC, INC and OVER as they are, explained in tooltips, and "did not start" for DNS.
 - Before the start, the start time is shown in the visitor's local time.
 - Data problems are worded as "Showing the last good data", never as an error page.
-- After a deploy, an open page shows a notice in the header: "A new version of this site is out. Reload" (the Reload button in the accent). It never reloads by itself.
+- After a deploy, an open page shows a black bar across the top of the page, sticky while scrolling: white "A new version of this site is out." and an orange Reload button with white text (fixed colours in both themes). It never reloads by itself.
 
 ## Accessibility
 
