@@ -631,6 +631,9 @@
               [:td (cond
                      winner [:span.pill.win (str "★ " (:name winner) " · lap " eliminated-after)]
                      eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after)]
+                     ;; down to 1 or 0 while the lap isn't settled: this lap decides the country's race
+                     (<= active 1) [:span.pill.danger {:title "the team rule: a country goes on while 2 runners finish each lap"}
+                                    (if (zero? active) "none left" "1 left")]
                      :else
                      [:span.pill.in [:span.dot.in] "in race"])]
               [:td [:button.expand {:aria-expanded open? :aria-label (str "Runners of " name)
@@ -943,10 +946,15 @@
                       :on-click #(toggle-favourite! code)}
         (if fav? "★" "☆")])]))
 
-(defn- team-rule-text [{:keys [active eliminated-after winner]}]
+(defn- team-rule-text
+  "The team rule's state. Until the current lap settles, a country can be down
+  to 1 or 0 runners without being decided yet."
+  [{:keys [active eliminated-after winner]} current-lap]
   (cond
     winner [:span.pill.win (str "★ won by " (:name winner) " on lap " eliminated-after)]
     eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after lap " eliminated-after ", no winner")]
+    (zero? active) [:span.pill.danger "none left: the race ends, no winner"]
+    (= active 1) [:span.pill.danger (str "1 left: finishing lap " current-lap " wins the race")]
     (= active 2) [:span.pill.danger "2 left: the next drop ends the race"]
     :else [:span.pill.in [:span.dot.in] (str "safe: " active " still in")]))
 
@@ -964,7 +972,7 @@
       [flag code]
       [:div
        [:h2 name " " [:span.code code]]
-       [:div.team-rule [team-rule-text country]]
+       [:div.team-rule [team-rule-text country current-lap]]
        [:p.sub
         (when division [:span (get class-names division division)])
         (when site [:span site])
