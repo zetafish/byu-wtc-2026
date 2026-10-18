@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent.dom.client :as rdc]
+            [reagent.ratom :as ratom]
             [wtc.chart :as chart]
             [wtc.flags :refer [flag]]
             [wtc.panels :as panels]))
@@ -311,7 +312,22 @@
 
 (defn- finished? [] (= "finished" (get-in @db [:race :phase])))
 
-(defn- country-name [code] (some #(when (= code (:code %)) (:name %)) (:countries @db)))
+(defonce ^:private names-cache (atom nil))
+
+(defn- country-name
+  "A country's name by its code. Read without making the calling component
+  depend on the app state (the names only change with a reload, which
+  redraws anyway): else every leaderboard row, through its country label,
+  would redraw on any change at all, even opening the runner dialog."
+  [code]
+  (let [cs (binding [ratom/*ratom-context* nil] (:countries @db))
+        [k names] @names-cache]
+    (get (if (identical? k cs)
+           names
+           (let [names (into {} (map (juxt :code :name)) cs)]
+             (reset! names-cache [cs names])
+             names))
+         code)))
 
 (defn- country-label
   "A country as [flag] name code, everywhere it's shown, linking to its team
@@ -991,22 +1007,24 @@
   dialog (or any other change of state) would otherwise redraw ~1000 rows
   with their sparklines."
   [{:keys [id name country laps pos] :as runner} times]
-  [:tr.clickable {:class (when (= "out" (:status runner)) "out")
-                  :on-click (fn []
-                              (fetch-runner-detail! id)
-                              (swap! db assoc :open id))}
-   [:td.num pos]
-   [:td.name name]
-   [:td [country-label country]]
-   [:td.num (:rank runner)]
-   [:td.num laps]
-   [:td [status-badge runner]]
-   [:td.num (mmss (:last-seconds runner))]
-   [:td.num (mmss (:avg-seconds runner))]
-   [:td.num (mmss (:fastest-seconds runner))]
-   [:td.num (hmmss (:total-seconds runner))]
-   [:td.num (or (:best-yards runner) "–")]
-   [:td (when times [chart/sparkline times])]])
+  ;; a grid row, not a <tr>: the browser can skip laying out rows off screen
+  ;; (content-visibility), which it can't for table rows
+  [:div.lb-row.clickable {:role "row" :class (when (= "out" (:status runner)) "out")
+                          :on-click (fn []
+                                      (fetch-runner-detail! id)
+                                      (swap! db assoc :open id))}
+   [:span.num {:role "cell"} pos]
+   [:span.name {:role "cell"} name]
+   [:span {:role "cell"} [country-label country]]
+   [:span.num {:role "cell"} (:rank runner)]
+   [:span.num {:role "cell"} laps]
+   [:span {:role "cell"} [status-badge runner]]
+   [:span.num {:role "cell"} (mmss (:last-seconds runner))]
+   [:span.num {:role "cell"} (mmss (:avg-seconds runner))]
+   [:span.num {:role "cell"} (mmss (:fastest-seconds runner))]
+   [:span.num {:role "cell"} (hmmss (:total-seconds runner))]
+   [:span.num {:role "cell"} (or (:best-yards runner) "–")]
+   [:span {:role "cell"} (when times [chart/sparkline times])]])
 
 (declare lap-shade lap-text lap-grid-legend)
 
@@ -1015,11 +1033,13 @@
   cell per yard shaded by its time, as the team page's grid. Built from the
   yard times and the runner's status, so it needs no history. A component of
   its own, so unchanged rows aren't redrawn."
-  [{:keys [id name country pos laps status stop] :as r} times n current-lap tip]
+  [{:keys [id name country pos laps status stop] :as r} times n current-lap tip cols]
   (let [by-lap (into {} times)
         failed (when (= "out" status) (out-at r))   ; the yard it stopped at
         open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
-    [:<>
+    ;; one element per row (its own grid): sorting moves ~400 rows, not ~15,000
+    ;; cells, and an off-screen row can skip layout (content-visibility)
+    [:div.hm-row {:style {:grid-template-columns cols}}
      [:span.hm-pos pos]
      [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
      [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
@@ -1050,9 +1070,10 @@
       (let [n (max 1 current-lap)]
         [:<>
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
-          [:div.lap-grid.hm {:style {:grid-template-columns (str "44px minmax(140px, 220px) 76px repeat(" n ", minmax(5px, 1fr))")}}
-           (for [{:keys [id] :as r} shown]
-             ^{:key id} [heat-row r (get lap-times id) n current-lap tip])]]
+          (let [cols (str "44px minmax(140px, 220px) 76px repeat(" n ", minmax(5px, 1fr))")]
+            [:div.hm
+             (for [{:keys [id] :as r} shown]
+               ^{:key id} [heat-row r (get lap-times id) n current-lap tip cols])])]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          [lap-grid-legend]]))))
@@ -1130,21 +1151,19 @@
         [runner-heatmap shown lap-times (get-in @db [:race :current-lap] 1)]
        [:div.table-wrap.full
         ;; fixed columns, so filtering never moves them
-        [:table.runners
-         ;; the columns it shares with the team page come in the same order and width
-         [:colgroup [:col.pos] [:col] [:col.country] [:col.n] [:col.n] [:col.status]
-          [:col.time] [:col.time] [:col.time] [:col.total] [:col.n] [:col.spark]]
-         [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Seat"] [:th.num "Yards"]
-                  [:th "Status"]
-                  [:th.num "Last yard"]
-                  [:th.num {:title "Average of the timed yards"} "Avg"]
-                  [:th.num "Fastest"]
-                  [:th.num {:title "Sum of the timed yards"} "Total"]
-                  [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
-                  [:th "Yard times"]]]
-         [:tbody
-          (for [{:keys [id] :as runner} shown]
-            ^{:key id} [runner-row runner (get lap-times id)])]]]))]))
+        ;; a grid with table roles: ~400 rows lay out much faster than a
+        ;; <table>, whose rows the browser must all lay out on every sort.
+        ;; The columns it shares with the team page have the same widths
+        [:div.lb {:role "table" :aria-label "Runner leaderboard"}
+         [:div.lb-row.lb-head {:role "row"}
+          (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seat"] [:num "Yards"]
+                                   [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
+                                   [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
+                                   [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
+                                   [nil "Yard times"]]]
+            ^{:key label} [:span {:role "columnheader" :class cls :title title} label])]
+         (for [{:keys [id] :as runner} shown]
+           ^{:key id} [runner-row runner (get lap-times id)])]]))]))
 
 ;; --- seat ranking ---
 ;; Every runner has a seat (1-15, their roster rank in the team). All runners
