@@ -6,7 +6,8 @@
   runners still in. So the gap between two countries changes every lap by
   the difference in their runners still in, and the laps until one passes
   the other follow from that, as long as nobody drops."
-  (:require [wtc.model :as model]))
+  (:require [wtc.model :as model]
+            [wtc.race :as race]))
 
 (defn- totals-at
   "[team score, farthest runner] of runners `rs` after lap n."
@@ -85,8 +86,9 @@
      (let [all (vals runners)
            by-country (group-by :country all)
            rs (by-country code)
-           ;; a country that hasn't reported a lap yet would look flat on it
-           reported (fn [c] (if-let [rt (:reported-through c)] (min rt settled-lap) settled-lap))
+           ;; each country up to the last lap it reported, not the race's settled
+           ;; lap (the slowest country's): else the chart lags the gaps in the table
+           reported (fn [c] (or (race/country-settled c settled-lap current-lap) 0))
            upto (reported ours)
            laps (range 1 (inc upto))
            our-totals (mapv #(totals-at rs %) laps)

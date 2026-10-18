@@ -140,7 +140,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | `/api/countries` | countries sorted by `:position` |
 | `/api/runners?country=NED&history=true` | runners by laps; `history` adds the per-lap history |
 | `/api/runners/:id` | one runner, with history |
-| `/api/team/:code` | the team page: `country`, `tied-with` (the countries sharing its place, from the same snapshot), `runners` (with `seat-place`/`seat-runners`, last/avg lap, rest margin, history), `over-time` (`runners-in`, `team-score`, `place` per lap) and `chase` (`ahead`, `level`, `behind`: rivals with `gap`, `gain`, `laps-to-pass`, `series` (the gap per lap, up to the last lap both reported) and `finishers` (runners who finished each lap, up to its last reported lap); this team's own `finishers`; and `field-active`); 404 for an unknown code |
+| `/api/team/:code` | the team page: `country`, `tied-with` (the countries sharing its place, from the same snapshot), `runners` (with `seat-place`/`seat-runners`, last/avg lap, rest margin, history), `over-time` (`runners-in`, `team-score`, `place` per lap) and `chase` (`ahead`, `level`, `behind`: rivals with `gap`, `gain`, `laps-to-pass`, `series` (the gap per lap, up to the last lap both reported: each country's own settled lap, not the race's `settled-lap`, so the chart keeps up with the gaps) and `finishers` (runners who finished each lap, up to its last reported lap); this team's own `finishers`; and `field-active`); 404 for an unknown code |
 | `/api/metrics` | the metric registry, with docs |
 | `/api/query?metric=…&by=country&countries=A,B&runners=x,y&lap=n` | one metric result |
 

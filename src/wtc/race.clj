@@ -21,7 +21,7 @@
   (max 0 (Math/floorDiv (- (secs-since start now) (long grace-s))
                         (long model/lap-seconds))))
 
-(defn- country-settled
+(defn country-settled
   "The settled lap for one country: up to what it says it has fully
   reported, when its source says so, else the lap the grace period settled."
   [{:keys [reported-through]} settled current]
