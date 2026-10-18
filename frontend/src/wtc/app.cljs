@@ -53,7 +53,8 @@
                                                              :chase-view (:chase-view @db)
                                                              :chase-range (:chase-range @db)
                                                              :team-sort (:team-sort @db)
-                                                             :race-view (:race-view @db)})))
+                                                             :race-view (:race-view @db)
+                                                             :theme (:theme @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -1479,6 +1480,23 @@
     :runners "runners still in the race"
     :seats "seats"))
 
+(defn- apply-theme!
+  "Light or dark on <html data-theme>; system leaves it to the OS setting."
+  [theme]
+  (let [el js/document.documentElement]
+    (if (#{:light :dark} theme)
+      (set! (.. el -dataset -theme) (name theme))
+      (js-delete (.-dataset el) "theme"))))
+
+(defn- theme-toggle []
+  (let [theme (:theme @db :system)]
+    [:div.segmented.theme {:role "group" :aria-label "Theme"}
+     (for [[v label icon] [[:light "Light" "☀"] [:dark "Dark" "☾"] [:system "System" "◐"]]]
+       ^{:key v}
+       [:button {:aria-pressed (= v theme) :title label :aria-label label
+                 :on-click #(do (swap! db assoc :theme v) (apply-theme! v) (save-prefs!))}
+        icon])]))
+
 (defn- nav []
   (let [view (:view @db)]
     [:nav.menu {:aria-label "Views"}
@@ -1490,7 +1508,8 @@
                   :aria-current (when (= id view) "page")}
               (if (= id :team)
                 [:<> label (when-let [t (:team @db)] [:span.count {:title "the team you looked at last"} t])]
-                [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]]))
+                [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]
+     [theme-toggle]]))
 
 (defn- comparing []
   (let [{:keys [selected favourites]} @db]
@@ -1550,13 +1569,14 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range team-sort race-view]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view chase-range team-sort race-view theme]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
            :race-view (if (= "runners" race-view) :runners :teams)
+           :theme (case theme "light" :light "dark" :dark :system)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)
@@ -1566,6 +1586,7 @@
            :starred-only? (true? starred-only)
            :favourites-only? (true? favourites-only)
            :show-out-runners? (true? show-out-runners)))
+  (apply-theme! (:theme @db))
   (go-to-hash!)
   (watch-version!)
   ;; a tab coming back to the front catches up at once

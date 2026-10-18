@@ -27,7 +27,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
   - `--text-muted` for out rows.
 
   Status is always shown with an icon or text, never by colour alone.
-- **Dark mode:** each light token has its own dark value. They follow `prefers-color-scheme`, unless `data-theme="light"` or `"dark"` is set on `<html>`.
+- **Dark mode:** each light token has its own dark value. They follow `prefers-color-scheme`, unless `data-theme="light"` or `"dark"` is set on `<html>`. A tri-state toggle under the menu (☀ light, ☾ dark, ◐ system; at the right of the top bar on phones) sets it and is remembered; an inline script in `index.html` applies the saved theme before first paint, so a dark page never flashes light.
 
 ## Layout
 
