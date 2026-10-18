@@ -59,7 +59,9 @@
         (is (= :winner (get-in later [:runners "a" :reason])))))
     (is (nil? (get-in d [:countries "USA" :eliminated-after])))
     (is (= 2 (get-in d [:countries "USA" :active])))
-    (is (= {"USA" 1 "BEL" 2} (update-vals (:countries d) :rank)))))
+    (testing "equal team score and farthest runner: a shared place, USA first with more runners still in"
+      (is (= {"USA" 1 "BEL" 2} (update-vals (:countries d) :position)))
+      (is (= {"USA" [1 true] "BEL" [1 true]} (update-vals (:countries d) (juxt :rank :tied)))))))
 
 (deftest suspect-lap-time
   (let [d (race/derive-state (dataset [["a" "NED"]] {"a" [[1 :finished 9000]]})
@@ -151,3 +153,29 @@
     (testing "without it, the grace period decides"
       (is (= :running (status (d nil 3.1) "c")))
       (is (= :out (status (d nil 3.8) "c"))))))
+
+(deftest country-ranking
+  ;; at lap 6.5, every country on a team score of 12:
+  ;;   AAA 6+6+0 and DDD 6+6: farthest 6, 2 still in
+  ;;   CCC 6+5+1: farthest 6, none still in (c1 is its winner)
+  ;;   GGG 5+5+2: farthest 5;  BBB 4+4+4: farthest 4
+  (let [d (race/derive-state
+           (dataset [["a1" "AAA"] ["a2" "AAA"] ["a3" "AAA"]
+                     ["b1" "BBB"] ["b2" "BBB"] ["b3" "BBB"]
+                     ["c1" "CCC"] ["c2" "CCC"] ["c3" "CCC"]
+                     ["d1" "DDD"] ["d2" "DDD"]
+                     ["g1" "GGG"] ["g2" "GGG"] ["g3" "GGG"]]
+                    {"a1" (finished 6) "a2" (finished 6) "a3" []
+                     "b1" (finished 4) "b2" (finished 4) "b3" (finished 4)
+                     "c1" (finished 6) "c2" (concat (finished 5) [[6 :dnf nil]]) "c3" (finished 1)
+                     "d1" (finished 6) "d2" (finished 6)
+                     "g1" (finished 5) "g2" (finished 5) "g3" (finished 2)})
+           {:start start :now (at-hours 6.5)})
+        row #(select-keys (get-in d [:countries %]) [:farthest :active :position :rank :tied])]
+    (testing "equal team score and farthest runner: a shared place, ordered by runners still in, then code"
+      (is (= {:farthest 6 :active 2 :position 1 :rank 1 :tied true} (row "AAA")))
+      (is (= {:farthest 6 :active 2 :position 2 :rank 1 :tied true} (row "DDD")))
+      (is (= {:farthest 6 :active 0 :position 3 :rank 1 :tied true} (row "CCC"))))
+    (testing "equal team scores are split by the farthest single runner"
+      (is (= {:farthest 5 :active 0 :position 4 :rank 4 :tied false} (row "GGG")))
+      (is (= {:farthest 4 :active 0 :position 5 :rank 5 :tied false} (row "BBB"))))))

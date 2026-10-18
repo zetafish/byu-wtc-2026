@@ -172,7 +172,7 @@
   (save-prefs!)
   (fetch-panels!))
 
-(defn- ranked-codes [pred] (map :code (filter pred (sort-by :rank (:countries @db)))))
+(defn- ranked-codes [pred] (map :code (filter pred (sort-by :position (:countries @db)))))
 
 (defn- toggle-favourite! [code]
   (swap! db update :favourites #(if (contains? % code) (disj % code) (conj % code)))
@@ -346,13 +346,13 @@
                                    :hour "2-digit" :minute "2-digit"})
              " (your local time). Charts fill in after the first lap.")])
      (when (= "finished" (:phase race))
-       (let [podium (take 3 (sort-by :rank countries))]
+       (let [podium (take 3 (sort-by :position countries))]
          [:div.finished
           [:h2 (str "Race finished after " (:race-laps race) " laps")]
           [:ol.podium
-           (for [{:keys [code name rank total-laps]} podium]
+           (for [{:keys [code name rank tied total-laps]} podium]
              ^{:key code}
-             [:li [:span.pos (str rank ".")] [:b name] [:span (str total-laps " laps")]])]]))
+             [:li [:span.pos (str (when tied "=") rank ".")] [:b name] [:span (str total-laps " laps")]])]]))
      (when (or error (seq failing))
        [:p.notice [:span.icon "⚠"]
         (if error
@@ -503,7 +503,7 @@
                   [:th.num {:title "Laps behind the leading country's team score"} "Gap"]
                   [:th "Status"] [:th]]]
          [:tbody
-          (for [{:keys [code name rank active runners total-laps eliminated-after winner] :as c} shown
+          (for [{:keys [code name rank tied active runners total-laps eliminated-after winner] :as c} shown
                 :let [fav? (contains? favourites code)
                       open? (= expanded code)
                       toggle-open #(swap! db update :expanded (fn [e] (when-not (= e code) code)))]]
@@ -515,7 +515,7 @@
                                   :aria-pressed fav?
                                   :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
                     (if fav? "★" "☆")]]
-              [:td.num rank]
+              [:td.num (when tied "=") rank]
               [:td.name name " " [:span.muted code]]
               [:td.num active " / " runners]
               [:td.num total-laps]

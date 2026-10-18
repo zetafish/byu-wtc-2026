@@ -78,6 +78,24 @@
               nil)))
         (range 1 (inc settled))))
 
+(defn- rank-countries
+  "Official ranking: team score, then the farthest single runner (\"the race
+  went farther\"), then runners still in, then code. :position is the
+  order; :rank is the place, shared (:tied) only when team score and
+  farthest runner are both equal."
+  [rows]
+  (let [place-key (juxt :total-laps :farthest)
+        sorted (sort-by (juxt (comp - :total-laps) (comp - :farthest) (comp - :active) :code) rows)
+        first-pos (reduce (fn [m [i c]] (update m (place-key c) #(or % (inc i))))
+                          {} (map-indexed vector sorted))
+        counts (frequencies (map place-key sorted))]
+    (map-indexed (fn [i c]
+                   (assoc c
+                          :position (inc i)
+                          :rank (first-pos (place-key c))
+                          :tied (> (counts (place-key c)) 1)))
+                 sorted)))
+
 (defn- started [{:keys [status laps]} current]
   (case status
     :running (max laps current)
@@ -108,11 +126,11 @@
                                           :runners (count rs)
                                           :active (count (filter #(= :running (:status %)) rs))
                                           :total-laps (reduce + 0 (map :laps rs))
+                                          :farthest (reduce max 0 (map :laps rs))
                                           :eliminated-after (:after (result code))
                                           :winner (when-let [id (:winner (result code))]
                                                     (select-keys (runners id) [:id :name :laps]))))))
-                          (sort-by (juxt (comp - :total-laps) (comp - :active) :code))
-                          (map-indexed (fn [i c] (assoc c :rank (inc i)))))
+                          rank-countries)
         any-running? (some #(= :running (:status %)) (vals runners))
         phase (cond (zero? current) :pre
                     (and (pos? settled) (not any-running?)) :finished

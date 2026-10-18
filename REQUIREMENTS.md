@@ -62,7 +62,7 @@ With two runners left (A and B):
 
 ### Countries
 - Countries are ranked by **team score**: the total laps of all their runners. This is the official ranking. [decided]
-- With equal team scores, the country with more runners still in ranks higher, then alphabetical by code. Every country gets a unique rank. [assumed]
+- With equal team scores, the country whose race went farther (its farthest single runner) ranks higher. That's the official tie-break. With both equal, the countries share the place, shown as "=1", and are listed by runners still in, then by code. [decided]
 
 ### Seats
 - Every team runner has a **seat**, 1–15. All runners in the same seat compete across countries, and each seat's winner is invited to the Individual Big's Backyard Ultra. [decided]
@@ -194,7 +194,7 @@ With two runners left (A and B):
   - set up the Fly.io apps `bigs-live` and `bigs-live-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.
 - [ ] **Seat = roster rank** [assumed]: confirm.
-- [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now), and how equal team scores rank (for now: runners still in, then country code).
+- [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now). Equal team scores follow the official tie-break (see Countries). [decided]
 - [ ] **Fewer than 2 runners of a country start lap 1.** The general team rule applies for now.
 - [ ] What the roster's `wa` field means. It's unused.
 - [ ] **Runner dialog position** [assumed]: the leaderboard position for now. Should it be the position within the current lap (by lap time), as Upfront shows?

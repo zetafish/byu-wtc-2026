@@ -69,7 +69,7 @@
                 (do (control-sim! cmd)
                     (json 200 {:ok true :now (:now (derived))} "no-store"))
                 (json 400 {:error "expected {action: jump, lap: 1-500} or {action: step, by: -24..24}"} "no-store"))))
-     :countries (fn [_] (json (sort-by :rank (vals (:countries (derived))))))
+     :countries (fn [_] (json (sort-by :position (vals (:countries (derived))))))
      :runners (fn [{{:strs [country history]} :query-params}]
                 (json (->> (vals (:runners (derived)))
                            (filter #(or (nil? country) (= country (:country %))))

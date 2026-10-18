@@ -98,7 +98,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - **The team rule (`team-result`):** the first settled lap with fewer than 2 finishers ends the country.
     - 1 finisher gives `{:after lap :winner id}`, and that runner gets `:status :finished :reason :winner`.
     - 0 finishers give `{:after (dec lap) :winner nil}`.
-  - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:rank` (by total laps, then active runners, then code), `:eliminated-after` and `:winner` `{:id :name :laps}`.
+  - **Countries:** each gets `:active`, `:runners`, `:total-laps`, `:farthest` (the most laps of one runner), `:position` (the order: total laps, then farthest, then active runners, then code), `:rank` (the official place: shared, with `:tied true`, only when total laps and farthest are both equal), `:eliminated-after` and `:winner` `{:id :name :laps}`.
   - **Runners:** each gets `:status` (`:running`, `:out` or `:finished`), `:reason` (`:dnf`, `:missing` or `:winner`), `:laps`, `:started` and `:history`. History is a vector of `{:lap :status :seconds}`, optionally with `:inferred true`, `:suspect true` or `:too-fast true`; `:seconds` is nil for inferred or suspect laps.
     - `:started` (laps started) drives the active-runner counts. For a running runner it's max(laps, current lap); for a finished runner it's laps; for a runner who is out it's laps + 1.
   - **Phase:** `:pre`, `:live` or `:finished`. When finished, `:final-lap` is the last lap anyone started, and `:current-lap` and `:settled-lap` are capped there, so the chart axes stop growing. `:race-laps` is the race length: the last lap anyone completed, which is `:final-lap` with a winner and one less when the last runners all DNF.
@@ -134,7 +134,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | `/api/health` | `{:ok :fetches}` |
 | `/api/race` | `start now phase current-lap settled-lap final-lap race-laps runners running fetches simulation` (`simulation` = `{mock-data, controls, end-lap}`, only with a demo race or the mock source; the header then shows the simulation panel, with controls for a demo race, and the brand badge reads "Sim") |
 | `POST /api/sim` | demo race only (404 otherwise). JSON body `{"action":"jump","lap":n}` (1–500, clamped to the last lap) or `{"action":"step","by":k}` (−24..24). Re-ingests before it responds. |
-| `/api/countries` | countries sorted by rank |
+| `/api/countries` | countries sorted by `:position` |
 | `/api/runners?country=NED&history=true` | runners by laps; `history` adds the per-lap history |
 | `/api/runners/:id` | one runner, with history |
 | `/api/metrics` | the metric registry, with docs |
