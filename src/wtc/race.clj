@@ -21,6 +21,14 @@
   (max 0 (Math/floorDiv (- (secs-since start now) (long grace-s))
                         (long model/lap-seconds))))
 
+(defn- country-settled
+  "The settled lap for one country: up to what it says it has fully
+  reported, when its source says so, else the lap the grace period settled."
+  [{:keys [reported-through]} settled current]
+  (if reported-through
+    (max 0 (min reported-through (dec current)))
+    settled))
+
 (def too-fast-seconds
   "A finished lap under 30 min is implausible: flagged, but still credited."
   1800)
@@ -81,8 +89,10 @@
   (let [current (current-lap start now)
         settled (min (settled-lap start now grace-s) (max 0 (dec current)))
         laps-by-runner (reduce-kv (fn [m [id l] o] (assoc-in m [id l] o)) {} laps)
-        base (update-vals runners #(runner-state % (get laps-by-runner (:id %) {}) settled))
-        result (update-vals (group-by :country (vals base)) #(team-result % settled))
+        settled-of (fn [code] (country-settled (countries code) settled current))
+        base (update-vals runners #(runner-state % (get laps-by-runner (:id %) {}) (settled-of (:country %))))
+        result (into {} (map (fn [[code rs]] [code (team-result rs (settled-of code))]))
+                     (group-by :country (vals base)))
         runners (update-vals base
                              (fn [r]
                                (let [r (if (= (:id r) (:winner (result (:country r))))

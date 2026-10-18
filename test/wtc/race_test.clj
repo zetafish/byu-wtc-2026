@@ -129,3 +129,25 @@
       (is (= 101 (:final-lap end)))
       (is (= 101 (:current-lap end)))
       (is (<= (:settled-lap end) 101)))))
+
+(deftest reported-through
+  (let [d (fn [rt h]
+            (race/derive-state
+             (model/sanitize
+              {:countries [{:code "NED" :name "Netherlands" :reported-through rt}]
+               :runners (map (fn [id] {:id id :name id :country "NED"}) ["a" "b" "c"])
+               :laps (for [[id n] {"a" 3 "b" 3 "c" 2}, l (range 1 (inc n))]
+                       {:runner-id id :lap l :status :finished :seconds 3000})})
+             {:start start :now (at-hours h) :grace-s 2700}))
+        status #(get-in %1 [:runners %2 :status])]
+    (testing "a lap the country has reported settles at once, without the grace period"
+      (is (= :out (status (d 3 3.1) "c")))
+      (is (= :missing (get-in (d 3 3.1) [:runners "c" :reason]))))
+    (testing "a country that hasn't reported a lap has nobody out for it, however late"
+      (is (= :running (status (d 2 5.5) "c")))
+      (is (nil? (get-in (d 2 5.5) [:countries "NED" :eliminated-after]))))
+    (testing "a lap still in progress never settles"
+      (is (= :running (status (d 9 3.1) "a"))))
+    (testing "without it, the grace period decides"
+      (is (= :running (status (d nil 3.1) "c")))
+      (is (= :out (status (d nil 3.8) "c"))))))

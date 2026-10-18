@@ -67,9 +67,10 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   4. add it to `SOURCES`.
 
   `SOURCES` *replaces* the default mock, so leave the mock out of it when a real adapter is live; otherwise mock laps merge in wherever the real source has no row. Compose passes `SOURCES` through from the shell or `.env`. Put adapter tests in `test/wtc/source_test.clj`, next to `mock-source`.
-- **`wtc.source.official`:** the official site's own results feed, `https://wtc2026.bigsbackyardultra.com/api/results`, which its pages poll every 30 s. It's read from the organisers' master sheet, so it's fresher than the published sheet and has full names, lap times and stop reasons. An internal feed, not a promised API.
+- **`wtc.source.official`:** the official site's own results feed, `https://wtc2026.bigsbackyardultra.com/api/results`, which its pages poll every 60 s. It's read from the organisers' master sheet, so it's fresher than the published sheet and has full names, lap times and stop reasons. An internal feed, not a promised API.
   - Nations use ISO codes (`NLD`); they're mapped to the roster's (`NED`) by country name. Runners are matched to roster ids by name within their country (Unicode-aware, so Chinese names match too); an unmatched runner keeps their feed id under our code.
   - `laps[i]` is lap i+1 with that many seconds (`null`: no time recorded). A `stop` (`RTC`, `OVER`, `INC`) or `dns` is a `:dnf` on the next lap. Excluded nations and hidden runners are left out.
+  - A nation's `reportedThrough`, the last yard it has finished entering, becomes the country's `:reported-through`, so `wtc.race` settles laps per country without waiting for the grace period, and never shows a late country as out.
   - Polls send the last ETag, so an unchanged feed is a 304.
   - Run it on its own: `SOURCES='[{:id :official :type :official :priority 10}]'`. Not merged with the sheet: sources merge per runner and lap, so a yard the organisers remove from the feed would live on from a lagging or stale sheet copy. If the feed fails, the ingester keeps its last good data; if it's gone for good, switch `SOURCES` to the sheet by hand.
 - **`wtc.source.sheet`:** the official leaderboard, the published Google Sheet behind the official site's "Leaderboard" link, read as CSV from its `Lite2` tab (yards per country and seat). A manual fallback for `wtc.source.official`, not run next to it. Config: `SOURCES='[{:id :sheet :type :sheet :priority 10}]'`.
@@ -91,7 +92,8 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 - **`wtc.race`:** `derive-state`, which is pure and holds all the domain rules. Who is in or out is computed on read and never stored, so late or corrected data fixes itself on the next derive.
   - **Lap state:**
     - Laps are credited up to the last finished lap. Gaps below it are missed registrations, marked `:inferred`.
-    - A *settled* lap is one whose deadline + `GRACE_SECONDS` has passed. A runner with no result for a settled lap is out with `:missing`, and `:dnf` takes precedence.
+    - A *settled* lap is one whose country has finished reporting it: up to the country's `:reported-through` when its source gives one (the official feed's `reportedThrough`), but never the lap in progress; otherwise, once its deadline + `GRACE_SECONDS` has passed. A runner with no result for a settled lap is out with `:missing`, and `:dnf` takes precedence. The team rule uses the same per-country settled lap. `:settled-lap` in `/api/race` stays the grace-period one.
+    - `:reported-through` isn't stored in Postgres. After a restart it's back with the first fetch, and until then the grace period applies.
     - Lap times over 3600 s become `:suspect` with `:seconds nil`.
     - Finished laps under 1800 s (`too-fast-seconds`) get `:too-fast true`. They still count, and their time is kept.
   - **The team rule (`team-result`):** the first settled lap with fewer than 2 finishers ends the country.

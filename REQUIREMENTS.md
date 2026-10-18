@@ -23,7 +23,7 @@ Where a requirement comes from:
 - Standard backyard format: lap *n* starts at start + (n−1) h, and a runner must finish it within that hour. Everyone still in the race starts every lap. [brief]
 - A runner is **out** when either:
   - a DNF is reported for a lap; or
-  - there is no result for a lap after its deadline plus a grace period (15 min, configurable). This is reason "no result".
+  - there is no result for a lap its country has finished reporting. This is reason "no result". When the source says how far each country has reported (the official feed's `reportedThrough`), a lap counts as reported up to there, and a missing result after it never puts a runner out. Otherwise, a lap counts as reported after its deadline plus a grace period (15 min, configurable). [decided]
 
   A reported DNF takes precedence over "no result". [decided]
 - A lap time over 60 min can't be valid. It's kept as "suspect", and its time isn't shown. [decided]
@@ -188,7 +188,7 @@ With two runners left (A and B):
 ## 9. Open questions and to do
 
 - [x] **Real data adapters:** `wtc.source.official` (the one in use) and `wtc.source.sheet` (manual fallback).
-- [x] **Late countries:** a runner without a result counts as out only 45 min after the lap's bell (`GRACE_SECONDS = 2700` in `fly.prod.toml`; the default is 15 min), so a country that reports late isn't shown as out meanwhile. [decided]
+- [x] **Late countries:** a country that reports late is never shown as out meanwhile. The official feed's `reportedThrough` says how far each country has reported. Only for a source without it does a runner without a result count as out 45 min after the lap's bell (`GRACE_SECONDS = 2700` in `fly.prod.toml`; the default is 15 min). [decided]
 - [ ] **Deploy:**
   - set up the Fly.io apps `bigs-live` and `bigs-live-demo`, and `PROD_BACKEND_HOST`/`DEMO_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment);
   - make a test run before 17 Oct 12:00Z.

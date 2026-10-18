@@ -23,6 +23,9 @@
   (testing "nations get the roster's codes and names; excluded nations are left out"
     (is (= #{"ALG" "NED" "POR" "TPE"} (set (map :code (:countries snap)))))
     (is (= "Netherlands" (:name (first (filter #(= "NED" (:code %)) (:countries snap)))))))
+  (testing "reportedThrough is the country's :reported-through"
+    (is (= {"ALG" 3 "NED" 2 "POR" 2 "TPE" 2}
+           (into {} (map (juxt :code :reported-through)) (:countries snap)))))
   (testing "every runner is matched to a roster id, also in other scripts"
     (is (every? #(re-matches #"[A-Z]{3}-\d\d" %) (map :id (:runners snap))))
     (is (= "ALG-01" (:id (first (filter #(= "Madjid Bentalha" (:name %)) (:runners snap)))))))

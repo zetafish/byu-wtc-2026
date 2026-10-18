@@ -1,10 +1,10 @@
 (ns wtc.source.official
   "The official site's results feed (wtc2026.bigsbackyardultra.com): the JSON
-  its own pages poll every 30 s. It's read from the organisers' master sheet,
+  its own pages poll every 60 s. It's read from the organisers' master sheet,
   checked and consolidated, so it's fresher than the published sheet and has
   what that lacks: full names, lap times and stop reasons.
 
-    {:nations [{:code \"NLD\" :name \"Netherlands\" …}]
+    {:nations [{:code \"NLD\" :name \"Netherlands\" :reportedThrough 7 …}]
      :runners [{:id \"NLD-kanter-eefting\" :nation \"NLD\" :name \"…\"
                 :dns false :laps [2950 3012 nil] :stop nil|\"RTC\"|\"OVER\"|\"INC\"}]
      :config  {:excluded {\"MUS\" \"why\"} :hiddenRunners [id …]}}
@@ -20,6 +20,8 @@
     runner keeps their feed id under our country code.
   - laps[i] is lap i+1, finished, with that many seconds (nil: no time
     recorded). A stop, or DNS, is a :dnf on the lap after the last.
+  - reportedThrough, the last yard a nation has finished entering, is the
+    country's :reported-through.
   - Excluded nations and hidden runners are left out.
 
   Polls send the last ETag, so an unchanged feed costs a 304.
@@ -97,7 +99,8 @@
                    :out? (boolean (or (get r "stop") (get r "dns")))})]
     {:countries (for [n nations :let [code (get ours (get n "code"))]
                       :when (not (excluded (get n "code")))]
-                  {:code code :name (get-in roster [:countries code] (get n "name"))})
+                  (cond-> {:code code :name (get-in roster [:countries code] (get n "name"))}
+                    (int? (get n "reportedThrough")) (assoc :reported-through (get n "reportedThrough"))))
      :runners (map #(select-keys % [:id :name :country]) runners)
      :laps (for [{:keys [id laps out?]} runners
                  lap (concat (map-indexed (fn [i s]
