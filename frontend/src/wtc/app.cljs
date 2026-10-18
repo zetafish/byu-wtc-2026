@@ -608,6 +608,50 @@
      ^{:key i} [:i {:class (cond (< i active) "in" (>= i runners) "none")}])
    [:b active]])
 
+(defn- out-at
+  "The yard whose bell a runner went out at: an RTC finished yard y and
+  didn't start the next, an INC or OVER failed yard y itself, a missing
+  result is the yard after the last. DNS is the start (0)."
+  [{:keys [laps stop]}]
+  (case stop "dns" 0 "rtc" laps (inc laps)))
+
+(defn- drops-card
+  "One line above the standings: who went out at one bell, with the stop
+  codes. \"Show\" opens the full list by country (★ first, then ranking).
+  Starts at the last completed yard; ← → step through the race."
+  []
+  (let [{:keys [runners countries race favourites drops-yard drops-open?]} @db
+        last-bell (max 1 (dec (:current-lap race 1)))
+        y (or drops-yard last-bell)
+        out (filter #(and (= "out" (:status %)) (= y (out-at %))) runners)
+        order (into {} (map (juxt :code :position)) countries)
+        by-country (->> (group-by :country out)
+                        (sort-by (fn [[code _]] [(if (contains? favourites code) 0 1) (order code 999)])))
+        counts (frequencies (map #(or (stop-short (:stop %)) "no result") out))
+        step! (fn [d] (swap! db assoc :drops-yard (-> (+ y d) (max 1) (min (:current-lap race 1)))))]
+    [:div.drops.wide
+     [:div.drops-line
+      [:button.ghost.step {:aria-label "Previous yard" :disabled (<= y 1) :on-click #(step! -1)} "←"]
+      [:b (str "Out at yard " y ":")]
+      [:span (if (seq out)
+               (str (count out) (if (= 1 (count out)) " runner" " runners") " · "
+                    (str/join " · " (for [k ["RTC" "INC" "OVER" "no result"] :when (counts k)] (str (counts k) " " k)))
+                    (when (= y (:current-lap race)) " · so far"))
+               "nobody")]
+      [:button.ghost.step {:aria-label "Next yard" :disabled (>= y (:current-lap race 1)) :on-click #(step! 1)} "→"]
+      (when (seq out)
+        [:button.link {:aria-expanded (boolean drops-open?) :on-click #(swap! db update :drops-open? not)}
+         (if drops-open? "Hide ▴" "Show ▾")])]
+     (when (and drops-open? (seq out))
+       [:ul.drops-list
+         (for [[code rs] by-country]
+           ^{:key code}
+           [:li [country-label code]
+            [:span.drop-names
+             (for [{:keys [id name stop] :as r} (sort-by :rank rs)]
+               ^{:key id}
+               [:span.drop {:title (out-text r)} name " " [:span.code (or (stop-short stop) "no result")]])]])])]))
+
 (defn- countries-table []
   (let [{:keys [countries selected favourites favourites-only?]} @db
         lead (reduce max 0 (map :total-laps countries))
@@ -1408,7 +1452,7 @@
          [:div.grid
           (for [p (concat compare overall)] ^{:key (:id p)} [panel p false])
           [countries-table]]])
-      [:div.grid [countries-table]])))
+      [:div.grid [drops-card] [countries-table]])))
 
 (defn- new-version-bar []
   (when (:new-version? @db)
