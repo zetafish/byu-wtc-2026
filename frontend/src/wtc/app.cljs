@@ -1075,11 +1075,11 @@
 ;; The page is about one country and the viewer may be from anywhere, so the
 ;; chase says "this team", never "you".
 (def ^:private buckets
-  [[:catching-you "Catching this team" "danger"]
-   [:catching "This team is catching" "chance"]
+  [[:catching-you "Threats from behind" "danger"]
+   [:catching "Targets ahead" "chance"]
    [:level "Staying level" nil]
-   [:cant-catch "Can't catch this team" nil]
-   [:out-of-reach "Out of reach" nil]])
+   [:cant-catch "Stays behind" nil]
+   [:out-of-reach "Stays ahead" nil]])
 
 ;; once this team is out its score is final: nobody is a danger any more,
 ;; the others will pass it or not
@@ -1146,17 +1146,17 @@
                       :level "level"
                       "stays behind")
                     (case b
-                      :catching-you (str "passes this team " (in-laps laps-to-pass))
-                      :catching (str "this team passes " (in-laps laps-to-pass))
+                      :catching-you (str "⚠ threat · " (in-laps laps-to-pass))
+                      :catching (str "✓ target · " (in-laps laps-to-pass))
                       :level "staying level"
-                      :cant-catch "can't catch this team"
-                      :out-of-reach "out of reach"))]]))]
+                      :cant-catch "stays behind"
+                      :out-of-reach "stays ahead"))]]))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "The chase"]
        [:p.sub (if (:eliminated-after country)
-                 (str "Who can still pass " nm ", if nobody drops.")
-                 (str "Who " nm " can catch and who can catch " nm ", if nobody drops."))]]]
+                 (str "Who can still pass " nm ", if nobody else drops.")
+                 (str "Threats from behind and targets ahead for " nm ", if nobody else drops."))]]]
      (when (:eliminated-after country)
        [:p.chase-note (str (:name country) "'s race is over: its team score is final at " (:total-laps country) ".")])
      [:div.buckets
@@ -1180,7 +1180,7 @@
         [:table.chase-table
          [:thead [:tr [:th "Country"] [:th.num {:title "Their team score minus this team's"} "Gap"]
                   [:th.num {:title "Their runners still in vs this team's"} "Runners"]
-                  [:th.num {:title "What this team gains on them each yard: its runners in minus theirs"} "This team gains / yard"]
+                  [:th.num {:title "What this team gains on them each yard: its runners in minus theirs (a country that's out or on its last runner adds nothing)"} "This team gains / yard"]
                   [:th "Overtake"]]]
          [:tbody
           (map row (reverse ahead))
@@ -1213,10 +1213,8 @@
            " changes by the difference between its line and the dashed one. A line ends at the last yard the country has reported."
            rivals-note]
           [:p.chart-note
-         "Each line is a country's team score minus " (:name country) "'s after each yard. "
-         "Above the dashed line it's ahead, below it behind. A line going up is gaining on "
-         (:name country) " (more runners in), going down is losing ground, flat means as many runners in; "
-         "crossing the dashed line is an overtake. A line ends at the last yard both countries have reported."
+         "Each line is a country's team score minus " (:name country) "'s. Above the dashed line it's ahead, below behind; "
+         "crossing it is an overtake. Lines end at the last yard both countries reported."
          rivals-note])])]))
 
 (defn- team-runners [{:keys [runners]}]
