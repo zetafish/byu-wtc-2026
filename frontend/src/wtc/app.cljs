@@ -50,7 +50,8 @@
                                                              :favourites-only (:favourites-only? @db)
                                                              :variant (:variant @db)
                                                              :sim-poll-ms (:sim-poll-ms @db)
-                                                             :team (:team @db)})))
+                                                             :team (:team @db)
+                                                             :chase-view (:chase-view @db)})))
        (catch :default _ nil)))
 
 ;; --- API ---
@@ -908,8 +909,6 @@
            "th"
            (case (mod n 10) 1 "st" 2 "nd" 3 "rd" "th"))))
 
-(defn- place-text [{:keys [rank tied]}] (str (when tied "=") rank))
-
 (defn- plural [n word]
   (str n " " (cond (= 1 n) word
                    (str/ends-with? word "y") (str (subs word 0 (dec (count word))) "ies")
@@ -957,9 +956,8 @@
       [:span.muted (str "still reporting lap " (inc reported-through) "…")]
       [:span.muted (str "lap " reported-through " reported")])))
 
-(defn- team-header [{:keys [country current-lap chase tied-with]}]
+(defn- team-header [{:keys [country current-lap tied-with]}]
   (let [{:keys [code name total-laps active runners division utc-offset site rank]} country
-        ahead (first (:ahead chase))
         n (count (:countries @db))]
     [:section.card.wide.team-head
      [:div.team-title
@@ -973,85 +971,119 @@
         (when utc-offset [:span (str (local-time utc-offset) " local")])
         [reporting-text country current-lap]]]]
      [:div.rstats
-      [stat-tile "Place" [:<> (place-text country) [:small (str " / " n)]]
+      ;; no "=": "tied with N" below says it's shared
+      [stat-tile "Place" [:<> rank [:small (str " / " n)]]
        (when (seq tied-with) (str "tied with " (count tied-with)))]
-      [stat-tile "Team score" total-laps
-       (cond
-         ahead (str (:gap ahead) " behind " (:name ahead))
-         (seq (:behind chase)) (str (- (:gap (first (:behind chase)))) " ahead of " (:name (first (:behind chase))))
-         :else nil)]
+      [stat-tile "Team score" total-laps nil]
       [stat-tile "Still in" [:<> active [:small (str " / " runners)]] nil]
-      [stat-tile "Lap" current-lap nil]]
-     ;; the neighbourhood: the same countries as in the chase below
-     (let [{:keys [ahead level behind]} chase
-           line (fn [label items]
-                  (when (seq items)
-                    [:div.nb-line
-                     [:span.label label]
-                     (for [{c :code nm :name gap :gap active :active} items]
-                       ^{:key c}
-                       [:a.tied {:href (str "#team/" c)
-                                 :title (str nm " " c (when active (str ", " active " still in")))}
-                        [flag c] [:span c]
-                        (when (and gap (not (zero? gap)))
-                          [:span.gap (if (pos? gap) (str "+" gap) (str "−" (- gap)))])])]))]
-       (when (or (seq ahead) (seq level) (seq behind))
-         [:div.neighbours
-          [line "Chasing" ahead]
-          [line (str "Level on " total-laps) (map (fn [c] {:code c :name (country-name c)}) level)]
-          [line "Chased by" behind]]))]))
+      [stat-tile "Lap" current-lap nil]]]))
 
-(defn- rival-sentence
-  "The chase in words, for one rival `r` seen from `ours`."
-  [ours {:keys [code name gap gain laps-to-pass active eliminated-after total-laps]}]
-  (let [we-out? (:eliminated-after ours)
-        who [:b name]
-        ins (str " with " active " in")]
-    (cond
-      (pos? gap)
-      (cond
-        we-out? [:<> who " is " gap " ahead: out of reach now."]
-        eliminated-after [:<> who " finished on " total-laps ". You pass them in " (plural laps-to-pass "lap")
-                          ", as long as 2 of yours keep going."]
-        (pos? gain) [:<> who " is " gap " ahead" ins "; you have " (:active ours) ". You gain " gain
-                     " a lap and pass them in " (plural laps-to-pass "lap") " if nobody drops."]
-        (zero? gain) [:<> who " is " gap " ahead" ins ", as many as you: the gap stays."]
-        :else [:<> who " is " gap " ahead" ins " and pulls away by " (- gain) " a lap."])
-      :else
-      (let [behind (- gap)]
-        (cond
-          eliminated-after [:<> who " finished on " total-laps ", " behind " behind: can't catch you any more."]
-          (neg? gain) [:<> who " is " behind " behind" ins ". They gain " (- gain) " a lap and pass you in "
-                       (plural laps-to-pass "lap") " if nobody drops."]
-          (zero? gain) [:<> who " is " behind " behind" ins ", as many as you: the gap stays."]
-          :else [:<> who " is " behind " behind" ins ". They can't catch you while you have more runners."])))))
+(defn- chase-bucket
+  "Which way a rival goes, seen from our country: :catching-you (behind or
+  level, gaining on us), :catching (ahead or level, we gain on them),
+  :cant-catch (behind, not gaining), :out-of-reach (ahead, we're not
+  gaining), or :level (level, as many runners in)."
+  [{:keys [gap gain]}]
+  (cond
+    (and (<= gap 0) (neg? gain)) :catching-you
+    (and (>= gap 0) (pos? gain)) :catching
+    (neg? gap) :cant-catch
+    (pos? gap) :out-of-reach
+    :else :level))
 
-(defn- danger? [{:keys [gap laps-to-pass]}] (and (neg? gap) laps-to-pass (<= laps-to-pass 2)))
+;; The page is about one country and the viewer may be from anywhere, so the
+;; chase says "this team", never "you".
+(def ^:private buckets
+  [[:catching-you "Catching this team" "danger"]
+   [:catching "This team is catching" "chance"]
+   [:level "Staying level" nil]
+   [:cant-catch "Can't catch this team" nil]
+   [:out-of-reach "Out of reach" nil]])
 
-(defn- chase-card [{:keys [country chase]}]
+(defn- in-laps [n] (if (= 1 n) "next lap" (str "in " n " laps")))
+
+(defn- rival-chip [{:keys [code name laps-to-pass]} with-laps?]
+  [:a.tied {:href (str "#team/" code) :title (str name " " code)}
+   [flag code] [:span code]
+   (when (and with-laps? laps-to-pass) [:span.gap (in-laps laps-to-pass)])])
+
+(defn- chase-card [{:keys [country chase settled-lap]}]
   (let [{:keys [ahead level behind field-active]} chase
-        rivals (concat (reverse ahead) behind)
+        c (:code country)
+        nm (:name country)
+        rivals (concat (reverse ahead) level behind)
+        by-bucket (group-by chase-bucket rivals)
         series (map-indexed (fn [i {:keys [code name series]}]
                               {:key code :label (str name " " code) :color (color (inc i)) :values series})
-                            rivals)
-        early? (and (empty? ahead) (empty? behind))]
+                            (concat (reverse ahead) behind))
+        early? (and (empty? ahead) (empty? behind))
+        many-level? (> (count level) 4)
+        row (fn [{:keys [code name gap gain active laps-to-pass] :as r}]
+              (let [b (chase-bucket r)]
+                ^{:key code}
+                [:tr
+                 [:td [country-label code]]
+                 [:td.num (cond (pos? gap) (str "+" gap) (neg? gap) (str "−" (- gap)) :else "0")]
+                 [:td.num (str active " vs " (:active country))]
+                 [:td.num {:class (cond (pos? gain) "gain" (neg? gain) "loss")}
+                  (cond (pos? gain) (str "+" gain " ▲") (neg? gain) (str "−" (- gain) " ▼") :else "")]
+                 [:td {:class (case b :catching-you "danger" :catching "chance" "muted")}
+                  (case b
+                    :catching-you (str "passes this team " (in-laps laps-to-pass))
+                    :catching (str "this team passes " (in-laps laps-to-pass))
+                    :level "staying level"
+                    :cant-catch "can't catch this team"
+                    :out-of-reach "out of reach")]]))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "The chase"]
-       [:p.sub "Each lap a country gains as many laps as it has runners still in, so the gaps move by the difference in runners."]]]
-     [:ul.chase
-      (when (:eliminated-after country)
-        [:li.level (str (:name country) "'s race is over: its team score is final at " (:total-laps country) ".")])
-      (when (seq level)
-        [:li.level (str "Level on " (:total-laps country) " with " (plural (count level) "other country") ".")
-         (when field-active
-           (str " You have " (:active country) " in; countries still going average " field-active "."))])
-      (for [r ahead] ^{:key (:code r)} [:li [rival-sentence country r]])
-      (for [r behind] ^{:key (:code r)} [:li {:class (when (danger? r) "danger")} [rival-sentence country r]])]
+       [:p.sub (str "Who " nm " can catch and who can catch " nm ", if nobody drops.")]]]
+     (when (:eliminated-after country)
+       [:p.chase-note (str (:name country) "'s race is over: its team score is final at " (:total-laps country) ".")])
+     [:div.buckets
+      (for [[k label cls] buckets
+            :let [items (sort-by #(or (:laps-to-pass %) 999) (by-bucket k))]
+            :when (seq items)]
+        ^{:key k}
+        [:div.nb-line {:class cls}
+         [:span.label (case cls "danger" (str "⚠ " label) "chance" (str "✓ " label) label)]
+         (if (and (= k :level) many-level?)
+           [:span (str (count items) " countries")]
+           (for [r items] ^{:key (:code r)} [rival-chip r (#{:catching-you :catching} k)]))])]
+     (when (and early? field-active)
+       [:p.chase-note (str nm " has " (:active country) " in; countries still going average " field-active ".")])
      (when-not early?
-       [chart/line-chart {:series series :refs [{:y 0 :label (:name country) :neutral? true}]
-                          :y-zero? false :x-label "lap" :y-label "laps ahead of you" :size :wide
-                          :legend? true}])]))
+       [:div.segmented.chase-switch {:role "group" :aria-label "Chase details"}
+        (for [[v label] [[:numbers "Numbers"] [:history "Over time"]]]
+          ^{:key v}
+          [:button {:aria-pressed (= v (:chase-view @db :numbers))
+                    :on-click #(do (swap! db assoc :chase-view v) (save-prefs!))} label])])
+     (when (and (seq rivals) (or early? (= :numbers (:chase-view @db :numbers))))
+       [:div.table-wrap
+        [:table.chase-table
+         [:thead [:tr [:th "Country"] [:th.num {:title "Their team score minus this team's"} "Gap"]
+                  [:th.num {:title "Their runners still in vs this team's"} "Runners"]
+                  [:th.num {:title "What this team gains on them each lap: its runners in minus theirs"} "This team gains / lap"]
+                  [:th "Overtake"]]]
+         [:tbody
+          (map row (reverse ahead))
+          (if many-level?
+            [:tr.muted {:key "level"} [:td {:col-span 5} (str (count level) " countries level with " nm " on " (:total-laps country))]]
+            (map row level))
+          [:tr.you {:key "self"} [:td [country-label c]] [:td.num "0"]
+           [:td.num (:active country)] [:td] [:td.muted "this team"]]
+          (map row behind)]]])
+     (when (and (not early?) (= :history (:chase-view @db :numbers)))
+       [:<>
+        [chart/line-chart {:series series :refs [{:y 0 :label (:name country) :neutral? true}]
+                           :y-zero? false :x-label "lap" :y-label "laps ahead of this team" :size :wide
+                           :legend? true}]
+        [:p.chart-note
+         "Each line is a country's team score minus " (:name country) "'s after each lap. "
+         "Above the dashed line it's ahead, below it behind. A line going up is gaining on "
+         (:name country) " (more runners in), going down is losing ground, flat means as many runners in; "
+         "crossing the dashed line is an overtake. Up to lap " settled-lap
+         ", the last lap every country has had time to report, so results already in for the current lap aren't drawn yet."]])]))
 
 (defn- team-runners [{:keys [runners settled-lap]}]
   (let [ranked-all (ranked (:runners @db))
@@ -1089,37 +1121,55 @@
   [s]
   (cond (< s 2760) 0 (< s 2940) 1 (< s 3180) 2 (< s 3420) 3 :else 4))
 
-(defn- lap-grid [{:keys [runners settled-lap current-lap]}]
-  (let [n (max 1 (if (pos? settled-lap) current-lap 1))]
-    [:section.card.wide
-     [:div.card-head
-      [:div [:h2 "Every lap, every runner"]
-       [:p.sub "One cell per lap, darker is slower. Red is the lap a runner didn't finish; striped is a finished lap without a time."]]]
-     [:div.lap-grid-wrap
-      [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
-       (for [{:keys [id name history]} runners
-             :let [by-lap (into {} (map (juxt :lap identity)) history)]]
-         ^{:key id}
-         [:<>
-          [:span.lg-name name]
-          (for [l (range 1 (inc n))
-                :let [{:keys [status seconds inferred]} (by-lap l)]]
-            ^{:key l}
-            [:span {:class (cond
-                             (= "dnf" status) "lg dnf"
-                             seconds (str "lg s" (lap-shade seconds))
-                             (= "finished" status) "lg notime"
-                             :else "lg none")
-                    :title (str name ", lap " l ": "
-                                (cond (= "dnf" status) "did not finish"
-                                      seconds (mmss seconds)
-                                      (= "finished" status) (if inferred "finished (missed registration)" "finished, no time")
-                                      :else "–"))}])])]]
-     [:ul.legend.lg-legend
-      (for [[i t] (map-indexed vector ["under 46:00" "46–49" "49–53" "53–57" "57:00 or more"])]
-        ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
-      [:li [:span.lg.dnf] "did not finish"]
-      [:li [:span.lg.notime] "no time"]]]))
+(defn- lap-text
+  "What a lap-grid cell says: the lap time and the rest, or what happened."
+  [{:keys [status seconds inferred]}]
+  (cond (= "dnf" status) "did not finish"
+        seconds (str (mmss seconds) " · rest " (mmss (- 3600 seconds)))
+        (= "finished" status) (if inferred "finished (missed registration)" "finished, no time")
+        :else "not started"))
+
+(defn- lap-grid
+  "Runners × laps. Hovering (or tapping) a cell shows its lap at once, in a
+  tooltip fixed to the viewport, so the grid's scrolling box can't clip it."
+  [_]
+  (let [tip (r/atom nil)]  ; {:x :y :name :lap :text} of the cell under the pointer
+    (fn [{:keys [runners settled-lap current-lap]}]
+      (let [n (max 1 (if (pos? settled-lap) current-lap 1))
+            show! (fn [e nm l lap]
+                    (let [rect (.getBoundingClientRect (.-currentTarget e))]
+                      (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
+                                   :name nm :lap l :text (lap-text lap)})))]
+        [:section.card.wide
+         [:div.card-head
+          [:div [:h2 "Every lap, every runner"]
+           [:p.sub "One cell per lap, darker is slower. Red is the lap a runner didn't finish; striped is a finished lap without a time. Hover or tap a cell for its lap time."]]]
+         [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
+          [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
+           (for [{:keys [id name history]} runners
+                 :let [by-lap (into {} (map (juxt :lap identity)) history)]]
+             ^{:key id}
+             [:<>
+              [:span.lg-name name]
+              (for [l (range 1 (inc n))
+                    :let [{:keys [status seconds] :as lap} (by-lap l)]]
+                ^{:key l}
+                [:span {:class [(cond
+                                  (= "dnf" status) "lg dnf"
+                                  seconds (str "lg s" (lap-shade seconds))
+                                  (= "finished" status) "lg notime"
+                                  :else "lg none")
+                                (when (and (= name (:name @tip)) (= l (:lap @tip))) "hover")]
+                        :aria-label (str name ", lap " l ": " (lap-text lap))
+                        :on-mouse-enter #(show! % name l lap)
+                        :on-click #(show! % name l lap)}])])]]
+         (when-let [{:keys [x y name lap text]} @tip]
+           [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · lap " lap " · " text)])
+         [:ul.legend.lg-legend
+          (for [[i t] (map-indexed vector ["under 46:00" "46–49" "49–53" "53–57" "57:00 or more"])]
+            ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
+          [:li [:span.lg.dnf] "did not finish"]
+          [:li [:span.lg.notime] "no time"]]]))))
 
 (defn- team-over-time [{:keys [over-time country]}]
   [:section.card
@@ -1201,7 +1251,7 @@
         [:li [:a {:href (if (= id :team) (str "#team/" (:team @db)) (str "#" (name id)))
                   :aria-current (when (= id view) "page")}
               (if (= id :team)
-                [:<> label (when-let [t (:team @db)] [:span.count {:title "your team"} t])]
+                [:<> label (when-let [t (:team @db)] [:span.count {:title "the team you looked at last"} t])]
                 [:<> label [:span.count {:title (nav-title id)} (nav-count id)]])]])]]))
 
 (defn- comparing []
@@ -1253,9 +1303,10 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team]} (load-prefs)]
+  (when-let [{:keys [selected starred favourites show-out show-out-runners runner-filter starred-only favourites-only variant sim-poll-ms team chase-view]} (load-prefs)]
     (swap! db assoc
            :team team
+           :chase-view (if (= "history" chase-view) :history :numbers)
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
            :variant (or variant {})
            :selected (into {} (map (fn [[k v]] [(clojure.core/name k) v])) selected)

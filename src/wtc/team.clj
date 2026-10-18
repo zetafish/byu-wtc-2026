@@ -52,6 +52,7 @@
             :laps-to-pass (cond
                             (pos? gap) (laps-to-pass gap gain)          ; we pass them
                             (neg? gap) (laps-to-pass (- gap) (- gain))  ; they pass us
+                            (not (zero? gain)) 1                        ; level: the first lap decides
                             :else nil)
             :series (series-of (:code theirs))})))
 
@@ -101,7 +102,7 @@
                     :place (mapv (fn [n] [n ((places-at by-country n) code)]) laps)}
         :chase {:ahead (->> others (filter #(> (:total-laps %) (:total-laps ours)))
                             reverse (take n-rivals) (mapv #(rival ours % series-of)))
-                :level (->> others (filter #(= (:total-laps %) (:total-laps ours))) (mapv :code))
+                :level (->> others (filter #(= (:total-laps %) (:total-laps ours))) (mapv #(rival ours % series-of)))
                 :behind (->> others (filter #(< (:total-laps %) (:total-laps ours)))
                              (take n-rivals) (mapv #(rival ours % series-of)))
                 :field-active (when (seq still-going)

@@ -353,6 +353,8 @@ td.name { font-weight: 600; }
 /* a country, everywhere: [flag] name code */
 .clabel { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; vertical-align: middle; }
 .clabel .cname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+a.clabel { color: inherit; text-decoration: none; }
+a.clabel:hover .cname { text-decoration: underline; }
 .clabel .code { color: var(--text-muted); font-weight: 400; flex: none; }
 .flag { width: 20px; height: 15px; flex: none; border-radius: 2px; box-shadow: 0 0 0 1px var(--line); object-fit: cover; }
 .flag.none { display: inline-block; background: var(--line); }
@@ -414,16 +416,12 @@ footer { color: var(--text-muted); font-size: 13px; }
 .team-title h2 .code { color: var(--text-muted); font-weight: 400; }
 .team-title .sub { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
 .team-rule { margin-top: 6px; }
-.neighbours { display: grid; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .nb-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
 .nb-line .label { color: var(--text-muted); font-size: 12px; width: 110px; flex: none; }
 a.tied .gap { color: var(--text-muted); font-weight: 400; font-variant-numeric: tabular-nums; }
 a.tied { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--text-primary); text-decoration: none; }
 a.tied:hover span { text-decoration: underline; }
 .pill.danger { color: var(--critical); background: color-mix(in srgb, var(--critical) 12%, transparent); }
-ul.chase { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
-ul.chase li { padding: 8px 12px; border-left: 3px solid var(--line); background: var(--page); border-radius: 0 6px 6px 0; }
-ul.chase li.danger { border-left-color: var(--critical); }
 table.team-runners td.name { white-space: nowrap; }
 .lap-grid-wrap { overflow-x: auto; }
 .lap-grid { display: grid; gap: 2px; align-items: center; min-width: 480px; }
@@ -437,6 +435,12 @@ table.team-runners td.name { white-space: nowrap; }
 .lg.dnf { background: var(--critical); }
 .lg.notime { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); }
 .lg.none { background: transparent; }
+.lg.hover { outline: 2px solid var(--text-primary); outline-offset: 1px; }
+.lg-tip {
+  position: fixed; z-index: 30; transform: translate(-50%, calc(-100% - 8px)); pointer-events: none;
+  background: var(--text-primary); color: var(--page); font-size: 13px; padding: 5px 9px; border-radius: 6px;
+  white-space: nowrap; box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
+}
 .lg-legend .lg { width: 16px; height: 12px; }
 
 /* country dropdown: a native <select> can't show flags */
@@ -460,3 +464,17 @@ table.team-runners td.name { white-space: nowrap; }
 .csel-list li.active { background: color-mix(in srgb, var(--series-1) 12%, transparent); }
 .csel-group { padding: 8px 8px 4px; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .csel-empty { padding: 8px; margin: 0; }
+.chart-note { color: var(--text-muted); font-size: 13px; margin: 8px 0 0; max-width: 80ch; }
+.buckets { display: grid; gap: 8px; margin-bottom: 14px; }
+.buckets .nb-line .label { width: 210px; white-space: nowrap; }
+@media (max-width: 520px) { .buckets .nb-line .label { width: 100%; } }
+.buckets .nb-line.danger .label { color: var(--critical); font-weight: 700; }
+.buckets .nb-line.chance .label { color: var(--good); font-weight: 700; }
+.chase-note { color: var(--text-muted); margin: 0 0 12px; }
+table.chase-table { margin-bottom: 12px; }
+table.chase-table td.gain { color: var(--good); font-weight: 600; }
+table.chase-table td.loss { color: var(--critical); font-weight: 600; }
+table.chase-table td.danger { color: var(--critical); font-weight: 600; }
+table.chase-table td.chance { color: var(--good); font-weight: 600; }
+table.chase-table tr.you td { background: var(--page); font-weight: 600; }
+.chase-switch { margin-bottom: 10px; }

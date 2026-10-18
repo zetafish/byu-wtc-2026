@@ -29,7 +29,8 @@
     (testing "nearest first, ahead and behind"
       (is (= ["AAA" "CCC"] (map :code ahead)))
       (is (= ["DDD"] (map :code behind)))
-      (is (= ["EEE"] level)))
+      (is (= ["EEE"] (map :code level)))
+      (is (= {:gap 0 :gain 0 :laps-to-pass nil} (select-keys (first level) [:gap :gain :laps-to-pass]))))
     (testing "AAA is 4 ahead with 3 in against our 2: they gain 1 a lap, we never pass"
       (is (= {:gap 4 :gain -1 :laps-to-pass nil}
              (select-keys ((by-code ahead) "AAA") [:gap :gain :laps-to-pass]))))
