@@ -1368,6 +1368,10 @@
         ;; once out, nothing ahead can change: only being overtaken can
         out? (:eliminated-after country)
         ahead (if out? [] ahead)
+        ;; a country that has stopped and stays behind changes nothing: leave it out
+        stopped-behind? #(and (:eliminated-after %) (= :cant-catch (chase-bucket % country)))
+        behind (remove stopped-behind? behind)
+        level-below (remove stopped-behind? level-below)
         level-above (if out? [] level-above)
         level (concat level-above level-below)
         c (:code country)
@@ -1394,7 +1398,8 @@
                  series)
         rivals-note (when (> (count (concat ahead behind)) 8)
                       " With more than 8 rivals, the chart shows those with an overtake first, then the nearest.")
-        early? (and (empty? ahead) (empty? behind))
+        ;; nothing to chase yet (early on); a country that is out just has its final score
+        early? (and (not out?) (empty? ahead) (empty? behind))
         many-level? (> (count level) 4)
         row (fn [{:keys [code name gap gain active laps-to-pass] :as r}]
               (let [b (chase-bucket r country)]
@@ -1436,7 +1441,7 @@
      (when one-drop [:div.buckets [one-drop-line one-drop current-lap]])
      (when (and early? field-active)
        [:p.chase-note (str nm " has " (:active country) " in; countries still going average " field-active ".")])
-     (when-not early?
+     (when (and (not early?) (seq rivals))
        [:div.segmented.chase-switch {:role "group" :aria-label "Chase details"}
         (for [[v label] [[:numbers "Numbers"] [:history "Gap over time"] [:runners "Runners in"]]]
           ^{:key v}
@@ -1458,7 +1463,7 @@
            [:td.num (:active country)] [:td] [:td.muted "this team"]]
           (when-not many-level? (map row level-below))
           (map row behind)]]])
-     (when (and (not early?) (#{:history :runners} view))
+     (when (and (not early?) (seq rivals) (#{:history :runners} view))
        [:<>
         [:div.segmented.chase-range {:role "group" :aria-label "Yards shown"}
          (for [[v label] [[:all "All yards"] [:last-12 "Last 12"]]]
