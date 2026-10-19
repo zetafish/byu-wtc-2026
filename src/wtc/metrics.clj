@@ -121,8 +121,9 @@
                             (fn [rs] (count (filter #(>= (:started %) n) rs))))
         freq (frequencies (vals active))]
     [{:metric {:__name__ "countries_by_active_runners" :lap n}
+      ;; from 1: the countries with nobody left (most, late on) would dwarf the rest
       :values (mapv (fn [k] [k (get freq k 0)])
-                    (range 0 (inc (reduce max 0 (keys freq)))))}]))
+                    (range 1 (inc (reduce max 0 (keys freq)))))}]))
 
 (def registry
   {"runners_started" {:doc "Runners starting lap n. by=country" :x "lap" :fn runners-started}
@@ -133,7 +134,7 @@
    "countries_running" {:doc "Countries still in the race after lap n" :x "lap" :fn countries-running}
    "lap_time_seconds" {:doc "Lap times per runner; filter with runners= or countries=, lap= from that lap on" :x "lap" :fn lap-time}
    "lap_time_median_seconds" {:doc "The field's median lap time per lap" :x "lap" :fn lap-time-median}
-   "countries_by_active_runners" {:doc "Histogram: number of countries with k runners starting lap= (default current)" :x "active_runners" :fn countries-by-active}})
+   "countries_by_active_runners" {:doc "Histogram: number of countries with k >= 1 runners starting lap= (default current)" :x "active_runners" :fn countries-by-active}})
 
 (defn query [derived metric params]
   (if-let [{:keys [x] f :fn} (registry metric)]

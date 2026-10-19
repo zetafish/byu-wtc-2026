@@ -117,7 +117,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `countries_running`: countries still in the race after each settled lap
   - `lap_time_seconds` (with `lap=`, only from that lap on: the Runners view loads all lap times once, then each reload only from the last lap it has, ~8 KB instead of ~100 KB gzipped)
   - `lap_time_median_seconds`: the field's median lap time per lap (the runner dialog's dashed line)
-  - `countries_by_active_runners`
+  - `countries_by_active_runners` (from 1 runner up: countries with nobody left would dwarf the rest)
 
   **The shape of an entry:** `"name" {:doc "…" :x "lap" :fn (fn [derived params] …)}`.
   - `:fn` gets the derived state (see `wtc.race` above) and `params` `{:by "country"|nil :countries #{codes} :runners #{ids} :lap n}`. Empty sets mean "all".

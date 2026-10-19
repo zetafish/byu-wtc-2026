@@ -75,7 +75,7 @@
     :x-label "yard" :y-label "runners"}
    {:id :histogram
     :title "Countries by runners still in"
-    :subtitle "Current yard, all countries"
+    :subtitle "Current yard, countries with runners still in"
     :metric "countries_by_active_runners"
     :kind :bar
     :x-label "runners in" :y-label "countries"}])
