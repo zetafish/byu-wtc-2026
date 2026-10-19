@@ -53,7 +53,6 @@
                                                              :slot-metric (:slot-metric @db)
                                                              :theme (:theme @db)
                                                              :standings-filter (:standings-filter @db)
-                                                             :standings-pinned (vec (:standings-pinned @db))
                                                              :chart-range (:chart-range @db)
                                                              :chart-group (:chart-group @db)})))
        (catch :default _ nil)))
@@ -941,20 +940,13 @@
                           [:win "country winner"] [:dns "did not start"]]]
           ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])])]))
 
-(defn- toggle-pinned! [code]
-  (swap! db update :standings-pinned #(let [s (or % #{})] (if (contains? s code) (disj s code) (conj s code))))
-  (save-prefs!))
-
 (defn- countries-table []
-  (let [{:keys [countries selected favourites race-view standings-filter standings-pinned]} @db
+  (let [{:keys [countries selected favourites race-view standings-filter]} @db
         lead (reduce max 0 (map :total-laps countries))
         slots (reduce max 0 (map :runners countries))
         running-only? (= :running standings-filter)
-        pinned? (seq standings-pinned)
-        ;; all: eliminated ones greyed, their score still counts; pinned: only those
-        shown (cond->> countries
-                running-only? (remove :eliminated-after)
-                pinned? (filter #(contains? standings-pinned (:code %))))]
+        ;; all: eliminated ones greyed, their score still counts
+        shown (cond->> countries running-only? (remove :eliminated-after))]
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Standings"]
@@ -976,21 +968,9 @@
           ^{:key v}
           [:button {:aria-pressed (= v (or standings-filter :all))
                     :on-click #(do (swap! db assoc :standings-filter v) (save-prefs!))} label])]]]
-     ;; pin countries to follow them, through time travel too; the place stays the overall one
-     [:div.filters
-      [country-select {:on-pick toggle-pinned! :placeholder "+ Country" :exclude standings-pinned
-                       :label "Show only these countries"}]
-      (for [code (sort standings-pinned)]
-        ^{:key code}
-        [:span.chip [country-label code]
-         [:button.remove {:aria-label (str "Remove " code) :on-click #(toggle-pinned! code)} "✕"]])
-      (when pinned?
-        [:button.link {:on-click #(do (swap! db assoc :standings-pinned #{}) (save-prefs!))} "Show all countries"])]
      (cond
        (empty? shown)
-       [:div.empty (cond (and pinned? running-only?) "None of these countries is still running."
-                         running-only? "No country is still running."
-                         :else "No countries to show")]
+       [:div.empty (if running-only? "No country is still running." "No countries to show")]
        (= :runners race-view) [race-runners-grid shown]
        :else
        [:div.table-wrap.full
@@ -2114,7 +2094,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade race-view slot-metric theme standings-filter standings-pinned chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade race-view slot-metric theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -2129,7 +2109,6 @@
            :slot-metric (if (= "margin" slot-metric) :margin :yards)
            :theme (case theme "light" :light "dark" :dark :system)
            :standings-filter (if (= "running" standings-filter) :running :all)
-           :standings-pinned (set standings-pinned)
            :chart-range (if (= "last-12" chart-range) :last-12 :all)
            :chart-group (or (#{"TOP" "SUPER" "AAA" "AA" "A" "ALL"} chart-group) "ALL")
            :sim-poll-ms (or sim-poll-ms default-sim-poll-ms)
