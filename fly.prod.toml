@@ -8,8 +8,9 @@ primary_region = "fra"
   # the poll interval adds straight to its age. Unchanged polls are a 304.
   POLL_SECONDS = "5"
   # The official site's feed only (see wtc.source.official). Its latest copy
-  # is kept on the volume, so a restart while the feed is down still has data.
-  SOURCES = '[{:id :official :type :official :priority 10 :snapshot "/data/latest.json"}]'
+  # is kept on the volume, so a restart while the feed is down still has data,
+  # and every changed copy too, for replays after the race (`make archive-pull`).
+  SOURCES = '[{:id :official :type :official :priority 10 :snapshot "/data/latest.json" :archive "/data/archive"}]'
   # A country that reports up to 45 min after the bell isn't shown as out meanwhile.
   GRACE_SECONDS = "2700"
 

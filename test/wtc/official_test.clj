@@ -87,3 +87,31 @@
       (finally
         (http-kit/server-stop! stop)
         (run! #(.delete ^File %) (reverse (file-seq dir)))))))
+
+(deftest archive
+  (let [feed (json/read-value (slurp (io/resource "wtc/fixtures/official-results.json")))
+        body (atom nil)
+        serve! (fn [m] (reset! body (json/write-value-as-string m)))
+        stop (http-kit/run-server (fn [_] {:status 200 :body @body}) {:port 0 :legacy-return-value? false})
+        dir (.toFile (Files/createTempDirectory "wtc" (make-array FileAttribute 0)))
+        archive (str dir "/archive")
+        src (source/create {:id :official :type :official :archive archive
+                            :url (str "http://localhost:" (http-kit/server-port stop) "/")})
+        fetch! (fn [m] (serve! m) (source/fetch src {:start start :now start}))
+        kept #(sort (.list (File. archive)))]
+    (try
+      (fetch! (assoc feed "generatedAt" "a"))
+      (testing "the first copy is kept, gzipped, as is"
+        (is (= 1 (count (kept))))
+        (is (re-matches #"\d{4}-\d\d-\d\dT\d{6}.*\.json\.gz" (first (kept))))
+        (is (= @body (slurp (java.util.zip.GZIPInputStream. (io/input-stream (File. archive ^String (first (kept)))))))))
+      (testing "a copy that only has a new generatedAt is not"
+        (fetch! (assoc feed "generatedAt" "b"))
+        (is (= 1 (count (kept)))))
+      (testing "a copy with new content is"
+        (Thread/sleep 2)
+        (fetch! (assoc feed "generatedAt" "c" "mode" "changed"))
+        (is (= 2 (count (kept)))))
+      (finally
+        (http-kit/server-stop! stop)
+        (run! #(.delete ^File %) (reverse (file-seq dir)))))))

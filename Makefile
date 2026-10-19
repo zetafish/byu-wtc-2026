@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help test run demo-reset demo-off repl up down logs uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy
+.PHONY: help test run demo-reset demo-off repl up down logs uber image clean .web-deps web-dev web-build web-deploy roster roster-refresh fly-deploy archive-pull
 
 PORT ?= 8090
 
@@ -91,3 +91,13 @@ clean: ## Remove build output
 # machine: the scheduler and the state are in-process.
 fly-deploy: ## Deploy the backend to Fly.io
 	fly deploy -c fly.prod.toml --ha=false
+
+# The feed copies kept on the Fly volume (latest.json and archive/, see
+# wtc.source.official), copied into archive/ here. The volume goes when the
+# machines do, so pull before deleting them.
+archive-pull: ## Copy the feed archive from Fly.io into archive/
+	fly ssh console -a bigs-live -C "tar cf /tmp/archive.tar -C /data latest.json archive"
+	mkdir -p archive && rm -f archive/archive.tar
+	fly ssh sftp get -a bigs-live /tmp/archive.tar archive/archive.tar
+	tar xf archive/archive.tar -C archive && rm archive/archive.tar
+	@ls archive/archive | wc -l | xargs echo "copies:"

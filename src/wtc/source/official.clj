@@ -32,10 +32,16 @@
   read back at boot (see `wtc.source/saved`), so a restart while the feed is
   down doesn't start from nothing.
 
+  With :archive, every copy whose content changed (`generatedAt` aside, which
+  changes every minute) is also kept, gzipped, as <dir>/<fetched at>.json.gz,
+  so the race can be replayed after the feed is gone. After a restart, the
+  first copy is always kept.
+
   Options (all optional):
     :url       (default `results-url`)
     :roster    \"roster/wtc-2026.edn\"  classpath resource
-    :snapshot  file for the latest copy, e.g. \"/data/latest.json\"; none by default"
+    :snapshot  file for the latest copy, e.g. \"/data/latest.json\"; none by default
+    :archive   directory for every changed copy, e.g. \"/data/archive\"; none by default"
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as str]
@@ -44,6 +50,8 @@
             [org.httpkit.client :as http]
             [wtc.source :as source])
   (:import (java.io File)
+           (java.time Instant)
+           (java.util.zip GZIPOutputStream)
            (java.nio.file CopyOption Files StandardCopyOption)
            (java.text Normalizer Normalizer$Form)))
 
@@ -140,6 +148,26 @@
     (catch Exception e
       (log/warnf "official: can't save the snapshot to %s: %s" path (ex-message e)))))
 
+(defn- archive!
+  "Keep `body` gzipped in `dir`, unless its content (`generatedAt` aside) is
+  `last`. The content kept, or `last` on a failure, which is logged."
+  [^String dir ^String body feed last]
+  (let [content (dissoc feed "generatedAt")]
+    (if (= content last)
+      last
+      (try
+        (let [name (str/replace (str (Instant/now)) ":" "")
+              f (File. dir (str name ".json.gz"))
+              tmp (File. dir (str name ".tmp"))]
+          (.mkdirs (File. dir))
+          (with-open [out (GZIPOutputStream. (io/output-stream tmp))]
+            (.write out (.getBytes body "UTF-8")))
+          (Files/move (.toPath tmp) (.toPath f) (into-array CopyOption [StandardCopyOption/ATOMIC_MOVE]))
+          content)
+        (catch Exception e
+          (log/warnf "official: can't archive the feed in %s: %s" dir (ex-message e))
+          last)))))
+
 (defn- load-saved
   "The snapshot saved at `path`, parsed, or nil if there's none or it's unreadable."
   [roster path]
@@ -155,7 +183,7 @@
   (saved [_] (load-saved roster (:snapshot opts)))
   source/Source
   (fetch [_ _]
-    (let [{:keys [etag snap]} @cache
+    (let [{:keys [etag snap archived]} @cache
           {:keys [status body headers error]}
           @(http/get (:url opts) {:timeout 15000 :as :text
                                   :headers (cond-> {"User-Agent" "bigs-live (unofficial WTC 2026 results site)"}
@@ -164,8 +192,12 @@
         error (throw (ex-info (str "official: " (ex-message error)) {} error))
         (and (= 304 status) snap) snap
         (not= 200 status) (throw (ex-info (str "official: HTTP " status) {:status status}))
-        :else (let [snap (parse roster (json/read-value body))]
-                (reset! cache {:etag (:etag headers) :snap snap})
+        :else (let [feed (json/read-value body)
+                    snap (parse roster feed)]
+                (reset! cache {:etag (:etag headers) :snap snap
+                               :archived (if-let [dir (:archive opts)]
+                                           (archive! dir body feed archived)
+                                           archived)})
                 (some-> (:snapshot opts) (save! body))
                 snap)))))
 
