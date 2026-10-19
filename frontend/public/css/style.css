@@ -29,6 +29,13 @@
   --series-6: #008300;
   --series-7: #6250d6;
   --series-8: #e34948;
+  /* Margin steps (Race view, Runners): the darker, the more pressure */
+  --m-1: color-mix(in srgb, var(--critical) 12%, transparent);
+  --m-2: color-mix(in srgb, var(--critical) 26%, transparent);
+  --m-3: color-mix(in srgb, var(--critical) 44%, transparent);
+  --m-4: color-mix(in srgb, var(--critical) 70%, transparent);
+  --m-5: var(--critical);
+  --m-strong-text: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +62,12 @@
     --series-6: #008300;
     --series-7: #9085e9;
     --series-8: #e66767;
+    --m-1: color-mix(in srgb, var(--critical) 18%, transparent);
+    --m-2: color-mix(in srgb, var(--critical) 36%, transparent);
+    --m-3: color-mix(in srgb, var(--critical) 56%, transparent);
+    --m-4: color-mix(in srgb, var(--critical) 78%, transparent);
+    --m-5: var(--critical);
+    --m-strong-text: #15232a;
   }
 }
 
@@ -81,6 +94,12 @@
   --series-6: #008300;
   --series-7: #9085e9;
   --series-8: #e66767;
+  --m-1: color-mix(in srgb, var(--critical) 18%, transparent);
+  --m-2: color-mix(in srgb, var(--critical) 36%, transparent);
+  --m-3: color-mix(in srgb, var(--critical) 56%, transparent);
+  --m-4: color-mix(in srgb, var(--critical) 78%, transparent);
+  --m-5: var(--critical);
+  --m-strong-text: #15232a;
 }
 
 * { box-sizing: border-box; }
@@ -586,6 +605,18 @@ table.race-grid td { padding-top: 4px; padding-bottom: 4px; }
 .slot.out { background: var(--grid); color: var(--text-muted); }
 .slot.dns { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); color: var(--text-muted); }
 .slot.win { background: var(--accent); color: #fff; font-weight: 600; }
+/* Margin: pressure on the runners still in; the ones who stopped stay plain */
+/* one hue, by lightness: the darker, the more pressure */
+.slot.m-0 { border-color: var(--line); }
+.slot.m-1 { background: var(--m-1); }
+.slot.m-2 { background: var(--m-2); }
+.slot.m-3 { background: var(--m-3); }
+.slot.m-4 { background: var(--m-4); color: var(--m-strong-text); }
+.slot.m-5 { background: var(--m-5); color: var(--m-strong-text); font-weight: 600; }
+.slot.m-notime { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); }
+/* stopped: grey, as in Yards */
+.slot.gone { background: var(--grid); color: var(--text-muted); }
+table.race-grid td.danger { color: var(--critical); font-weight: 600; }
 .slot-legend .slot { display: inline-block; width: 16px; height: 12px; padding: 0; vertical-align: -2px; margin-right: 4px; }
 
 /* Charts view: the Compare row and the yard range in one bar */

@@ -47,6 +47,7 @@
                                                              :runner-sort (:runner-sort @db)
                                                              :runners-view (:runners-view @db)
                                                              :race-view (:race-view @db)
+                                                             :slot-metric (:slot-metric @db)
                                                              :theme (:theme @db)
                                                              :standings-filter (:standings-filter @db)
                                                              :chart-range (:chart-range @db)
@@ -92,13 +93,16 @@
           (.catch #(js/console.warn %))))))
 
 (defn- fetch-runner-times!
-  "Yard times for the Runners view (sparklines, heatmap) and the Seeds view.
+  "Yard times for the Runners view (sparklines, heatmap), the Seeds view and
+  the Race view's runner margins.
   Past yards never change, so all of them load once, and later reloads only
   fetch from the last yard
   known on (that yard again, in case a time was corrected): a few KB instead
   of ~140 KB gzipped late in the race. Other views don't need them."
   []
-  (when (#{:runners :seeds} (:view @db))
+  (when (let [{:keys [view race-view slot-metric]} @db]
+          (or (#{:runners :seeds} view)
+              (and (= :race view) (= :runners race-view) (= :margin slot-metric))))
     (let [through (:lap-times-through @db)
           from (when through (max 1 through))]
       (-> (get-json "/api/query" (cond-> {:metric "lap_time_seconds"} from (assoc :lap from)))
@@ -758,11 +762,28 @@
         (< laps (dec current-lap)) :awaiting
         :else :running))
 
+(declare margin-of)
+
+(defn- margin-level
+  "How much pressure a runner still in is under, by their margin (see
+  `margin-trend`), 0-5 in 2-minute steps of rest: 10:00 or more, 8-10,
+  6-8, 4-6, 2-4, under 2:00; notime without timed yards. Not by the
+  trend: late in the race most runners are over a minute slower than their
+  average (103 of 153 at yard 51 in 2026), so a ▼ alone says little."
+  [{:keys [margin]}]
+  (cond (nil? margin) "notime"
+        (>= margin 600) 0 (>= margin 480) 1 (>= margin 360) 2
+        (>= margin 240) 3 (>= margin 120) 4 :else 5))
+
 (defn- race-runners-grid
   "The standings with every runner: per country its 15 seeds as cells of
-  yards and surname, coloured by state; hover for the full story."
+  yards and surname, coloured by state; or, with :slot-metric :margin, of
+  the margin of the runners still in, smallest first and coloured by
+  `margin-level` (then those without times, then the ones who stopped,
+  greyed out as in Yards). Hover for the full story."
   [shown]
-  (let [{:keys [runners race]} @db
+  (let [{:keys [runners race slot-metric lap-times]} @db
+        margin? (= :margin slot-metric)
         current (:current-lap race 0)
         by-country (group-by :country runners)
         slots (reduce max 0 (map :runners shown))]
@@ -771,30 +792,46 @@
       [:colgroup [:col.rk] [:col.country] [:col.n] [:col.in] [:col.time] [:col]]
       [:thead [:tr [:th.num "#"] [:th "Country"] [:th.num "Yards"] [:th.num "In"]
                [:th.num {:title "Average yard time of all the team's timed yards"} "Avg yard"]
-               [:th "Runners by seed"]]]
+               [:th (if margin? "Runners by margin, smallest first" "Runners by seed")]]]
       [:tbody
        (for [{:keys [code rank active runners total-laps eliminated-after]} shown
-             :let [rs (sort-by :rank (by-country code))
+             :let [rs (cond->> (sort-by :rank (by-country code))
+                        ;; still in by margin, then still in without times, then stopped, each by seed
+                        margin? (sort-by (fn [r]
+                                           (let [m (:margin (margin-of r (get lap-times (:id r))))]
+                                             (cond m [0 m] (running? r) [1 0] :else [2 0])))))
                    timed (keep (fn [{:keys [total-seconds avg-seconds]}]
                                  (when (and total-seconds avg-seconds (pos? avg-seconds))
                                    [total-seconds (js/Math.round (/ total-seconds avg-seconds))]))
                                rs)
                    n-timed (reduce + 0 (map second timed))
-                   avg (when (pos? n-timed) (js/Math.round (/ (reduce + 0 (map first timed)) n-timed)))]]
+                   avg (when (pos? n-timed) (js/Math.round (/ (reduce + 0 (map first timed)) n-timed)))
+                   ;; down to 2: a teammate's drop ends the other's race too
+                   last-two? (and margin? (= 2 active) (not eliminated-after))]]
          ^{:key code}
          [:tr.clickable {:class (when eliminated-after "out")
                          :on-click #(set! (.-hash js/location) (str "team/" code))}
           [:td.num rank]
           [:td.name [country-label code]]
           [:td.num total-laps]
-          [:td.num {:title (str active " of " runners " still in")} active]
+          [:td.num {:class (when last-two? "danger")
+                    :title (str active " of " runners " still in"
+                                (when last-two? "; a teammate's drop ends the other's race"))}
+           (if last-two? "⚠ 2" active)]
           [:td.num (or (mmss avg) "–")]
           [:td [:div.slots {:style {:grid-template-columns (str "repeat(" (max slots 1) ", minmax(0, 1fr))")}}
                 (for [{:keys [id name laps] :as r} rs
-                      :let [st (slot-state r current)]]
+                      :let [st (slot-state r current)
+                            m (when margin? (margin-of r (get lap-times id)))
+                            level (when (and margin? (running? r)) (margin-level m))]]
                   ^{:key id}
-                  [:span.slot {:class (cljs.core/name st)
+                  [:span.slot {:class (cond (not margin?) (cljs.core/name st)
+                                            level (str "m-" level)
+                                            :else "gone")
                                :title (str "Seed " (:rank r) " · " name " · " laps " yards · "
+                                           (when (:margin m)
+                                             (str "margin " (mmss (:margin m)) " (rest per yard over the last 3 yards"
+                                                  (case (:trend m) :down ", shrinking" :up ", growing" "") ") · "))
                                            (case st
                                              :win "country winner"
                                              :dns "did not start"
@@ -802,11 +839,23 @@
                                              :awaiting (str "result for yard " (dec current) " not in yet")
                                              :done (str "finished yard " current)
                                              :running (str "on yard " current)))}
-                   [:b (if (= st :dns) "–" laps)] [:span (surname name)]])]]])]]
-     [:ul.legend.slot-legend
-      (for [[st label] [[:running "on course"] [:done "finished this yard"] [:awaiting "result not in yet"] [:out "out"]
-                        [:win "country winner"] [:dns "did not start"]]]
-        ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])]]))
+                   [:b (cond (= st :dns) "–"
+                             (not margin?) laps
+                             (= st :win) "★"
+                             (not level) "out"
+                             (:margin m) [:<> (mmss (:margin m)) (case (:trend m) :down " ▼" :up " ▲" "")]
+                             :else "no time")]
+                   [:span (surname name)]])]]])]]
+     (if margin?
+       [:ul.legend.slot-legend
+        (for [[cls label] [["m-0" "10:00 or more"] ["m-1" "8–10"] ["m-2" "6–8"] ["m-3" "4–6"] ["m-4" "2–4"]
+                           ["m-5" "under 2:00"] ["m-notime" "no time"] ["gone" "stopped"]]]
+          ^{:key cls} [:li [:span.slot {:class cls}] label])
+        [:li "Margin: rest per yard over the last 3 yards. ▼ over a minute slower than their average, ▲ faster. ⚠ 2: down to 2 runners"]]
+       [:ul.legend.slot-legend
+        (for [[st label] [[:running "on course"] [:done "finished this yard"] [:awaiting "result not in yet"] [:out "out"]
+                          [:win "country winner"] [:dns "did not start"]]]
+          ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])])]))
 
 (defn- countries-table []
   (let [{:keys [countries selected favourites race-view standings-filter]} @db
@@ -824,7 +873,13 @@
         (for [[v label] [[:teams "Teams"] [:runners "Runners"]]]
           ^{:key v}
           [:button {:aria-pressed (= v (or race-view :teams))
-                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!))} label])]
+                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!) (fetch-runner-times!))} label])]
+       (when (= :runners race-view)
+         [:div.segmented {:role "group" :aria-label "Runner cells show"}
+          (for [[v label] [[:yards "Yards"] [:margin "Margin"]]]
+            ^{:key v}
+            [:button {:aria-pressed (= v (or (:slot-metric @db) :yards))
+                      :on-click #(do (swap! db assoc :slot-metric v) (save-prefs!) (fetch-runner-times!))} label])])
        [:div.segmented {:role "group" :aria-label "Countries"}
         (for [[v label] [[:all "All"] [:running "Still running"]]]
           ^{:key v}
@@ -1889,7 +1944,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view slot-metric theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -1899,6 +1954,7 @@
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (if (= "runners" race-view) :runners :teams)
+           :slot-metric (if (= "margin" slot-metric) :margin :yards)
            :theme (case theme "light" :light "dark" :dark :system)
            :standings-filter (if (= "running" standings-filter) :running :all)
            :chart-range (if (= "last-12" chart-range) :last-12 :all)
