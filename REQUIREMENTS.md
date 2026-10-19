@@ -180,8 +180,8 @@ With two runners left (A and B):
   - Position is the leaderboard position, not the position within the lap. [assumed]
 - **Runners who have stopped** (out, or a country winner) are hidden by default, behind the "Show all (+n stopped)" toggle: the list is who is still running. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]
-- **Every yard by margin** [decided]: in the Every yard view, a "Yard time | Margin" switch shades each yard by the runner's margin after it instead of its time (colour only), to see how a runner's margin closed in before they stopped.
-- **The team page's yard grid by margin** [decided]: the same "Yard time | Margin" switch on the team page's "Every yard, every runner", with the slowing bars, to follow one team's runners yard by yard.
+- **Every yard by margin** [decided]: in the Every yard view, a "Margin | Yard time" switch, Margin by default [decided 19 Oct: more revealing than the times], shades each yard by the runner's margin after it, or by its time, to see how a runner's margin closed in before they stopped.
+- **The team page's yard grid by margin** [decided]: the same "Margin | Yard time" switch (Margin by default) on the team page's "Every yard, every runner", with the slowing bars, to follow one team's runners yard by yard.
 
 ### Seeds view
 - An overview of all 15 seeds: the leader (or "N tied"), their country, the yards they're ranked on, and seed state. Click a seed, or pick it in the selector, for that seed's runners. [decided]

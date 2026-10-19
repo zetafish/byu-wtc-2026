@@ -1264,7 +1264,7 @@
   (let [tip (r/atom nil)]
     (fn [shown lap-times current-lap]
       (let [n (max 1 current-lap)
-            margin? (= :margin (:yard-shade @db))]
+            margin? (not= :time (:yard-shade @db))]   ; by margin unless Yard time was picked
         [:<>
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           (let [cols (str "44px minmax(140px, 220px) 76px repeat(" n ", minmax(5px, 1fr))")]
@@ -1348,9 +1348,9 @@
                    :on-click #(do (swap! db assoc :runners-view v) (save-prefs!))} label])]
       (when (= :heatmap (:runners-view @db))
         [:div.segmented {:role "group" :aria-label "Shade the yards by"}
-         (for [[v label] [[:time "Yard time"] [:margin "Margin"]]]
+         (for [[v label] [[:margin "Margin"] [:time "Yard time"]]]
            ^{:key v}
-           [:button {:aria-pressed (= v (:yard-shade @db :time))
+           [:button {:aria-pressed (= v (:yard-shade @db :margin))
                      :on-click #(do (swap! db assoc :yard-shade v) (save-prefs!))} label])])]
      [:div.filters-bar [runner-filters n-out show-out?] [sort-buttons]]
      (if (empty? shown)
@@ -1877,7 +1877,7 @@
   (let [tip (r/atom nil)]  ; {:x :y :name :lap :text} of the cell under the pointer
     (fn [{:keys [runners settled-lap current-lap]}]
       (let [n (max 1 (if (pos? settled-lap) current-lap 1))
-            margin? (= :margin (:team-yard-shade @db))
+            margin? (not= :time (:team-yard-shade @db))   ; by margin unless Yard time was picked
             show! (fn [e r l lap extra]
                     (let [rect (.getBoundingClientRect (.-currentTarget e))]
                       (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
@@ -1887,9 +1887,9 @@
           [:div [:h2 "Every yard, every runner"]
            [:p.sub "One cell per yard. Hover or tap a cell for its yard time, or why the runner stopped."]]
           [:div.segmented {:role "group" :aria-label "Shade the yards by"}
-           (for [[v label] [[:time "Yard time"] [:margin "Margin"]]]
+           (for [[v label] [[:margin "Margin"] [:time "Yard time"]]]
              ^{:key v}
-             [:button {:aria-pressed (= v (:team-yard-shade @db :time))
+             [:button {:aria-pressed (= v (:team-yard-shade @db :margin))
                        :on-click #(do (swap! db assoc :team-yard-shade v) (save-prefs!))} label])]]
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
@@ -2113,8 +2113,8 @@
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :team-sort (case team-sort "yards" :yards "avg" :avg :seed)
            :runners-view (if (= "heatmap" runners-view) :heatmap :table)
-           :yard-shade (if (= "margin" yard-shade) :margin :time)
-           :team-yard-shade (if (= "margin" team-yard-shade) :margin :time)
+           :yard-shade (if (= "time" yard-shade) :time :margin)
+           :team-yard-shade (if (= "time" team-yard-shade) :time :margin)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (if (= "runners" race-view) :runners :teams)
