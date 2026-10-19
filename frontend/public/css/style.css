@@ -618,6 +618,8 @@ table.race-grid td { padding-top: 4px; padding-bottom: 4px; }
 .slot.m-3 { background: var(--m-3); }
 .slot.m-4 { background: var(--m-4); color: var(--m-strong-text); }
 .slot.m-5 { background: var(--m-5); color: var(--m-strong-text); font-weight: 600; }
+/* slowing against their own pace: an outline in the text colour, on top of any shade */
+.slot.slowing { border: 2.5px solid var(--text-primary); }
 .slot.m-notime { background: repeating-linear-gradient(45deg, var(--line) 0 3px, transparent 3px 6px); }
 /* stopped: grey, as in Yards */
 .slot.gone { background: var(--grid); color: var(--text-muted); }

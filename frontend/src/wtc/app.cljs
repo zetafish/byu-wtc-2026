@@ -831,6 +831,20 @@
         (>= margin 600) 0 (>= margin 480) 1 (>= margin 360) 2
         (>= margin 240) 3 (>= margin 120) 4 :else 5))
 
+(defn- slowdown
+  "How much slower a runner's last 2 timed yards were than the 6 before
+  them, in seconds; nil with fewer than 8 timed yards. 3 minutes or more is
+  `slowing?`: tested on 19 Oct (yards 10-51), it came before 47% of the
+  next-yard drops, a margin under 4:00 before 18%, either before 55%; 1 in
+  6 flagged runners dropped next yard (the base rate is 1 in 28). It's against the runner's own pace, so it
+  also catches a fast runner who slows to a margin that still looks fine."
+  [times]
+  (let [s (mapv second (take-last 8 times))]
+    (when (= 8 (count s))
+      (js/Math.round (- (/ (+ (s 6) (s 7)) 2) (/ (reduce + (subvec s 0 6)) 6))))))
+
+(defn- slowing? [slow] (and slow (>= slow 180)))
+
 (defn- race-runners-grid
   "The standings with every runner: per country its 15 seeds as cells of
   yards and surname, coloured by state; or, with :slot-metric :margin, of
@@ -879,15 +893,17 @@
                 (for [{:keys [id name laps] :as r} rs
                       :let [st (slot-state r current)
                             m (when margin? (margin-of r (get lap-times id)))
-                            level (when (and margin? (running? r)) (margin-level m))]]
+                            level (when (and margin? (running? r)) (margin-level m))
+                            slow (when level (slowdown (get lap-times id)))]]
                   ^{:key id}
                   [:span.slot {:class (cond (not margin?) (cljs.core/name st)
-                                            level (str "m-" level)
+                                            level [(str "m-" level) (when (slowing? slow) "slowing")]
                                             :else "gone")
                                :title (str "Seed " (:rank r) " · " name " · " laps " yards · "
                                            (when (:margin m)
-                                             (str "margin " (mmss (:margin m)) " (rest per yard over the last 3 yards"
-                                                  (case (:trend m) :down ", shrinking" :up ", growing" "") ") · "))
+                                             (str "margin " (mmss (:margin m)) " (rest per yard over the last 3 yards) · "))
+                                           (when (slowing? slow)
+                                             (str "slowing: the last 2 yards " (mmss slow) " slower than the 6 before · "))
                                            (case st
                                              :win "country winner"
                                              :dns "did not start"
@@ -899,15 +915,16 @@
                              (not margin?) laps
                              (= st :win) "★"
                              (not level) "out"
-                             (:margin m) [:<> (mmss (:margin m)) (case (:trend m) :down " ▼" :up " ▲" "")]
+                             (:margin m) [:<> (when (slowing? slow) "⇣ ") (mmss (:margin m))]
                              :else "no time")]
                    [:span (surname name)]])]]])]]
      (if margin?
        [:ul.legend.slot-legend
         (for [[cls label] [["m-0" "10:00 or more"] ["m-1" "8–10"] ["m-2" "6–8"] ["m-3" "4–6"] ["m-4" "2–4"]
-                           ["m-5" "under 2:00"] ["m-notime" "no time"] ["gone" "stopped"]]]
+                           ["m-5" "under 2:00"] ["m-notime" "no time"] ["gone" "stopped"]
+                           ["m-0 slowing" "⇣ slowing: the last 2 yards 3+ min slower than the 6 before"]]]
           ^{:key cls} [:li [:span.slot {:class cls}] label])
-        [:li "Margin: rest per yard over the last 3 yards. ▼ over a minute slower than their average, ▲ faster. ⚠ 2: down to 2 runners"]]
+        [:li "Margin: rest per yard over the last 3 yards. ⚠ 2: down to 2 runners"]]
        [:ul.legend.slot-legend
         (for [[st label] [[:running "on course"] [:done "finished this yard"] [:awaiting "result not in yet"] [:out "out"]
                           [:win "country winner"] [:dns "did not start"]]]
