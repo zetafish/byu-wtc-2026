@@ -42,6 +42,21 @@
       (is (= :out (status "NED-01")))
       (is (= :out (status "ECU-13"))))))
 
+;; The tab at yard 51 (19 Oct): the code column's header is now `Team`, like
+;; the name column, and # counts the runners still in (0 for Spain, all out).
+(deftest parse-lite2-race-day-3
+  (let [snap (sheet/parse (sheet/load-roster "roster/wtc-2026.edn")
+                          (slurp (io/resource "wtc/fixtures/sheet-lite2-yard51.csv")))
+        laps-of (fn [id] (count (filter #(= id (:runner-id %)) (:laps snap))))]
+    (testing "codes and names from a header with two Team columns"
+      (is (zero? (:rejected (model/sanitize snap))))
+      (is (= 30118 (count (:laps snap))))
+      (is (= "Japan" (:name (first (filter #(= "JPN" (:code %)) (:countries snap))))))
+      (is (= 50 (laps-of "JPN-01"))))
+    (testing "a country with no runners still in stays; withdrawn ones are skipped"
+      (is (= 24 (laps-of "ESP-01")))
+      (is (not-any? #{"MRI" "SGP"} (map :code (:countries snap)))))))
+
 (deftest rejects-unknown-layout
   (is (thrown? clojure.lang.ExceptionInfo
                (sheet/parse {} ",TM,Team\n1,NED,Netherlands\n"))))

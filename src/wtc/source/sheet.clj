@@ -2,8 +2,9 @@
   "The official leaderboard: the published Google Sheet behind the official
   site's \"Leaderboard\" link, read as CSV from its `Lite2` tab.
 
-  One row per country: Rank, TM, Team, Flag, # (runners), Yards, Avg, then
-  the yards of seeds 1-15. The seeds are the roster's ranks, so a runner's id
+  One row per country: Rank, code, Team, Flag, # (runners still in), Yards, Avg, then
+  the yards of seeds 1-15. The code column's header was `TM` until race
+  day 3 (19 Oct), then `Team` like the name column next to it; both work. The seeds are the roster's ranks, so a runner's id
   is <code>-<seed> as in the roster, and the names come from the roster.
 
   Lite2, not the Leaderboard tab: on race day the Leaderboard tab lagged
@@ -16,8 +17,10 @@
   So a runner with n yards gets finished laps 1..n without :seconds, and
   `wtc.race` treats a runner without a result for a settled lap as out.
 
-  A withdrawn country has 0 runners (#) and is skipped, as is a seed without
-  a roster runner and without yards.
+  A withdrawn country has 0 runners still in (#) and 0 yards, and is
+  skipped, as is a seed without a roster runner and without yards. A
+  country whose runners have all stopped also has # 0, but has yards, so it
+  stays (Spain at yard 51).
 
   Google serves different cached copies of a published tab on different
   requests, so a fetch can return an older copy than the one before (on race
@@ -61,16 +64,22 @@
 (defn parse
   "CSV text of the Lite2 tab -> snapshot (see `wtc.model`)."
   [roster text]
-  (let [[header & body] (drop-while #(not= "TM" (second %)) (csv/read-csv text))
+  (let [[header & body] (drop-while #(not (and (some #{"#"} %) (some #{"Yards"} %))) (csv/read-csv text))
         col (fn [label] (.indexOf ^java.util.List (vec header) label))
-        [code-at team-at count-at seed-at] (map col ["TM" "Team" "#" "1"])
-        _ (when (or (some neg? [code-at team-at count-at seed-at])
+        ;; the code column is `TM`, or the first of two `Team` columns
+        [code-at team-at] (if (neg? (col "TM"))
+                            [(col "Team") (.lastIndexOf ^java.util.List (vec header) "Team")]
+                            [(col "TM") (col "Team")])
+        [count-at yards-at seed-at] (map col ["#" "Yards" "1"])
+        _ (when (or (some neg? [code-at team-at count-at yards-at seed-at])
+                    (= code-at team-at)
                     (not= (str seeds) (nth header (+ seed-at seeds -1) nil)))
             (throw (ex-info "sheet: unexpected Lite2 layout" {:header header})))
         entries (for [row body
                       :when (int-cell (first row))
                       :let [code (str/trim (nth row code-at ""))]
-                      :when (pos? (or (int-cell (nth row count-at "")) 0))
+                      :when (or (pos? (or (int-cell (nth row count-at "")) 0))
+                                (pos? (or (int-cell (nth row yards-at "")) 0)))
                       seed (range 1 (inc seeds))
                       :let [r (get roster [code seed])
                             yards (or (int-cell (nth row (+ seed-at seed -1) "")) 0)]
