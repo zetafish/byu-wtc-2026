@@ -50,13 +50,25 @@
             false)
       cmd)))
 
-(defn- handlers [state {:keys [control-sim!]}]
-  (let [derived #(:derived @state)]
-    {:health (fn [_] (json 200 {:ok (some? (derived)) :fetches (:fetches @state)} "no-store"))
-     :race (fn [_]
-             (let [d (derived)]
+(defn- past-lap
+  "The `at` query parameter: a settled lap before the live one to look back
+  at, or nil for live."
+  [state req]
+  (let [n (some-> (get-in req [:query-params "at"]) parse-long)]
+    (when (and n (pos? n) (< n (get-in @state [:derived :settled-lap] 0))) n)))
+
+(defn- handlers [state {:keys [control-sim! derived-at]}]
+  ;; every route can time travel: with ?at=n it answers as of the end of lap n
+  (let [derived (fn [req]
+                  (let [n (when derived-at (past-lap state req))]
+                    (if n (derived-at n) (:derived @state))))]
+    {:health (fn [_] (json 200 {:ok (some? (:derived @state)) :fetches (:fetches @state)} "no-store"))
+     :race (fn [req]
+             (let [d (derived req)]
                (json (-> (select-keys d [:start :now :current-lap :settled-lap :final-lap :race-laps :phase])
-                         (assoc :runners (count (:runners d))
+                         (assoc :at (when derived-at (past-lap state req))
+                                :live-settled-lap (get-in @state [:derived :settled-lap])
+                                :runners (count (:runners d))
                                 :running (count (filter #(= :running (:status %)) (vals (:runners d))))
                                 :fetches (:fetches @state))
                          (cond-> (or (:sim @state) (:mock-data @state))
@@ -68,26 +80,26 @@
               (json 404 {:error "not a demo race (CLOCK_START unset)"} "no-store")
               (if-let [cmd (sim-command body)]
                 (do (control-sim! cmd)
-                    (json 200 {:ok true :now (:now (derived))} "no-store"))
+                    (json 200 {:ok true :now (:now (:derived @state))} "no-store"))
                 (json 400 {:error "expected {action: jump, lap: 1-500} or {action: step, by: -24..24}"} "no-store"))))
-     :countries (fn [_] (json (sort-by :position (vals (:countries (derived))))))
-     :runners (fn [{{:strs [country history]} :query-params}]
-                (json (->> (vals (:runners (derived)))
+     :countries (fn [req] (json (sort-by :position (vals (:countries (derived req))))))
+     :runners (fn [{{:strs [country history]} :query-params :as req}]
+                (json (->> (vals (:runners (derived req)))
                            (filter #(or (nil? country) (= country (:country %))))
                            (sort-by (juxt (comp - :laps) :id))
                            (map (if (= history "true") identity runner-row)))))
-     :runner (fn [{{:keys [id]} :path-params}]
-               (if-let [r (get-in (derived) [:runners id])]
+     :runner (fn [{{:keys [id]} :path-params :as req}]
+               (if-let [r (get-in (derived req) [:runners id])]
                  (json r)
                  (json 404 {:error "not found"} "no-store")))
-     :team (fn [{{:keys [code]} :path-params}]
-             (if-let [t (team/team (derived) code)]
+     :team (fn [{{:keys [code]} :path-params :as req}]
+             (if-let [t (team/team (derived req) code)]
                (json t)
                (json 404 {:error "not found"} "no-store")))
-     :overtakes (fn [_] (json (team/overtakes (derived))))
+     :overtakes (fn [req] (json (team/overtakes (derived req))))
      :metrics (fn [_] (json (update-vals metrics/registry #(dissoc % :fn))))
-     :query (fn [{{:strs [metric by countries runners lap]} :query-params}]
-              (let [r (metrics/query (derived) metric
+     :query (fn [{{:strs [metric by countries runners lap]} :query-params :as req}]
+              (let [r (metrics/query (derived req) metric
                                      {:by by
                                       :countries (csv-set countries)
                                       :runners (csv-set runners)

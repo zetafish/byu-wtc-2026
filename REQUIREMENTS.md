@@ -117,6 +117,7 @@ With two runners left (A and B):
 - **Notices:**
   - before the start, the start time in the visitor's local time;
   - a data-source or connection problem, with a note that the last good data is shown.
+- **Time travel** [decided]: a "⏪ Time travel" button in the header chips opens a player (yard back, yard on, a slider up to the live yard, "Back to live"). It shows the whole site as it stood after any finished yard (during the next one), so you can check how the margins called the drops. The address carries it (`?at=45`), so a moment can be shared. Not with a demo race, which has its own player.
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
 - A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Charts [decided], Team, Runners and Seeds. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]

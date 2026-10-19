@@ -36,6 +36,7 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
   - The active item has an orange left bar and a tint.
   - Below **760 px**, the menu becomes a sticky top tab bar with an orange underline, and the brand is hidden.
 - **Content** is at most 1240 px wide. The header (title, stats, chips, notices, finished banner) is on every view, and the chosen view goes below it.
+- **Time travel:** closed, a chip-shaped button "⏪ Time travel" at the end of the header chips (muted text, like a ghost button). Open, a notice under the chips with an info-coloured (`--series-1`) left border, in the demo player's layout: "Time travel. The race as it stood after yard 45, during yard 46. Live: yard 51 done.", ⏮ ⏭, the slider (applied 300 ms after dragging stops), "After yard N", and "Back to live" ("Close" before a yard is picked). The header's figures and every view show that moment.
 - **Cards** sit in a 2-column grid (1 column below 760 px). Tables are `.wide` and span both columns.
 - **Tables** show all rows (`.table-wrap.full`) without an inner scroll. They scroll horizontally on narrow screens.
 

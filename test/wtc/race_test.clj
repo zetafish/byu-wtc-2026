@@ -132,6 +132,25 @@
       (is (= 101 (:current-lap end)))
       (is (<= (:settled-lap end) 101)))))
 
+(deftest time-travel
+  (let [ds (-> (dataset [["a" "NED"] ["b" "NED"] ["c" "NED"]]
+                        {"a" (finished 5)
+                         "b" (concat (finished 3) [[4 :dnf nil]])
+                         "c" (finished 2)})
+               (assoc-in [:countries "NED" :reported-through] 5))
+        past (race/as-of ds 2)
+        ;; during lap 3, as `wtc.ingest/derived-at` does
+        d (race/derive-state past {:start start :now (at-hours 2.3) :grace-s 900})
+        r #(get-in d [:runners %])]
+    (testing "nothing after the lap counts"
+      (is (every? (fn [[[_ l]]] (<= l 2)) (:laps past)))
+      (is (= 2 (get-in past [:countries "NED" :reported-through]))))
+    (testing "as of lap 2, everyone was still in on 2 yards"
+      (is (= 2 (:settled-lap d)))
+      (is (= [[:running 2] [:running 2] [:running 2]]
+             (map (juxt :status :laps) [(r "a") (r "b") (r "c")])))
+      (is (= 6 (get-in d [:countries "NED" :total-laps]))))))
+
 (deftest reported-through
   (let [d (fn [rt h]
             (race/derive-state

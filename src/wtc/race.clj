@@ -101,6 +101,15 @@
     (= :finished status) laps
     :else (inc laps)))
 
+(defn as-of
+  "The dataset as it stood once lap n was done, for time travel: its laps up
+  to n, and no country reported past n. Derive it during lap n+1 (see
+  `wtc.ingest/lap-instant`), so lap n is settled and nothing later counts."
+  [dataset n]
+  (-> dataset
+      (update :laps #(into {} (filter (fn [[[_ l] _]] (<= l n))) %))
+      (update :countries update-vals #(cond-> % (:reported-through %) (update :reported-through min n)))))
+
 (defn derive-state
   [{:keys [countries runners laps]} {:keys [start now grace-s] :or {grace-s 900}}]
   (let [current (current-lap start now)

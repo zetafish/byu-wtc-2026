@@ -196,6 +196,11 @@ h1 small {
 .notice .icon.info { color: var(--series-1); }
 .notice.simulation { border-left: 4px solid var(--warning); }
 .notice.simulation p { margin: 0; }
+/* time travel: the demo player's look, with the info colour */
+.notice.travel { border-left: 4px solid var(--series-1); }
+.notice.travel p { margin: 0; }
+button.chip.travel-open { cursor: pointer; font: inherit; font-weight: 600; color: var(--text-secondary); }
+button.chip.travel-open:hover { color: var(--text-primary); border-color: var(--axis); }
 /* after a deploy: a black bar across the top, fixed colours in both themes */
 .new-version {
   grid-column: 1 / -1; position: sticky; top: 0; z-index: 50;

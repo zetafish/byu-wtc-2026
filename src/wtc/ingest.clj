@@ -54,10 +54,12 @@
   "Recompute the derived race state. Sources merge in :priority order."
   [{:keys [state sources clock config roster-info]}]
   (let [datasets (keep #(get-in @state [:datasets (:id %)]) (sort-by :priority sources))
-        derived (race/derive-state (roster/enrich (model/merge-datasets datasets) roster-info)
-                                   {:start (:race-start config) :now (clock)
-                                    :grace-s (:grace-s config)})]
-    (swap! state assoc :derived derived)
+        dataset (roster/enrich (model/merge-datasets datasets) roster-info)
+        ;; the same object while nothing changed, so `derived-at` keeps its cache
+        dataset (if (= dataset (:dataset @state)) (:dataset @state) dataset)
+        derived (race/derive-state dataset {:start (:race-start config) :now (clock)
+                                            :grace-s (:grace-s config)})]
+    (swap! state assoc :dataset dataset :derived derived)
     derived))
 
 (defn tick! [sys]
@@ -74,6 +76,25 @@
   "A moment in lap n with lap n-1 already settled; lap 1 is the race start."
   ^Instant [^Instant race-start grace-s n]
   (.plusSeconds race-start (if (<= n 1) 0 (+ (* (dec n) model/lap-seconds) grace-s 60))))
+
+(defn derived-at
+  "Time travel: the derived state as it stood once lap n was done (see
+  `race/as-of`). Cached per lap until the dataset changes."
+  [{:keys [state config]} n]
+  (let [{:keys [dataset past]} @state]
+    (or (when (identical? dataset (:dataset past)) (get-in past [:by-lap n]))
+        (let [{:keys [race-start grace-s]} config
+              d (race/derive-state (race/as-of dataset n)
+                                   {:start race-start :now (lap-instant race-start grace-s (inc n))
+                                    :grace-s grace-s})]
+          (swap! state (fn [s]
+                         (cond-> s
+                           (identical? dataset (:dataset s))
+                           (assoc :past {:dataset dataset
+                                         :by-lap (-> (when (identical? dataset (get-in s [:past :dataset]))
+                                                       (get-in s [:past :by-lap]))
+                                                     (assoc n d))}))))
+          d))))
 
 (defn control-sim
   "Move a demo race, which stands still at (:at sim) until it's told to:

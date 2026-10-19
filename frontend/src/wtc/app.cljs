@@ -21,6 +21,7 @@
                      :team nil        ; team page: country code (#team/CODE), remembered
                      :team-data nil   ; /api/team/CODE of that country
                      :seed nil        ; seed ranking: nil = all seeds overview
+                     :at nil          ; time travel: the yard looked back at, nil = live
                      :results {}      ; [panel id, metric] -> query result
                      :variant {}      ; panel id -> index into the panel's :variants
                      :open nil        ; runner id shown in the runner dialog
@@ -56,8 +57,11 @@
 
 ;; --- API ---
 
-(defn- get-json [path params]
-  (let [qs (->> params
+(defn- get-json
+  "GET path?params as Clojure data. While time travelling, every request
+  asks for the race as of that yard (`at`)."
+  [path params]
+  (let [qs (->> (cond-> params (:at @db) (assoc :at (:at @db)))
                 (keep (fn [[k v]] (when (and (some? v) (not= v ""))
                                     (str (name k) "=" (js/encodeURIComponent v)))))
                 (str/join "&"))]
@@ -498,6 +502,52 @@
                ^{:key v}
                [:button {:aria-pressed (= v every) :on-click #(set-sim-poll! v)} text])]])]))))
 
+(defn- travel-to!
+  "Look at the race as it stood once yard n was done; nil (or the live yard)
+  goes back to live. The lap times start over for the new moment."
+  [n]
+  (let [live (get-in @db [:race :live-settled-lap] 0)
+        n (when (and n (< 0 n live)) n)]
+    (when (not= n (:at @db))
+      (swap! db assoc :at n :lap-times nil :lap-times-through nil :history {} :team-data nil)
+      ;; ?at=n in the address, so the moment can be shared
+      (.replaceState js/history nil "" (str (.-pathname js/location) (when n (str "?at=" n)) (.-hash js/location)))
+      (refresh!))))
+
+(defn- time-travel
+  "Look back at any finished yard, the whole site as it stood then, to see
+  how the margins called the drops. Closed, a button; open, a player like
+  the demo race's: yard back and on, a slider up to live, and back to live."
+  [_]
+  (let [scrub (r/atom nil)   ; yard shown while dragging the slider
+        timer (atom nil)]
+    (fn [{:keys [at live-settled-lap]}]
+      (let [live live-settled-lap
+            yard (or @scrub at live)]
+        (if-not (or at (:travel-open? @db))
+          [:button.chip.travel-open {:on-click #(swap! db assoc :travel-open? true)} "⏪ Time travel"]
+          [:div.notice.travel
+           [:p [:span.icon.info "⏪"] [:b "Time travel. "]
+            (if at
+              (str "The race as it stood after yard " at ", during yard " (inc at) ". Live: yard " live " done.")
+              (str "Pick a finished yard to see the race as it stood then. Live: yard " live " done."))]
+           [:div.sim-controls
+            [:div.transport
+             [:button.ghost {:title "Previous yard" :aria-label "Previous yard"
+                             :disabled (<= yard 1) :on-click #(travel-to! (dec yard))} "⏮"]
+             [:button.ghost {:title "Next yard" :aria-label "Next yard"
+                             :disabled (>= yard live) :on-click #(travel-to! (inc yard))} "⏭"]]
+            [:input.scrub {:type "range" :min 1 :max live :step 1 :value yard :aria-label "Yard to look back at"
+                           :style {"--progress" (str (* 100 (/ (dec yard) (max 1 (dec live)))) "%")}
+                           :on-change (fn [e]
+                                        (let [n (js/parseInt (.. e -target -value))]
+                                          (reset! scrub n)
+                                          (js/clearTimeout @timer)
+                                          (reset! timer (js/setTimeout #(do (reset! scrub nil) (travel-to! n)) 300))))}]
+            [:span.sim-lap (str "After yard " yard)]
+            [:button.ghost {:on-click #(do (travel-to! nil) (swap! db assoc :travel-open? false))}
+             (if at "Back to live" "Close")]]])))))
+
 (defn- header []
   (let [{:keys [race countries error updated]} @db
         failing (remove :ok (vals (:fetches race)))]
@@ -519,7 +569,12 @@
           (when (pos? (get by-status "finished" 0))
             [:span.chip (str "★ " (get by-status "finished") " country winners")])
           [:span.chip (str (count (filter :eliminated-after countries)) " of " (count countries) " countries "
-                           (if (= "finished" (:phase race)) "done" "eliminated"))]]))
+                           (if (= "finished" (:phase race)) "done" "eliminated"))]
+          (when (and (not (:at race)) (not (:travel-open? @db)) (not (get-in race [:simulation :controls]))
+                     (> (:live-settled-lap race 0) 1))
+            [time-travel race])]))
+     (when (or (:at race) (:travel-open? @db))
+       [time-travel race])
      (when (:simulation race) [sim-panel race])
      (when (= "pre" (:phase race))
        [:p.notice [:span.icon.info "◷"]
@@ -1965,6 +2020,9 @@
            :runner-filter (set runner-filter)
            :show-out-runners? (true? show-out-runners)))
   (apply-theme! (:theme @db))
+  ;; a shared time-travel link (?at=n); the server answers live if n isn't a finished yard
+  (when-let [n (some-> (.get (js/URLSearchParams. (.-search js/location)) "at") parse-long)]
+    (swap! db assoc :at n :travel-open? true))
   (go-to-hash!)
   (watch-version!)
   ;; a tab coming back to the front catches up at once

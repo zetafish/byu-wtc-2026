@@ -56,7 +56,8 @@
                        (ingest/tick! sys))
         _ (ingest/refresh! sys)
         scheduler (ingest/start-scheduler sys)
-        stop-http (http-kit/run-server (http/app state {:control-sim! control-sim!}) {:port (:port cfg)})]
+        stop-http (http-kit/run-server (http/app state {:control-sim! control-sim!
+                                                         :derived-at #(ingest/derived-at sys %)}) {:port (:port cfg)})]
     (log/infof "listening on %d, sources %s" (:port cfg) (mapv :id (:sources sys)))
     (assoc sys :scheduler scheduler :stop-http stop-http)))
 
