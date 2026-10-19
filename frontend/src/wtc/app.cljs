@@ -48,6 +48,7 @@
                                                              :runner-sort (:runner-sort @db)
                                                              :runners-view (:runners-view @db)
                                                              :yard-shade (:yard-shade @db)
+                                                             :team-yard-shade (:team-yard-shade @db)
                                                              :race-view (:race-view @db)
                                                              :slot-metric (:slot-metric @db)
                                                              :theme (:theme @db)
@@ -1869,44 +1870,59 @@
 
 (defn- lap-grid
   "Runners × laps. Hovering (or tapping) a cell shows its lap at once, in a
-  tooltip fixed to the viewport, so the grid's scrolling box can't clip it."
+  tooltip fixed to the viewport, so the grid's scrolling box can't clip it.
+  \"Yard time | Margin\" shades the yards by time, or as the Runners view's
+  Every yard does by margin, with its slowing bars."
   [_]
   (let [tip (r/atom nil)]  ; {:x :y :name :lap :text} of the cell under the pointer
     (fn [{:keys [runners settled-lap current-lap]}]
       (let [n (max 1 (if (pos? settled-lap) current-lap 1))
-            show! (fn [e r l lap]
+            margin? (= :margin (:team-yard-shade @db))
+            show! (fn [e r l lap extra]
                     (let [rect (.getBoundingClientRect (.-currentTarget e))]
                       (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
-                                   :name (:name r) :lap l :text (lap-text lap r l current-lap)})))]
+                                   :name (:name r) :lap l :text (str (lap-text lap r l current-lap) extra)})))]
         [:section.card.wide
          [:div.card-head
           [:div [:h2 "Every yard, every runner"]
-           [:p.sub "One cell per yard. Hover or tap a cell for its yard time, or why the runner stopped."]]]
+           [:p.sub "One cell per yard. Hover or tap a cell for its yard time, or why the runner stopped."]]
+          [:div.segmented {:role "group" :aria-label "Shade the yards by"}
+           (for [[v label] [[:time "Yard time"] [:margin "Margin"]]]
+             ^{:key v}
+             [:button {:aria-pressed (= v (:team-yard-shade @db :time))
+                       :on-click #(do (swap! db assoc :team-yard-shade v) (save-prefs!))} label])]]
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
            (for [{:keys [id name history stop] :as r} runners
-                 :let [by-lap (into {} (map (juxt :lap identity)) history)]]
+                 :let [by-lap (into {} (map (juxt :lap identity)) history)
+                       times (when margin? (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history)))
+                       margins (when margin? (margins-by-lap times))
+                       slowdowns (when margin? (slowdowns-by-lap times))]]
              ^{:key id}
              [:<>
               [:span.lg-name name]
               (if (= "dns" stop)
                [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
                (for [l (range 1 (inc n))
-                    :let [{:keys [status seconds] :as lap} (by-lap l)]]
+                    :let [{:keys [status seconds] :as lap} (by-lap l)
+                          slowing (when (slowing? (get slowdowns l)) (slowdowns l))
+                          extra (str (when-let [m (get margins l)] (str " · margin " (mmss m)))
+                                     (when slowing (str " · slowing: the last 2 yards " (mmss slowing) " slower than the 6 before")))]]
                 ^{:key l}
                 [:span {:class [(cond
-                                  (= "dnf" status) (if (= "rtc" (:stop lap)) "lg rtc" "lg dnf")
+                                  (= "dnf" status) (cond (= "rtc" (:stop lap)) "lg rtc" margin? "lg end" :else "lg dnf")
+                                  (and seconds margin?) (str "lg mg" (margin-level {:margin (margins l)}) (when slowing " slowing"))
                                   seconds (str "lg s" (lap-shade seconds))
                                   (= "finished" status) "lg notime"
                                   (and (= "running" (:status r)) (= l current-lap)) "lg running"
                                   :else "lg none")
                                 (when (and (= name (:name @tip)) (= l (:lap @tip))) "hover")]
-                        :aria-label (str name ", yard " l ": " (lap-text lap r l current-lap))
-                        :on-mouse-enter #(show! % r l lap)
-                        :on-click #(show! % r l lap)}]))])]]
+                        :aria-label (str name ", yard " l ": " (lap-text lap r l current-lap) extra)
+                        :on-mouse-enter #(show! % r l lap extra)
+                        :on-click #(show! % r l lap extra)}]))])]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
-         [lap-grid-legend]]))))
+         (if margin? [margin-grid-legend] [lap-grid-legend])]))))
 
 (defn- team-over-time [{:keys [over-time country]}]
   [:section.card
@@ -2090,7 +2106,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade race-view slot-metric theme standings-filter standings-pinned chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade race-view slot-metric theme standings-filter standings-pinned chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -2098,6 +2114,7 @@
            :team-sort (case team-sort "yards" :yards "avg" :avg :seed)
            :runners-view (if (= "heatmap" runners-view) :heatmap :table)
            :yard-shade (if (= "margin" yard-shade) :margin :time)
+           :team-yard-shade (if (= "margin" team-yard-shade) :margin :time)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (if (= "runners" race-view) :runners :teams)
