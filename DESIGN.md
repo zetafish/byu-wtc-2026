@@ -2,6 +2,18 @@
 
 How the site looks and behaves. `REQUIREMENTS.md` describes what it shows, and `ARCH.md` how it's built. The styles live in `frontend/public/css/style.css`; the markup is in `frontend/src/wtc/app.cljs` and `chart.cljs`.
 
+## Purpose: interpretation, prediction, excitement
+
+We have the same data as the official site, the organisers' feed, to the yard. The [official dashboard](https://knnaresh.com/blog/wtc2026-live-dashboard/) is the record: "Facts are verified, never guessed", a runner is out only once a stop code is in, and "stale but correct beats fresh but wrong". That's the right job for the record, and we don't compete with it.
+
+This site is about what the numbers mean and what happens next:
+
+- **Interpretation:** turn the numbers into what matters at a glance (who is under pressure, which team is in trouble), not another table of lap times.
+- **Prediction:** show what is likely before it happens (the margin and the slowdown mark before a drop, a rival's laps to pass), and say how often it's right (see Why Margin).
+- **Excitement:** follow the race as a story: the chase, a team down to 2, the next drop, and time travel to replay it.
+
+A view that only repeats what the official site shows needs another reason to exist.
+
 ## Visual language
 
 The look is a race board, after `../upfront-live`, which the owner preferred to the first version of this site.
