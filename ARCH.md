@@ -35,7 +35,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 - **Country:** `{:code "NED" :name "Netherlands"}`.
 - **Runner:** `{:id "NED-01" :name … :country "NED" :bib …}`.
   - Ids must be the same across sources, because merging is per `[runner-id lap]`.
-  - Using the roster's ids (`<IOC code>-<seat>`) gets roster enrichment for free.
+  - Using the roster's ids (`<IOC code>-<seed>`) gets roster enrichment for free.
 - **Lap:** `{:runner-id :lap :status :finished|:dnf :seconds :stop}`. `:stop` (optional) is why a `:dnf` lap ended the race: `:rtc`, `:inc`, `:over` or `:dns`. Lap n runs from start+(n−1) h to start+n h.
 
 `sanitize` drops invalid rows, never the whole snapshot. `merge-datasets` merges the per-source datasets; the higher `:priority` wins per `[runner-id lap]`.
@@ -52,7 +52,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
 | No result yet (for example a blank cell) → **no lap row at all**, never a placeholder | |
 
 **Runner ids:**
-- The roster ids are `<IOC code>-<seat>`, the seat being the roster rank as two digits (`NED-01`, reserves `NED-16` and up). They follow the seat, so they rely on seat = roster rank.
+- The roster ids are `<IOC code>-<seed>`, the seed being the roster rank as two digits (`NED-01`, reserves `NED-16` and up). They follow the seed, which is the roster rank (the official site's `pos`).
 - An adapter must resolve each runner to its id through the roster EDN, by country and name or bib. The name `slug` function in `scripts/fetch_roster.clj` (babashka, not on the JVM classpath) helps match names; copy it into `wtc.roster` if needed.
 - The IOC code map for country names is `codes` in the same script.
 - A runner whose id isn't in the roster still works, but gets no `:rank` or `:best-yards`.
@@ -73,10 +73,10 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - Polls send the last ETag, so an unchanged feed is a 304. In practice the feed is rebuilt every minute with a new `generatedAt`, so its ETag changes every minute too.
   - With `:snapshot "/data/latest.json"`, every new copy of the feed is written there as is (through a temp file and a rename). At boot, `wtc.main` asks each source for `wtc.source/saved` and starts from that before the first fetch, so a restart while the feed is down still shows the race. In prod the file is on a Fly volume. A failed write is logged and never fails the fetch.
   - Run it on its own: `SOURCES='[{:id :official :type :official :priority 10}]'`. Not merged with the sheet: sources merge per runner and lap, so a yard the organisers remove from the feed would live on from a lagging or stale sheet copy. If the feed fails, the ingester keeps its last good data; if it's gone for good, switch `SOURCES` to the sheet by hand.
-- **`wtc.source.sheet`:** the official leaderboard, the published Google Sheet behind the official site's "Leaderboard" link, read as CSV from its `Lite2` tab (yards per country and seat). A manual fallback for `wtc.source.official`, not run next to it. Config: `SOURCES='[{:id :sheet :type :sheet :priority 10}]'`.
-  - Seats are the roster's ranks, so ids are `<code>-<seat>`; names come from the roster. Withdrawn countries (`#` = 0) and seats without a roster runner or yards are skipped.
+- **`wtc.source.sheet`:** the official leaderboard, the published Google Sheet behind the official site's "Leaderboard" link, read as CSV from its `Lite2` tab (yards per country and seed). A manual fallback for `wtc.source.official`, not run next to it. Config: `SOURCES='[{:id :sheet :type :sheet :priority 10}]'`.
+  - Seeds are the roster's ranks, so ids are `<code>-<seed>`; names come from the roster. Withdrawn countries (`#` = 0) and seeds without a roster runner or yards are skipped.
   - Only yards: n yards become finished laps 1..n without `:seconds`. No DNFs (they're cell colours, lost in CSV), so `wtc.race` marks a runner out once a lap settles without a result. A country that reports late shows as out until it reports; raise `GRACE_SECONDS` to soften that.
-  - Not the Leaderboard tab: on race day it lagged, its seat-4 column was always `00:00:00`, and its surname lookup showed `#N/A` for running runners. Lite2 matched the official site's feed to the yard.
+  - Not the Leaderboard tab: on race day it lagged, its seed-4 column was always `00:00:00`, and its surname lookup showed `#N/A` for running runners. Lite2 matched the official site's feed to the yard.
   - Google serves different cached copies of a published tab per request, so a copy can be older than the previous one. A copy with fewer yards in total than the last accepted one is rejected as stale (the ingester retries and keeps the last good data).
 - **`wtc.source.mock`:** a deterministic simulation per `:seed` of the real roster: the team members (rank ≤ 15) from `resources/roster/wtc-2026.edn`.
   - Each runner gets a lap capacity drawn around their `:best-yards` (±~25%), and the mock applies the team rule itself.
@@ -115,7 +115,7 @@ Every adapter must produce this shape. A source returns a full **snapshot**, nev
   - `attrition`: runners out at the bell of each lap, per stop code (rtc, inc, over) or reason (dnf, missing); an RTC counts at the lap they finished, DNS not at all
   - `team_rank`: each country's place after every settled lap, by the official ranking
   - `countries_running`: countries still in the race after each settled lap
-  - `lap_time_seconds` (with `lap=`, only from that lap on: the Runners and Seats views load all lap times once, then each reload only from the last lap it has, ~8 KB instead of ~100 KB gzipped)
+  - `lap_time_seconds` (with `lap=`, only from that lap on: the Runners and Seeds views load all lap times once, then each reload only from the last lap it has, ~8 KB instead of ~100 KB gzipped)
   - `lap_time_median_seconds`: the field's median lap time per lap (the runner dialog's dashed line)
   - `countries_by_active_runners` (from 1 runner up: countries with nobody left would dwarf the rest)
 
@@ -139,7 +139,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 | `/api/countries` | countries sorted by `:position` |
 | `/api/runners?country=NED&history=true` | runners by laps; `history` adds the per-lap history |
 | `/api/runners/:id` | one runner, with history |
-| `/api/team/:code` | the team page: `country`, `tied-with` (the countries sharing its place, from the same snapshot), `runners` (with `seat-place`/`seat-runners`, last/avg lap, rest margin, history), `over-time` (`runners-in`, `team-score`, `place` per lap) and `chase` (`ahead`, `level`, `behind`: rivals with `gap`, `gain`, `laps-to-pass`, `series` (the gap per lap, up to the last lap both reported: each country's own settled lap, not the race's `settled-lap`, so the chart keeps up with the gaps) and `finishers` (runners who finished each lap, up to its last reported lap); this team's own `finishers`; and `field-active`), and `one-drop` (`wtc.team/one-drop`: `ends?` and the `passes` `[{code, lap}]` one runner less now would add or bring forward, within 6 laps; null once out or on the last runner); 404 for an unknown code |
+| `/api/team/:code` | the team page: `country`, `tied-with` (the countries sharing its place, from the same snapshot), `runners` (with `seed-place`/`seed-runners`, last/avg lap, rest margin, history), `over-time` (`runners-in`, `team-score`, `place` per lap) and `chase` (`ahead`, `level`, `behind`: rivals with `gap`, `gain`, `laps-to-pass`, `series` (the gap per lap, up to the last lap both reported: each country's own settled lap, not the race's `settled-lap`, so the chart keeps up with the gaps) and `finishers` (runners who finished each lap, up to its last reported lap); this team's own `finishers`; and `field-active`), and `one-drop` (`wtc.team/one-drop`: `ends?` and the `passes` `[{code, lap}]` one runner less now would add or bring forward, within 6 laps; null once out or on the last runner); 404 for an unknown code |
 | `/api/overtakes` | the coming passes across the field, if nobody drops (`wtc.team/overtakes`): `[{passer, passed, lap, gap, gain}]`, soonest first, from the lap being run now to 6 laps after the last bell; each pair compared at the last lap both reported (an out country at any lap); a country sharing a place that pulls ahead counts as a pass |
 | `/api/metrics` | the metric registry, with docs |
 | `/api/query?metric=…&by=country&countries=A,B&runners=x,y&lap=n` | one metric result |
@@ -148,7 +148,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
 
 - **`wtc.app`:** a single Reagent `db` atom. It polls `/api/race`, `/api/countries` and `/api/runners`, then the panel queries: every 20 s from 40 minutes into a lap (runners start finishing) and after the bell for as long as a country still in the race hasn't reported the last lap (its `reported-through`; results can come in late), every 60 s otherwise, and not while the tab is hidden (it reloads as soon as the tab is shown). A demo race doesn't move by itself, so it isn't polled. While it plays (in the browser, not on the server), each tick POSTs a one-lap step and reloads, at the interval picked in the panel (2 s to 60 s, default 10 s, kept in prefs). It stops at the last lap. Each tab steps on its own, so two playing tabs step twice as fast.
   - The views are in `views`; the URL hash selects the view.
-  - The seat ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
+  - The seed ranking and the leaderboard positions are computed client-side from `/api/runners` (`ranked`).
   - `/api/runners` rows carry `:last-seconds`, `:fastest-seconds`, `:avg-seconds` and `:total-seconds` (the last and fastest timed laps, their rounded mean, and their sum) instead of the history. Sparkline data comes from `lap_time_seconds` for all runners, loaded once on the Runners view, then only from the last lap it has (`lap=`). A row's detail chart fetches `/api/runners/:id`.
   - `chart/line-chart` and `bar-chart` take `:size :normal|:wide|:big` (viewBox sizes); a panel picks one with `:size`. There is no chart zoom.
   - Each round of chart queries gets a sequence number (`fetch-seq`), and responses from an older round are dropped, so quick clicks can't leave stale charts. The panel queries only run on the Charts view (and when switching to it), so other views cost nothing for them.
@@ -165,7 +165,7 @@ All routes are `GET`, served from the in-memory derived state. Responses carry `
   A new formatter goes in `y-formats` in `wtc.app`. The charts render on the Charts view: the `:per-country?` one under "Compare countries", for the picked group (`:chart-group`, All by default), the rest under "The whole field".
 - **Rendering ~400–1000 runner rows** (leaderboard and its heatmap): each row is its own component with plain arguments, so unchanged rows are skipped; `ranked` is cached per runners list, so rows stay identical; `country-name` reads the countries without making a row depend on the app state (else every row redraws on any change); and the rows are grid rows with `content-visibility: auto`, not `<tr>`s, so the browser only lays out those on screen. Sorting ~400 rows went from ~150 ms to ~25 ms (dev build).
 - **`wtc.chart`:** generic `line-chart`, `bar-chart`, `data-table` and `sparkline`. All of them take `[{:key :label :color :values [[x y]]}]`.
-- **Analytics:** Vercel Web Analytics, enabled in the Vercel project, loaded by a script tag in `index.html` (`/_vercel/insights/script.js`). No cookies. Its own tracking would count every hash view as `/`, so it's off (`data-disable-auto-track`) and `wtc.app/track-view!` sends `va('pageview', {path, route})` on load and on every change of view: `/race`, `/charts`, `/runners`, `/seats`, `/team/BEL` (route `/team/[code]`). Referrers, countries and devices work as usual.
+- **Analytics:** Vercel Web Analytics, enabled in the Vercel project, loaded by a script tag in `index.html` (`/_vercel/insights/script.js`). No cookies. Its own tracking would count every hash view as `/`, so it's off (`data-disable-auto-track`) and `wtc.app/track-view!` sends `va('pageview', {path, route})` on load and on every change of view: `/race`, `/charts`, `/runners`, `/seeds`, `/team/BEL` (route `/team/[code]`). Referrers, countries and devices work as usual.
 - **API calls are always same-origin `/api/*`.**
   - Locally, nginx (compose `web`) or the shadow-cljs dev server proxies them. `wtc.dev/proxy-api?` limits the dev proxy to `/api/*`.
   - In production, the Vercel rewrite does.

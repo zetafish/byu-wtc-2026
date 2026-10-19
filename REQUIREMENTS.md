@@ -65,18 +65,18 @@ With two runners left (A and B):
 - Countries are ranked by **team score**: the total laps of all their runners. This is the official ranking. [decided]
 - With equal team scores, the country whose race went farther (its farthest single runner) ranks higher. That's the official tie-break. With both equal, the countries share the place, shown as the same number without "=" (1, 1, 1, then 4; the tooltip says "shared place"), and are listed by runners still in, then by code. [decided]
 
-### Seats
-- Every team runner has a **seat**, 1–15. The Seats view compares the runners in the same seat across countries. It's our own comparison, not an official competition: **no invite comes with a seat** (removed 19 Oct; the claim had no source). [decided]
+### Seeds
+- Every team runner has a **seed**, 1–15. "Seed" is the official site's word (renamed from "seat" on 19 Oct; `#seats` still works). [decided] The Seeds view compares the runners in the same seed across countries. It's our own comparison, not an official competition: **no invite comes with a seed** (removed 19 Oct; the claim had no source). [decided]
 - **Invites to the 2027 World Individual Championship** go to the national champions: each country's race winner is "named the National Champion for 2026", and "the top 50 national Champions from these races will earn a slot in the 2027 World Individual Championships" (official satellite pages on bigsbackyardultra.com). [decided]
-- The seat is the runner's **rank in the official roster**. [assumed]
-- **Seat order:**
+- The seed is the runner's **rank in the official roster**: the official site's "Seed N of their team (by best qualifying yards)", `pos` in its `roster-2026.json`. Checked on 19 Oct: all 1,033 starters have the same seed there as in our roster, except AIN 15 (their 13 Oct file has Dmitriy Klimov, ours from 16 Oct Ildar Kamaletdinov; neither is in the live feed, which has 14 AIN runners). [decided]
+- **Seed order:**
   - More laps ranks higher.
   - With equal laps, a runner still in ranks ahead of a runner who is out.
   - Otherwise, equal runners share a position. [decided]
-- **Seat states:**
+- **Seed states:**
   - **open**: 2 or more are still in.
   - **last one in**: exactly 1 is still in.
-  - **winner**: the race in this seat is over and one runner is first.
+  - **winner**: the race in this seed is over and one runner is first.
   - **tie**: over, and several runners are joint first.
 
 ## 4. Data
@@ -86,7 +86,7 @@ With two runners left (A and B):
   - the official site's results feed (`/api/results`, adapter `wtc.source.official`): full names, lap times, stop reasons, read from the organisers' master sheet. It's the feed the official site's own pages poll, not a promised API.
   - not merged with anything: a second source would overrule the organisers' corrections (a removed yard lives on in the other source).
   - manual fallback, only if the feed is gone for good: the published leaderboard Google Sheet (tab `Lite2`, adapter `wtc.source.sheet`): yards only, no times, no DNFs, and Google serves stale copies.
-- Assume minimal data: per runner, per lap, finished or DNF. **A lap time is optional:** Big's Backyard Ultra has never required one, and a contending team may publish only finished/not finished to keep its rivals guessing. Expect the times to be missing most often at the front, late in the race. Everything that ranks or decides (yards, team rule, seats) must work without times; lap-time views show "time not recorded" for a finished lap without one, and never treat it as 0. [decided]
+- Assume minimal data: per runner, per lap, finished or DNF. **A lap time is optional:** Big's Backyard Ultra has never required one, and a contending team may publish only finished/not finished to keep its rivals guessing. Expect the times to be missing most often at the front, late in the race. Everything that ranks or decides (yards, team rule, seeds) must work without times; lap-time views show "time not recorded" for a finished lap without one, and never treat it as 0. [decided]
 - Some countries may have their own feeds with more detail or better accuracy. Several sources can run side by side, and the source with the higher priority wins per runner and lap. [brief]
 - Each source delivers a full snapshot, not changes. Late or corrected data must fix the site on the next refresh. [decided]
 - **Stops count at once:** a stop (RTC, INC, OVER) counts as soon as the feed has it, also during the lap: it is final. The official site waits until the yard is complete, so for a while we can show fewer runners in than it does. The reason is shown as the official code, explained in tooltips; DNS is "did not start". [decided]
@@ -118,7 +118,7 @@ With two runners left (A and B):
   - before the start, the start time in the visitor's local time;
   - a data-source or connection problem, with a note that the last good data is shown.
 - **After the finish:** a "Race finished after N laps" banner with a podium of the top 3 countries and their winners.
-- A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Charts [decided], Team, Runners and Seats. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
+- A **left menu** to switch views: Race (the countries table; renamed from Countries, `#countries` still works) [decided], Charts [decided], Team, Runners and Seeds. On a phone it's a tab bar at the top. The view is in the URL (`#runners`), so it survives a reload and can be linked. [decided]
 - Usable on a phone. [decided]
 - **Fresh around the bell:** our own share of the delay stays near a minute when it matters. The backend reads the feed every 5 s (a new copy waits for our next poll, so this adds straight to its age; unchanged polls cost a 304), the CDN caches for 20 s, and the page reloads every 20 s from 40 minutes into a lap and after the bell until every country still in the race has reported the last lap (results can come in late), every 60 s otherwise, and not in a hidden tab. The official feed itself lags about 3 minutes; we can't change that. [decided]
 - **Visitor analytics:** Vercel Web Analytics shows where traffic comes from (referrers), countries and devices, and which views are looked at (each view as its own page, each team page too); cookie-free. [decided]
@@ -134,10 +134,10 @@ With two runners left (A and B):
 - **Bottom:** the countries table. [decided]
 - **Out at this bell** [decided]: one line above the table sums up who went out at the last completed yard ("Out at yard 27: 20 runners · 11 RTC · 7 INC · 2 OVER"); "Show" lists them by country, with the stop reason (RTC / INC / OVER); arrows step through earlier yards. An RTC counts at the yard they finished (they didn't start the next), an INC or OVER at the yard they didn't finish, as on the official site.
 - **Coming overtakes** [decided]: one line under "Out at yard N" with the passes coming across the field if nobody drops, from the same chase rule as the team page: the soonest yard's first two ("Coming overtakes: after yard 32 LTU passes FIN, ARG passes LAT · All 39 ▾ · if nobody drops"), and "All" lists every pass within 6 yards of the last bell, by yard, ★ countries' passes first and marked. Each pair is compared at the last yard both have reported, so a country still entering results doesn't look behind; a country that is out (score final) compares at any yard. A country that is out or down to 1 runner passes nobody but can be passed. Pulling ahead of a country it shares a place with (same score and farthest runner) counts as a pass. Only passes still to come are listed, from the yard being run now on: a country whose report lags (its `reportedThrough` behind its results, as GBR's at yard 34) would otherwise give passes after yards already over.
-- **Margin on the team page** [decided]: the runners table's Margin has the same ▲ / – / ▼ trend as the Runners and Seats views, and shows – for a runner who has stopped.
+- **Margin on the team page** [decided]: the runners table's Margin has the same ▲ / – / ▼ trend as the Runners and Seeds views, and shows – for a runner who has stopped.
 - **The chase leaves out countries that have stopped and stay behind** [decided]: their score is final and they can never pass, so they change nothing. A team that is out with nobody left to pass it shows only "its team score is final at N".
 - **Cost of one drop** [decided]: on the team page, under the chase lines, "If one drops now": the countries that would pass this team within 6 yards (or sooner than they will anyway) if it lost one runner this yard and nobody else dropped, in the chase's words ("FRA in 3 yards", from the last bell, as the threats above count); "its race ends" when it's down to 2; "no place lost in the next 6 yards" when nobody would. Not shown once the team is out or down to its last runner.
-- **Teams | Runners** [decided]: a switch on the standings. Runners shows per country its rank, yards, runners in, the team's average yard, and its 15 seats as cells of yards and surname, coloured in the race / result not in yet / out (plus winner and DNS); hovering shows the full name and state. Like the official site's runner grid.
+- **Teams | Runners** [decided]: a switch on the standings. Runners shows per country its rank, yards, runners in, the team's average yard, and its 15 seeds as cells of yards and surname, coloured in the race / result not in yet / out (plus winner and DNS); hovering shows the full name and state. Like the official site's runner grid.
 - **The table:** all countries in ranking order, with rank, country, runners in race (as pips: a dot per runner, filled while in, then the count) [decided], team score, gap (laps behind the leader's team score, "–" for the leader), and status (in race, winner, or out after lap N). [decided]
 - **Compare** [decided]: the Charts view's comparison chart shows one group of countries, picked with its buttons (Top 10, Super Six, AAA, AA, A, All), as grey lines with the group's leader black; hovering names a line. There is no picking of single countries and no colour per country (the Compare row, its search, "Top 8", "★ Favourites", "Clear" and the colour squares are gone).
 - **Favourite countries:** a ☆ toggle on each row of the Race standings. Favourites come first in the country pickers and the "Out at yard N" list. [decided]
@@ -159,18 +159,18 @@ With two runners left (A and B):
 - **No chart zoom** (removed): the comparison charts are full width and large instead. [decided]
 
 ### Runners view: the individual leaderboard
-- A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided] A runner still in counts laps up to the last bell: finishing the current yard first doesn't put them ahead of the others still on it (they all start the next yard together), here, in the seat ranking and in the team page's seat race. The Yards column still shows every finished yard. [decided]
+- A **global leaderboard** of all runners of all countries. Position by laps; with equal laps, a runner still in ranks ahead of one who is out, and otherwise equal runners share a position. [decided] A runner still in counts laps up to the last bell: finishing the current yard first doesn't put them ahead of the others still on it (they all start the next yard together), here, in the seed ranking and in the team page's seed race. The Yards column still shows every finished yard. [decided]
 - **Filter bar:**
   - countries, from a "+ Country" picker, shown as removable chips; none means all;
   - a name search;
   - "Show all (+n stopped)". [decided]
 - **No starred runners** (removed 18 Oct, not used): no star per runner and no "★ only". Favourite countries stay. [decided]
-- **Columns:** position, name, country, seat, laps, best (from the roster), status, last lap time, fastest lap time, average lap time (of the timed laps), total time (the sum of the timed laps), margin (rest per yard over the last 3 timed yards, with ▲ / – / ▼ as on Seats; runners still in only), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
+- **Columns:** position, name, country, seed, laps, best (from the roster), status, last lap time, fastest lap time, average lap time (of the timed laps), total time (the sum of the timed laps), margin (rest per yard over the last 3 timed yards, with ▲ / – / ▼ as on Seeds; runners still in only), lap-time sparkline. The columns and their widths are fixed, so filtering never moves them. [decided]
 - **Table | Every yard** [decided]: a switch in the leaderboard's head (remembered, Table by default) shows the same runners, in the same filter and order, as a heatmap: position, name, country, then a cell per yard shaded by its time, as the team page's "Every yard, every runner" grid (stopped, no time, running now). Hover a cell for its time; click a name for the runner dialog.
 - **Sorting** [decided]: by position (default), or by last yard, average, fastest or total time, margin, or trend (how much the margin shrinks against the runner's average), in both directions, with the Sort buttons right of the filters (both views; the table headers don't sort): first click quickest first (▲; for Margin and Trend the most at risk first: smallest margin, shrinking most), again the other way (▼); "Pos" goes back. Runners without a time go last either way; ties keep position order. The choice is remembered.
 - **Sparklines** of the lap times are always shown. All runners' lap times load once on the Runners view (~100 KB gzipped late in the race); each reload then fetches only the newest yards (~8 KB). [decided]
 - **Clicking a row opens a runner dialog** (modelled on the one Upfront showed): [decided]
-  - the name, country, seat, bib and status;
+  - the name, country, seed, bib and status;
   - figures: laps; distance (laps × 6.7056 km); fastest lap and which lap; average lap and its pace per km; last lap; margin (rest per lap, average of the last 3); total rest (between finishing a lap and the next start); position on the leaderboard;
   - a lap-time chart with the runner's laps as dots, the field's median lap time dashed, the 60:00 limit, and the fastest lap marked and labelled;
   - "All laps", a collapsed table of every lap: time, rest, field median and the difference to it.
@@ -178,9 +178,9 @@ With two runners left (A and B):
 - **Runners who have stopped** (out, or a country winner) are hidden by default, behind the "Show all (+n stopped)" toggle: the list is who is still running. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]
 
-### Seats view
-- An overview of all 15 seats: the leader (or "N tied"), their country, the yards they're ranked on, and seat state. Click a seat, or pick it in the selector, for that seat's runners. [decided]
-- **One seat** [decided]: a seat race is part pace and part team strength, so each runner's row shows position, runner, country, **Team in** (their country's runners still in; "⚠ 2" in red when it's 2, because a teammate's drop then ends this runner's race: they finish the yard alone as the national winner), **Margin** (rest per yard over the last 3 timed yards, with ▼ in red when they're over a minute slower than their average, ▲ when faster, – when steady), yards, and their yard cells as in the Runners heatmap. Runners still in come first, tied ones most comfortable (largest margin) first; the stopped ones fold under "N stopped · Show". On a phone the yard cells and yards are left out. Click a name for the runner dialog.
+### Seeds view
+- An overview of all 15 seeds: the leader (or "N tied"), their country, the yards they're ranked on, and seed state. Click a seed, or pick it in the selector, for that seed's runners. [decided]
+- **One seed** [decided]: a seed race is part pace and part team strength, so each runner's row shows position, runner, country, **Team in** (their country's runners still in; "⚠ 2" in red when it's 2, because a teammate's drop then ends this runner's race: they finish the yard alone as the national winner), **Margin** (rest per yard over the last 3 timed yards, with ▼ in red when they're over a minute slower than their average, ▲ when faster, – when steady), yards, and their yard cells as in the Runners heatmap. Runners still in come first, tied ones most comfortable (largest margin) first; the stopped ones fold under "N stopped · Show". On a phone the yard cells and yards are left out. Click a name for the runner dialog.
 
 ### Redesign: pages [proposed]
 
@@ -193,27 +193,27 @@ Three zoom levels plus one side quest, each with its own route, so it can be lin
 | `#` | Home (replaces the Countries view) [decided] | What's happening in the race right now? |
 | `#team/NED` | Team | How is my country doing, and who's near us? |
 | `#runner/NED-01`, `#compare/NED-01,BEL-03` | Runner, compare | How is this runner doing, against others? |
-| `#seats`, `#seats/3` | Seats | Who leads each seat, across countries? |
+| `#seeds`, `#seeds/3` | Seeds | Who leads each seed, across countries? |
 
 #### Home: the race at a glance [proposed]
 No selection needed. **Home replaces the Countries view.** [decided]
 - **Clock:** the current lap, time to the next bell, and how many countries are still reporting the last lap.
 - **The last lap in one sentence:** e.g. "Lap 23: 12 out, Cuba eliminated, Malaysia's winner decided."
-- **Danger:** countries down to 1 runner, countries about to be overtaken (see the chase panel), and seat races down to 2–3 runners. The official site has none of this.
+- **Danger:** countries down to 1 runner, countries about to be overtaken (see the chase panel), and seed races down to 2–3 runners. The official site has none of this.
 - **Compact standings:** the top 10, favourites pinned, ties folded ("20 countries level on 345").
 - **Your team:** if the viewer has picked a team, one line with a link to its page.
 - **The comparison charts move to home.** [decided] Quick selectors pick the compared countries by class: Super Six, AAA, AA, A (next to today's "Top 8" and the country picker). [decided] This needs the feed's `division` (see Data).
 - **Left out on purpose:** the map, 2024 comparison curves, broadcast mode and the time machine. They add length, not answers.
 
 #### Team page [decided, first version built]
-Built: the switcher (a picker with favourites on top), the header (place, team score and gap, still in, current lap, class, site, local time, reporting status, team-rule pill), the chase panel with its gap chart, the runners table with seat race, the lap grid, and runners-in and place per lap. Not yet: a "vs rival" comparison, drifting-runner hints in the lap grid.
+Built: the switcher (a picker with favourites on top), the header (place, team score and gap, still in, current lap, class, site, local time, reporting status, team-rule pill), the chase panel with its gap chart, the runners table with seed race, the lap grid, and runners-in and place per lap. Not yet: a "vs rival" comparison, drifting-runner hints in the lap grid.
 Where most viewers will spend their time: people follow their own country and know its runners.
 - **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
 - **Switching teams** must be effortless: a picker with favourites on top (the ← → neighbour arrows and the ☆ were dropped as not useful [decided]), and the site remembers the viewer's team (home card, menu).
 - **Header:** flag, name, place ("1 / 67", "tied with N"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
 - **Team-rule state in few words:** "9 in", "2 in" (green: two can go on for a long time), "1 left", "none left"; the rule is in the tooltip. [decided]
 - **Chase panel:** the race seen from this country's position (below).
-- **Runners table:** seat, laps, last lap, average lap, rest margin, status, and **seat rank** ("2nd of 41 in seat 3"), linking to the seat. That's our unique angle.
+- **Runners table:** seed, laps, last lap, average lap, rest margin, status, and **seed rank** ("2nd of 41 in seed 3"), linking to the seed. That's our unique angle.
 - **Lap grid:** runners × laps, shaded by lap time, with what the official one lacks: slowest laps, a runner whose times drift up, the margin to the bell.
 - **The team over time:** runners still in per lap, place per lap.
 
@@ -232,18 +232,18 @@ Where most viewers will spend their time: people follow their own country and kn
 - **Later, maybe:** a clearly labelled projection of the final team score from the runners' best qualifying results (the official site's "% of prediction"). Speculative, so after the arithmetic version.
 
 #### Runner page and comparison [proposed]
-- **The runner dialog gets a URL** (`#runner/NED-01`), so it can be shared, and links to the runner's team and seat.
-- **Compare 2–4 runners from any country:** a "compare" tick on any runner (team page, leaderboard, seats); a tray shows "Compare (3)". The view overlays their lap times (one series colour each), rest margin per lap, and the key figures side by side. Capped at 4, beyond that the chart is spaghetti.
-- **Shortcuts:** "compare with the seat leader", "with the team's other runners".
+- **The runner dialog gets a URL** (`#runner/NED-01`), so it can be shared, and links to the runner's team and seed.
+- **Compare 2–4 runners from any country:** a "compare" tick on any runner (team page, leaderboard, seeds); a tray shows "Compare (3)". The view overlays their lap times (one series colour each), rest margin per lap, and the key figures side by side. Capped at 4, beyond that the chart is spaghetti.
+- **Shortcuts:** "compare with the seed leader", "with the team's other runners".
 
-#### Seats [proposed]
+#### Seeds [proposed]
 The side quest; we have it, the official site doesn't.
-- The overview of 15 seats (leader, runners left, decided), and a race per seat, linked from team and runner pages.
-- Maybe a "closest seat race" item on home.
+- The overview of 15 seeds (leader, runners left, decided), and a race per seed, linked from team and runner pages.
+- Maybe a "closest seed race" item on home.
 
 #### Other ideas [proposed]
 - **Timeline:** a running log of events: drops with their reason, eliminations, winners, lead changes. The home sentence comes from it, and afterwards it tells the race's story.
-- **After the race:** records (longest team, seat winners, fastest laps) and a final summary.
+- **After the race:** records (longest team, seed winners, fastest laps) and a final summary.
 - **Shareable links with a preview** ("Netherlands =1 after lap 30").
 - **Probably not:** the map, broadcast mode, notifications.
 
@@ -286,8 +286,7 @@ From the official feed, which the adapter doesn't carry yet:
 - [ ] **Deploy:**
   - set up the Fly.io app `bigs-live` and `PROD_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment); the demo site is no longer needed and was removed on 18 Oct [decided];
   - make a test run before 17 Oct 12:00Z.
-- [ ] **Seat = roster rank** [assumed]: confirm.
-- [ ] **Tie-breaks:** how ties in a seat are broken (they share a position for now). Equal team scores follow the official tie-break (see Countries). [decided]
+- [ ] **Tie-breaks:** how ties in a seed are broken (they share a position for now). Equal team scores follow the official tie-break (see Countries). [decided]
 - [ ] **Fewer than 2 runners of a country start lap 1.** The general team rule applies for now.
 - [ ] What the roster's `wa` field means. It's unused.
 - [ ] **Runner dialog position** [assumed]: the leaderboard position for now. Should it be the position within the current lap (by lap time), as Upfront shows?

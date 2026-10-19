@@ -25,10 +25,10 @@
     (is (= {:id "NED-01" :name "Kanter Eefting" :country "NED" :bib "1"}
            (first (filter #(= "NED-01" (:id %)) (:runners snap)))))
     (is (= "Netherlands" (:name (first (filter #(= "NED" (:code %)) (:countries snap)))))))
-  (testing "yards per seat"
+  (testing "yards per seed"
     (is (= [2 2 2 2 3 3 3 3 2 3 3 3 3 2 3] (map #(laps-of (format "NED-%02d" %)) (range 1 16))))
     (is (= 2 (laps-of "BEL-13"))))
-  (testing "withdrawn countries (# is 0) and seats without a runner are skipped"
+  (testing "withdrawn countries (# is 0) and seeds without a runner are skipped"
     (is (not-any? #{"MRI" "SGP"} (map :code (:countries snap))))
     (is (not-any? #{"ECU-14" "ECU-15"} (map :id (:runners snap))))
     (is (some #{"ECU-13"} (map :id (:runners snap))))))

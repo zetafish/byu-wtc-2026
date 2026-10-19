@@ -20,7 +20,7 @@
                      :view :race      ; menu view, mirrors the URL hash
                      :team nil        ; team page: country code (#team/CODE), remembered
                      :team-data nil   ; /api/team/CODE of that country
-                     :seat nil        ; seat ranking: nil = all seats overview
+                     :seed nil        ; seed ranking: nil = all seeds overview
                      :results {}      ; [panel id, metric] -> query result
                      :variant {}      ; panel id -> index into the panel's :variants
                      :open nil        ; runner id shown in the runner dialog
@@ -92,13 +92,13 @@
           (.catch #(js/console.warn %))))))
 
 (defn- fetch-runner-times!
-  "Yard times for the Runners view (sparklines, heatmap) and the Seats view.
+  "Yard times for the Runners view (sparklines, heatmap) and the Seeds view.
   Past yards never change, so all of them load once, and later reloads only
   fetch from the last yard
   known on (that yard again, in case a time was corrected): a few KB instead
   of ~140 KB gzipped late in the race. Other views don't need them."
   []
-  (when (#{:runners :seats} (:view @db))
+  (when (#{:runners :seeds} (:view @db))
     (let [through (:lap-times-through @db)
           from (when through (max 1 through))]
       (-> (get-json "/api/query" (cond-> {:metric "lap_time_seconds"} from (assoc :lap from)))
@@ -759,7 +759,7 @@
         :else :running))
 
 (defn- race-runners-grid
-  "The standings with every runner: per country its 15 seats as cells of
+  "The standings with every runner: per country its 15 seeds as cells of
   yards and surname, coloured by state; hover for the full story."
   [shown]
   (let [{:keys [runners race]} @db
@@ -771,7 +771,7 @@
       [:colgroup [:col.rk] [:col.country] [:col.n] [:col.in] [:col.time] [:col]]
       [:thead [:tr [:th.num "#"] [:th "Country"] [:th.num "Yards"] [:th.num "In"]
                [:th.num {:title "Average yard time of all the team's timed yards"} "Avg yard"]
-               [:th "Runners by seat"]]]
+               [:th "Runners by seed"]]]
       [:tbody
        (for [{:keys [code rank active runners total-laps eliminated-after]} shown
              :let [rs (sort-by :rank (by-country code))
@@ -794,7 +794,7 @@
                       :let [st (slot-state r current)]]
                   ^{:key id}
                   [:span.slot {:class (cljs.core/name st)
-                               :title (str "Seat " (:rank r) " · " name " · " laps " yards · "
+                               :title (str "Seed " (:rank r) " · " name " · " laps " yards · "
                                            (case st
                                              :win "country winner"
                                              :dns "did not start"
@@ -913,7 +913,7 @@
              [:div.card-head
               [:div [:h2 name]
                [:p.sub [country-label country]
-                (str " · seat " (:rank runner) (when (:bib runner) (str " · bib " (:bib runner))) " ")
+                (str " · seed " (:rank runner) (when (:bib runner) (str " · bib " (:bib runner))) " ")
                 [status-badge runner]]]]
              (if-not hist
                [:div.loading "Loading…"]
@@ -1165,7 +1165,7 @@
         ;; The columns it shares with the team page have the same widths
         [:div.lb {:role "table" :aria-label "Runner leaderboard"}
          [:div.lb-row.lb-head {:role "row"}
-          (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seat"] [:num "Yards"]
+          (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seed"] [:num "Yards"]
                                    [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
                                    [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
                                    [:num "Margin" "Rest per yard over the last 3 yards, and its trend"]
@@ -1175,24 +1175,25 @@
          (for [{:keys [id] :as runner} shown]
            ^{:key id} [runner-row runner (get lap-times id)])]]))]))
 
-;; --- seat ranking ---
-;; Every runner has a seat (1-15, their roster rank in the team). The view
-;; compares the runners in the same seat across countries. It's our own
+;; --- seed ranking ---
+;; Every runner has a seed (1-15, their roster rank in the team, as on the
+;; official site: by best qualifying yards). The view
+;; compares the runners in the same seed across countries. It's our own
 ;; comparison, not an official competition: no invite comes with it (the
 ;; invites to the individual championship go to the national champions).
 
-(def seats (range 1 16))
+(def seeds (range 1 16))
 
-(defn- seat-ranking
-  "Runners of seat n, best first, with :pos (see `ranked`)."
+(defn- seed-ranking
+  "Runners of seed n, best first, with :pos (see `ranked`)."
   [runners n]
   (rank-runners (filter #(= n (:rank %)) runners)))
 
-(defn- seat-summary [runners n]
-  (let [ranked (seat-ranking runners n)
+(defn- seed-summary [runners n]
+  (let [ranked (seed-ranking runners n)
         in (filter running? ranked)
         leaders (filter #(= 1 (:pos %)) ranked)]
-    {:seat n
+    {:seed n
      :leaders leaders
      :total (count ranked)
      :running (count in)
@@ -1202,22 +1203,22 @@
               (= 1 (count leaders)) :winner
               :else :tie)}))
 
-(defn- seat-state-pill [{:keys [state running leaders]}]
+(defn- seed-state-pill [{:keys [state running leaders]}]
   (case state
     :open [:span.pill.in [:span.dot.in] (str "open · " running " still in")]
     :last-in [:span.pill.in [:span.dot.in] "last one in"]
     :winner [:span.pill.win "★ winner"]
     :tie [:span.pill.out (str "tie · " (count leaders))]))
 
-(defn- seats-overview [runners]
+(defn- seeds-overview [runners]
   [:table
-   [:thead [:tr [:th.num "Seat"] [:th "Leader"] [:th "Country"] [:th.num "Yards"] [:th "State"]]]
+   [:thead [:tr [:th.num "Seed"] [:th "Leader"] [:th "Country"] [:th.num "Yards"] [:th "State"]]]
    [:tbody
-    (for [n seats
-          :let [{:keys [leaders] :as sum} (seat-summary runners n)
+    (for [n seeds
+          :let [{:keys [leaders] :as sum} (seed-summary runners n)
                 lead (first leaders)]]
       ^{:key n}
-      [:tr.clickable {:on-click #(swap! db assoc :seat n)}
+      [:tr.clickable {:on-click #(swap! db assoc :seed n)}
        [:td.num [:b n]]
        (if (> (count leaders) 1)
          [:<> [:td.muted (str (count leaders) " tied")] [:td]]
@@ -1226,7 +1227,7 @@
        ;; the yards the leaders are ranked on (a runner who already finished the
        ;; current yard counts up to the last bell, as the others)
        [:td.num (some-> lead ranked-laps)]
-       [:td [seat-state-pill sum]]])]])
+       [:td [seed-state-pill sum]]])]])
 
 (defn- margin-trend
   "A runner's rest per yard over their last 3 timed yards, and its trend
@@ -1243,14 +1244,14 @@
          :change (js/Math.round (- d))   ; the margin's change against the average
          :trend (cond (> d 60) :down (< d -60) :up :else :flat)}))))
 
-(defn- seat-row
-  "One runner of the chosen seat: position, name, country, their team's
+(defn- seed-row
+  "One runner of the chosen seed: position, name, country, their team's
   runners still in, margin and trend, yards, then their yard cells. A row of
   its own grid, so unchanged rows aren't redrawn or laid out off screen."
   [{:keys [id name country pos] :as r} times team-in n current-lap tip cols]
   (let [in? (running? r)
         open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
-    [:div.hm-row.seat-row {:style {:grid-template-columns cols} :class (when-not in? "out")}
+    [:div.hm-row.seed-row {:style {:grid-template-columns cols} :class (when-not in? "out")}
      [:span.hm-pos pos]
      [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
      [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
@@ -1261,30 +1262,30 @@
      [:span.num.yards (ranked-laps r)]
      (yard-cells r times n current-lap tip)]))
 
-(defn- seat-detail
-  "The chosen seat's runners, as yard-cell rows with their team's runners in
+(defn- seed-detail
+  "The chosen seed's runners, as yard-cell rows with their team's runners in
   and their margin: still in first (tied ones most comfortable first), the
   stopped ones folded under \"Show\"."
   [_ _]
   (let [tip (r/atom nil)]
     (fn [runners n]
-      (let [{:keys [countries lap-times race seat-stopped?]} @db
+      (let [{:keys [countries lap-times race seed-stopped?]} @db
             current (:current-lap race 1)
             active (into {} (map (juxt :code :active)) countries)
-            ranked (seat-ranking runners n)
+            ranked (seed-ranking runners n)
             margin #(or (:margin (margin-trend (get lap-times (:id %)))) -1)
             [in out] ((juxt filter remove) running? ranked)
             in (sort-by (juxt :pos (comp - margin)) in)
             cols (str "44px minmax(140px, 220px) 76px 70px 96px 56px repeat(" (max 1 current) ", minmax(4px, 1fr))")
-            row (fn [r] ^{:key (:id r)} [seat-row r (get lap-times (:id r)) (active (:country r)) current current tip cols])]
+            row (fn [r] ^{:key (:id r)} [seed-row r (get lap-times (:id r)) (active (:country r)) current current tip cols])]
         [:<>
-         [:p.seat-sum (str (count in) " of " (count ranked) " still in"
+         [:p.seed-sum (str (count in) " of " (count ranked) " still in"
                            (when-let [y (some-> (first in) ranked-laps)]
                              (if (every? #(= y (ranked-laps %)) in) (str " · tied on " y " yards") ""))
                            ". Team in: when a team is down to 2, a teammate's drop ends this runner's race.")]
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
-          [:div.hm.seat-grid
-           [:div.hm-row.seat-row.seat-head {:style {:grid-template-columns cols}}
+          [:div.hm.seed-grid
+           [:div.hm-row.seed-row.seed-head {:style {:grid-template-columns cols}}
             [:span.num "Pos"] [:span "Runner"] [:span "Country"]
             [:span.num {:title "The country's runners still in"} "Team in"]
             [:span.num {:title "Rest per yard over the last 3 yards, and its trend"} "Margin"]
@@ -1292,30 +1293,30 @@
             [:span.yards-label {:style {:grid-column (str "span " (max 1 current))}} (str "1 … " current)]]
            (map row in)
            (when (seq out)
-             [:div.seat-fold
+             [:div.seed-fold
               [:span (str (count out) " stopped")]
-              [:button.link {:aria-expanded (boolean seat-stopped?) :on-click #(swap! db update :seat-stopped? not)}
-               (if seat-stopped? "Hide ▴" "Show ▾")]])
-           (when seat-stopped? (map row out))]]
+              [:button.link {:aria-expanded (boolean seed-stopped?) :on-click #(swap! db update :seed-stopped? not)}
+               (if seed-stopped? "Hide ▴" "Show ▾")]])
+           (when seed-stopped? (map row out))]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          [lap-grid-legend]]))))
 
-(defn- seats-card []
-  (let [{:keys [runners seat]} @db]
+(defn- seeds-card []
+  (let [{:keys [runners seed]} @db]
     [:section.card.wide
      [:div.card-head
-      [:div [:h2 "Seat ranking"]
-       [:p.sub "Every runner has a seat (1–15), their place in their team's roster. Runners in the same seat, compared across all countries. Click a seat for its runners."]]
-      [:label.toggle "Seat "
-       [:select.seat {:value (or seat "")
-                      :on-change #(swap! db assoc :seat (some-> (.. % -target -value) not-empty parse-long))}
-        [:option {:value ""} "All seats"]
-        (for [n seats] ^{:key n} [:option {:value n} n])]]]
+      [:div [:h2 "Seed ranking"]
+       [:p.sub "Every runner has a seed (1–15), their place in their team by best qualifying yards. Runners in the same seed, compared across all countries. Click a seed for its runners."]]
+      [:label.toggle "Seed "
+       [:select.seed {:value (or seed "")
+                      :on-change #(swap! db assoc :seed (some-> (.. % -target -value) not-empty parse-long))}
+        [:option {:value ""} "All seeds"]
+        (for [n seeds] ^{:key n} [:option {:value n} n])]]]
      (if (empty? runners)
        [:div.empty "No runners yet"]
        [:div.table-wrap.full
-        (if seat [seat-detail runners seat] [seats-overview runners])])]))
+        (if seed [seed-detail runners seed] [seeds-overview runners])])]))
 
 ;; --- team page ---
 ;; One country: how it's doing, who's near it (the chase), its runners. All
@@ -1586,8 +1587,8 @@
          rivals-note])])]))
 
 (defn- team-runners [{:keys [runners]}]
-  (let [sort-by-key (:team-sort @db :seat)
-        ;; seat order; most yards first; fastest average first (untimed last)
+  (let [sort-by-key (:team-sort @db :seed)
+        ;; seed order; most yards first; fastest average first (untimed last)
         runners (case sort-by-key
                   :yards (sort-by (juxt (comp - :laps) :rank) runners)
                   :avg (sort-by (juxt #(or (:avg-seconds %) js/Infinity) :rank) runners)
@@ -1599,24 +1600,24 @@
      (when open-runner ^{:key open} [runner-dialog open-runner (count (:runners @db))])
      [:div.card-head
       [:div [:h2 "Runners"]
-       [:p.sub "Their seat (roster place), and their place among all runners in that seat across countries. Click a runner for their yard times."]]
+       [:p.sub "Their seed (place in the team by best qualifying yards), and their place among all runners in that seed across countries. Click a runner for their yard times."]]
       [:div.segmented {:role "group" :aria-label "Sort runners by"}
-       (for [[v label] [[:seat "Seat"] [:yards "Yards"] [:avg "Avg"]]]
+       (for [[v label] [[:seed "Seed"] [:yards "Yards"] [:avg "Avg"]]]
          ^{:key v}
          [:button {:aria-pressed (= v sort-by-key)
                    :on-click #(do (swap! db assoc :team-sort v) (save-prefs!))} label])]]
      [:div.table-wrap.full
       ;; same order and widths as the runner leaderboard for the columns they share
       [:table.runners.team-runners
-       [:colgroup [:col] [:col.n] [:col.n] [:col.status] [:col.time] [:col.time] [:col.time] [:col.seat-race] [:col.spark]]
-       [:thead [:tr [:th "Runner"] [:th.num "Seat"] [:th.num "Yards"] [:th "Status"]
+       [:colgroup [:col] [:col.n] [:col.n] [:col.status] [:col.time] [:col.time] [:col.time] [:col.seed-race] [:col.spark]]
+       [:thead [:tr [:th "Runner"] [:th.num "Seed"] [:th.num "Yards"] [:th "Status"]
                 [:th.num "Last yard"]
                 [:th.num {:title "Average of the timed yards"} "Avg"]
                 [:th.num {:title "Rest per yard, average of the last 3 timed yards"} "Margin"]
-                [:th {:title "Place among all runners in this seat"} "Seat race"]
+                [:th {:title "Place among all runners in this seed"} "Seed race"]
                 [:th "Yard times"]]]
        [:tbody
-        (for [{:keys [id name rank laps last-seconds avg-seconds seat-place seat-runners history] :as r} runners]
+        (for [{:keys [id name rank laps last-seconds avg-seconds seed-place seed-runners history] :as r} runners]
           ^{:key id}
           [:tr.clickable {:class (when (= "out" (:status r)) "out")
                           :on-click #(do (fetch-runner-detail! id) (swap! db assoc :open id))}
@@ -1626,11 +1627,11 @@
            [:td [status-badge r]]
            [:td.num (or (mmss last-seconds) "–")]
            [:td.num (or (mmss avg-seconds) "–")]
-           ;; with its trend, as on the Runners and Seats views
+           ;; with its trend, as on the Runners and Seeds views
            [:td.num [margin-cell (margin-of r (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history)))]]
-           [:td (when seat-place
-                  [:a {:href "#seats" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seat rank))}
-                   (str (ordinal seat-place) " of " seat-runners)])]
+           [:td (when seed-place
+                  [:a {:href "#seeds" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seed rank))}
+                   (str (ordinal seed-place) " of " seed-runners)])]
            [:td [chart/sparkline (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history))]]])]]]]))
 
 (defn- lap-shade
@@ -1744,7 +1745,7 @@
    {:id :charts :label "Charts"}
    {:id :team :label "Team"}
    {:id :runners :label "Runners"}
-   {:id :seats :label "Seats"}])
+   {:id :seeds :label "Seeds"}])
 
 (defn- parse-hash
   "{:view v} from the URL hash, plus :team for #team/CODE."
@@ -1753,6 +1754,8 @@
         [v code] (str/split h #"/" 2)]
     (cond
       (= v "team") (cond-> {:view :team} (seq code) (assoc :team (str/upper-case code)))
+      ;; #seats was the Seeds view's old name
+      (= v "seats") {:view :seeds}
       ;; #countries was the Race view's old name: old links still land there
       :else {:view (or (some #(when (= v (name (:id %))) (:id %)) views) :race)})))
 
@@ -1846,7 +1849,7 @@
   (case view
     :team [team-view]
     :runners [:div.grid [runners-table]]
-    :seats [:div.grid [seats-card]]
+    :seeds [:div.grid [seeds-card]]
     :charts [charts-view]
     ;; race: who went out at the last bell, the passes coming, then the standings
     [:div.grid [drops-card] [overtakes-card] [countries-table]]))
@@ -1891,7 +1894,7 @@
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
-           :team-sort (case team-sort "yards" :yards "avg" :avg :seat)
+           :team-sort (case team-sort "yards" :yards "avg" :avg :seed)
            :runners-view (if (= "heatmap" runners-view) :heatmap :table)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})

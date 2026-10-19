@@ -174,7 +174,7 @@ Screenshots: `/tmp/claude-1000/-home-endymion-code-byu-wtc-2026/3d044741-c917-4f
   - a nation is "awaiting results" while `reportedThrough < yard`;
   - "A nation is never shown as out because its results are late";
   - "Made the bell" counts only nations that have reported.
-- **Seats:** there's no cross-nation seat competition. "#3" is only the seed: the runner's place in the team by best qualifying yards (`pos` in `roster-2026.json`).
+- **Seeds:** there's no cross-nation seed competition. "#3" is only the seed: the runner's place in the team by best qualifying yards (`pos` in `roster-2026.json`).
 
 ## Ease of use
 
@@ -279,7 +279,7 @@ Screenshots: `/tmp/claude-1000/-home-endymion-code-byu-wtc-2026/3d044741-c917-4f
 
 **We have, they don't:**
 
-- **Seats:** the cross-nation competition by roster rank for the individual invites;
+- **Seeds:** the runners of the same seed compared across nations (our own comparison; no invites come with it);
 - comparison charts with a distinct colour per country (up to 8), and gap-to-leader for a selected set;
 - per-runner lap-time figures: fastest / average / total, sparklines, and the runner dialog with field median, rest and margin;
 - a durable lap store, a source-agnostic model, and small CDN-cached API responses instead of one 344 KB blob;

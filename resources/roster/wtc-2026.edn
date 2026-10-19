@@ -8,7 +8,7 @@
  ["Ranks 1-15 are the team (:role :team), 16+ are reserves."
   "Empty slots are dropped, so some countries have fewer runners."
   ":wa is copied verbatim from the roster's W/A column; its meaning isn't documented there."
-  ":id is <country code>-<seat>, the seat being the two-digit roster rank (NED-01); real-time adapters should produce the same ids."
+  ":id is <country code>-<seed>, the seed being the two-digit roster rank (NED-01); real-time adapters should produce the same ids."
   "Runners listed twice in one country keep their best rank; the others are in :dropped-duplicates."],
  :dropped-duplicates
  [{:id "ISL-17", :name "Tómas Jacobsen", :rank 17}

@@ -3,11 +3,11 @@
   site's \"Leaderboard\" link, read as CSV from its `Lite2` tab.
 
   One row per country: Rank, TM, Team, Flag, # (runners), Yards, Avg, then
-  the yards of seats 1-15. The seats are the roster's ranks, so a runner's id
-  is <code>-<seat> as in the roster, and the names come from the roster.
+  the yards of seeds 1-15. The seeds are the roster's ranks, so a runner's id
+  is <code>-<seed> as in the roster, and the names come from the roster.
 
   Lite2, not the Leaderboard tab: on race day the Leaderboard tab lagged
-  behind, its seat-4 column was always `00:00:00`, and its surname lookup
+  behind, its seed-4 column was always `00:00:00`, and its surname lookup
   showed `#N/A` for runners who were running. Lite2 matched the official
   site's feed to the yard (2281 yards at yard 3).
 
@@ -16,7 +16,7 @@
   So a runner with n yards gets finished laps 1..n without :seconds, and
   `wtc.race` treats a runner without a result for a settled lap as out.
 
-  A withdrawn country has 0 runners (#) and is skipped, as is a seat without
+  A withdrawn country has 0 runners (#) and is skipped, as is a seed without
   a roster runner and without yards.
 
   Google serves different cached copies of a published tab on different
@@ -41,10 +41,10 @@
        "2PACX-1vR-vmYpj04JD3879yCoJkPoXz8YqjJw9ykVU70nb830fFkmdeEQE75d8fwI5gVbljKe8a0MeK2Grx7L"
        "/pub?single=true&output=csv&gid=1199062225"))
 
-(def ^:private seats 15)
+(def ^:private seeds 15)
 
 (defn load-roster
-  "[code seat] -> {:id :name :country-name} for the team members."
+  "[code seed] -> {:id :name :country-name} for the team members."
   [resource]
   (let [res (or (io/resource resource)
                 (throw (ex-info (str "sheet: roster resource not found: " resource) {:roster resource})))]
@@ -63,23 +63,23 @@
   [roster text]
   (let [[header & body] (drop-while #(not= "TM" (second %)) (csv/read-csv text))
         col (fn [label] (.indexOf ^java.util.List (vec header) label))
-        [code-at team-at count-at seat-at] (map col ["TM" "Team" "#" "1"])
-        _ (when (or (some neg? [code-at team-at count-at seat-at])
-                    (not= (str seats) (nth header (+ seat-at seats -1) nil)))
+        [code-at team-at count-at seed-at] (map col ["TM" "Team" "#" "1"])
+        _ (when (or (some neg? [code-at team-at count-at seed-at])
+                    (not= (str seeds) (nth header (+ seed-at seeds -1) nil)))
             (throw (ex-info "sheet: unexpected Lite2 layout" {:header header})))
         entries (for [row body
                       :when (int-cell (first row))
                       :let [code (str/trim (nth row code-at ""))]
                       :when (pos? (or (int-cell (nth row count-at "")) 0))
-                      seat (range 1 (inc seats))
-                      :let [r (get roster [code seat])
-                            yards (or (int-cell (nth row (+ seat-at seat -1) "")) 0)]
+                      seed (range 1 (inc seeds))
+                      :let [r (get roster [code seed])
+                            yards (or (int-cell (nth row (+ seed-at seed -1) "")) 0)]
                       :when (or r (pos? yards))]
                   {:country {:code code :name (or (:country-name r) (str/trim (nth row team-at "")))}
-                   :runner {:id (or (:id r) (format "%s-%02d" code seat))
-                            :name (or (:name r) (str code " seat " seat))
+                   :runner {:id (or (:id r) (format "%s-%02d" code seed))
+                            :name (or (:name r) (str code " seed " seed))
                             :country code
-                            :bib (str seat)}
+                            :bib (str seed)}
                    :yards yards})]
     {:countries (distinct (map :country entries))
      :runners (map :runner entries)

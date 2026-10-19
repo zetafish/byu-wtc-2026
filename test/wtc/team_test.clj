@@ -87,18 +87,18 @@
            (select-keys (get-in (team/team d "JJJ") [:chase :behind 0]) [:code :gap :gain :laps-to-pass])))))
 
 (deftest team-page
-  ;; seats come from the roster; here the number in the id is the seat
-  (let [seated (update derived :runners update-vals #(assoc % :rank (parse-long (subs (:id %) 1))))
-        t (team/team seated "BBB")]
+  ;; seeds come from the roster; here the number in the id is the seed
+  (let [seeded (update derived :runners update-vals #(assoc % :rank (parse-long (subs (:id %) 1))))
+        t (team/team seeded "BBB")]
     (testing "the countries sharing its place"
       (is (= [{:code "EEE" :name "EEE"}] (:tied-with t))))
     (testing "unknown country"
       (is (nil? (team/team derived "ZZZ"))))
-    (testing "runners best first, with their place in their seat"
+    (testing "runners best first, with their place in their seed"
       (is (= ["b1" "b2" "b3"] (map :id (:runners t))))
-      (testing "b1 has 6 laps, level in seat 1 with a1, c1, d1 and e1; b3 is out on 2 laps, 3rd of 5 in seat 3, level with e3"
+      (testing "b1 has 6 laps, level in seed 1 with a1, c1, d1 and e1; b3 is out on 2 laps, 3rd of 5 in seed 3, level with e3"
         (is (= {"b1" [1 5] "b2" [1 5] "b3" [3 5]}
-               (into {} (map (juxt :id (juxt :seat-place :seat-runners))) (:runners t))))))
+               (into {} (map (juxt :id (juxt :seed-place :seed-runners))) (:runners t))))))
     (testing "the team over time"
       (is (= [[1 3] [2 3] [3 3] [4 2] [5 2] [6 2] [7 2]] (get-in t [:over-time :runners-in])))
       (is (= [[1 3] [2 6] [3 8] [4 10] [5 12] [6 14]] (get-in t [:over-time :team-score])))
@@ -175,15 +175,15 @@
                 (assoc-in [:countries "XXX" :reported-through] 2))]
       (is (every? #(>= (:lap %) (:current-lap d)) (team/overtakes d 20))))))
 
-(deftest seat-place-up-to-the-last-bell
-  (testing "finishing the current lap first doesn't put a runner ahead in their seat"
-    ;; during lap 7: a1 has finished it already, b1 is still on it; both seat 1
+(deftest seed-place-up-to-the-last-bell
+  (testing "finishing the current lap first doesn't put a runner ahead in their seed"
+    ;; during lap 7: a1 has finished it already, b1 is still on it; both seed 1
     (let [d (-> (race/derive-state
                  (dataset [["a1" "AAA"] ["a2" "AAA"] ["b1" "BBB"] ["b2" "BBB"]]
                           {"a1" (finished 7) "a2" (finished 6) "b1" (finished 6) "b2" (finished 6)})
                  {:start start :now (at-hours 6.5)})
                 (assoc-in [:runners "a1" :rank] 1)
                 (assoc-in [:runners "b1" :rank] 1))
-          place (fn [code] (->> (team/team d code) :runners (some #(when (= 1 (:rank %)) (:seat-place %)))))]
+          place (fn [code] (->> (team/team d code) :runners (some #(when (= 1 (:rank %)) (:seed-place %)))))]
       (is (= 7 (:current-lap d)))
       (is (= 1 (place "AAA") (place "BBB"))))))

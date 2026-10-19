@@ -383,7 +383,7 @@ table.runners col.status { width: 165px; }
 table.runners col.time { width: 72px; }
 table.runners col.total { width: 88px; }
 table.runners col.spark { width: 124px; }
-table.runners col.seat-race { width: 96px; }
+table.runners col.seed-race { width: 96px; }
 table.runners.team-runners { min-width: 820px; }
 /* the runner leaderboard: a grid with table roles, styled as the tables, so
    off-screen rows skip layout (content-visibility) and sorting stays quick */
@@ -398,10 +398,10 @@ table.runners.team-runners { min-width: 820px; }
 .lb-row.clickable { cursor: pointer; }
 .lb-row.clickable:hover { background: var(--hover); }
 .lb-row.out > span { color: var(--text-muted); }
-.margin.danger, .seat-row > .danger { color: var(--critical); font-weight: 600; }
+.margin.danger, .seed-row > .danger { color: var(--critical); font-weight: 600; }
 .lb-row.out .flag { filter: grayscale(1); opacity: 0.55; }
 table.runners td.name .star { margin-right: 6px; }
-select.seat {
+select.seed {
   font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
   border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer;
 }
@@ -477,23 +477,23 @@ table.team-runners td.name { white-space: nowrap; }
 .hm-name:hover { text-decoration: underline; }
 .hm-country .cshort { font-weight: 400; }
 .hm-country .cshort .flag { width: 20px; height: 15px; }
-/* Seats: one seat's runners, with team in, margin and yard cells */
-.seat-sum { margin: 0 0 10px; color: var(--text-secondary); font-size: 14px; }
-.seat-grid { min-width: 860px; }
-.seat-row > .num { text-align: right; padding-right: 10px; font-variant-numeric: tabular-nums; }
-.seat-row > .danger { color: var(--critical); font-weight: 600; }
-.seat-row.out .hm-name, .seat-row.out .hm-pos, .seat-row.out > .num { color: var(--text-muted); }
-.seat-row.out .flag { filter: grayscale(1); opacity: 0.55; }
-.seat-head { content-visibility: visible; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
-.seat-head > span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
-.seat-head .yards-label { text-transform: none; letter-spacing: 0; }
-.seat-fold { display: flex; gap: 10px; align-items: center; padding: 6px 0; font-size: 14px; color: var(--text-secondary); border-top: 1px solid var(--grid); }
-.seat-fold button.link { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; }
+/* Seeds: one seed's runners, with team in, margin and yard cells */
+.seed-sum { margin: 0 0 10px; color: var(--text-secondary); font-size: 14px; }
+.seed-grid { min-width: 860px; }
+.seed-row > .num { text-align: right; padding-right: 10px; font-variant-numeric: tabular-nums; }
+.seed-row > .danger { color: var(--critical); font-weight: 600; }
+.seed-row.out .hm-name, .seed-row.out .hm-pos, .seed-row.out > .num { color: var(--text-muted); }
+.seed-row.out .flag { filter: grayscale(1); opacity: 0.55; }
+.seed-head { content-visibility: visible; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.seed-head > span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+.seed-head .yards-label { text-transform: none; letter-spacing: 0; }
+.seed-fold { display: flex; gap: 10px; align-items: center; padding: 6px 0; font-size: 14px; color: var(--text-secondary); border-top: 1px solid var(--grid); }
+.seed-fold button.link { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; }
 @media (max-width: 600px) {
-  .seat-grid { min-width: 0; }
-  .seat-row { grid-template-columns: 32px minmax(0, 1fr) 64px 56px 80px !important; }
-  .seat-row > .num { padding-right: 4px; }
-  .seat-row .lg, .seat-row .lg-dns, .seat-row .yards-label, .seat-row .yards { display: none; }
+  .seed-grid { min-width: 0; }
+  .seed-row { grid-template-columns: 32px minmax(0, 1fr) 64px 56px 80px !important; }
+  .seed-row > .num { padding-right: 4px; }
+  .seed-row .lg, .seed-row .lg-dns, .seed-row .yards-label, .seed-row .yards { display: none; }
 }
 
 /* country dropdown: a native <select> can't show flags */
@@ -563,7 +563,7 @@ tr.out .pips i.in { background: var(--text-muted); }
 .drop .code { color: var(--critical); font-size: 12px; font-weight: 600; }
 @media (max-width: 600px) { .drops-list li { grid-template-columns: minmax(0, 1fr); } }
 
-/* Race view, Runners: every runner of every country by seat */
+/* Race view, Runners: every runner of every country by seed */
 table.race-grid { table-layout: fixed; min-width: 1000px; }
 table.race-grid col.rk { width: 40px; }
 table.race-grid col.country { width: 190px; }

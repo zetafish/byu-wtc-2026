@@ -23,12 +23,12 @@
         better (fn [k] (count (filter #(pos? (compare % k)) (vals ks))))]
     (update-vals ks #(inc (better %)))))
 
-(defn- seat-places
-  "Every runner's place in their seat across all countries, as on the Seats
+(defn- seed-places
+  "Every runner's place in their seed across all countries, as on the Seeds
   view: by laps, a runner still in ahead of one who is out, else shared. A
   runner still in counts laps up to the last bell, so finishing the current
   lap first doesn't put them ahead of the others still on it.
-  {id [place runners-in-seat]}"
+  {id [place runners-in-seed]}"
   [runners current-lap]
   (into {}
         (for [[_ rs] (group-by :rank (filter :rank runners))
@@ -108,7 +108,7 @@
                                   (mapv (fn [n] [n (count (filter #(>= (:laps %) n) crs))])
                                         (range 1 (inc (reported (get countries c)))))))
            others (remove #(= code (:code %)) (sort-by :position (vals countries)))
-           seats (seat-places all current-lap)
+           seeds (seed-places all current-lap)
            still-going (remove :eliminated-after (vals countries))]
        {:country ours
         ;; sharing the place (equal team score and farthest runner), from the same snapshot
@@ -119,14 +119,14 @@
                       (sort-by (juxt (comp - :laps) :rank :id))
                       (mapv (fn [r]
                               (let [timed (keep :seconds (:history r))
-                                    [place of] (seats (:id r))]
+                                    [place of] (seeds (:id r))]
                                 (-> (select-keys r [:id :name :rank :laps :status :reason :stop :started :history])
                                     (assoc :last-seconds (last timed)
                                            :avg-seconds (when (seq timed)
                                                           (Math/round (double (/ (reduce + timed) (count timed)))))
                                            :margin-seconds (rest-margin (:history r))
-                                           :seat-place place
-                                           :seat-runners of))))))
+                                           :seed-place place
+                                           :seed-runners of))))))
         :over-time {:runners-in (mapv (fn [n] [n (count (filter #(>= (:started %) n) rs))])
                                       (range 1 (inc current-lap)))
                     :team-score (mapv (fn [n [t _]] [n t]) laps our-totals)
