@@ -879,11 +879,11 @@
       [:colgroup [:col.star] [:col.rk] [:col.country] [:col.n] [:col.n] [:col.in] [:col.time] [:col]]
       [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "Yards"]
                [:th.num {:title "Yards behind the leading country's team score"} "Gap"]
-               [:th.num {:title "Runners still in; once a country is done, its winner (★) or the yard it went out after (✕)"} "In"]
+               [:th.num {:title "Runners still in"} "In"]
                [:th.num {:title "Average yard time of all the team's timed yards"} "Avg yard"]
                [:th (if margin? "Runners by margin, smallest first" "Runners by seed")]]]
       [:tbody
-       (for [{:keys [code name rank tied active runners total-laps eliminated-after winner]} shown
+       (for [{:keys [code name rank tied active runners total-laps eliminated-after]} shown
              :let [rs (cond->> (sort-by :rank (by-country code))
                         ;; still in by margin, then still in without times, then stopped, each by seed
                         margin? (sort-by (fn [r]
@@ -909,15 +909,10 @@
           [:td.name [country-label code]]
           [:td.num total-laps]
           [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
-          (cond
-            winner [:td.num.done {:title (str "country winner: " (:name winner) ", after yard " eliminated-after)}
-                    (str "★ " (surname (:name winner)))]
-            eliminated-after [:td.num.done {:title (str "out after yard " eliminated-after ", no winner")}
-                              (str "✕ " eliminated-after)]
-            :else [:td.num {:class (when last-two? "danger")
-                            :title (str active " of " runners " still in"
-                                        (when last-two? "; a teammate's drop ends the other's race"))}
-                   (if last-two? "⚠ 2" active)])
+          [:td.num {:class (when last-two? "danger")
+                    :title (str active " of " runners " still in"
+                                (when last-two? "; a teammate's drop ends the other's race"))}
+           (if last-two? "⚠ 2" active)]
           [:td.num (or (mmss avg) "–")]
           [:td [:div.slots {:style {:grid-template-columns (str "repeat(" (max slots 1) ", minmax(0, 1fr))")}}
                 (for [{:keys [id name laps] :as r} rs

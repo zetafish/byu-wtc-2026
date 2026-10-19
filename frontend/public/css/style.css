@@ -606,8 +606,7 @@ table.race-grid col.star { width: 36px; }
 table.race-grid col.rk { width: 40px; }
 table.race-grid col.country { width: 190px; }
 table.race-grid col.n { width: 56px; }
-table.race-grid col.in { width: 96px; }
-table.race-grid td.done { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+table.race-grid col.in { width: 60px; }
 table.race-grid col.time { width: 72px; }
 table.race-grid td { padding-top: 4px; padding-bottom: 4px; }
 .slots { display: grid; gap: 2px; }
