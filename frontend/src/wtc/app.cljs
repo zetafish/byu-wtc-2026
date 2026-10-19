@@ -1183,21 +1183,26 @@
 (defn- yard-cells
   "A runner's yards 1..n as heatmap cells, shaded by time, as the team page's
   grid, built from the yard times and the runner's status; with `margin?`,
-  shaded by the margin after each yard instead (see `margin-level`).
-  Hovering a cell puts its story in `tip`."
+  shaded by the margin after each yard instead (see `margin-level`). A stop
+  is a cell of its own: the yard an INC or OVER failed, solid; the yard an
+  RTC didn't start, hollow. Hovering a cell puts its story in `tip`."
   [{:keys [name laps status stop] :as r} times n current-lap tip & [margin?]]
   (let [by-lap (into {} times)
         margins (when margin? (margins-by-lap (vec times)))
-        failed (when (= "out" status) (out-at r))]   ; the yard it stopped at
+        failed (when (= "out" status) (out-at r))   ; the yard it stopped at
+        ;; an RTC finished `failed` and didn't start the next one
+        not-started (when (and failed (= "rtc" stop)) (inc laps))]
     (if (= "dns" stop)
       [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
       (for [l (range 1 (inc n))
             :let [s (by-lap l)
                   lap (cond s {:seconds s}
+                            (= l not-started) {:status "dnf" :stop stop}
                             (= l failed) {:status "dnf" :stop stop}
                             (<= l laps) {:status "finished"})]]
         ^{:key l}
-        [:span {:class (cond (and s margin?) (str "lg mg" (margin-level {:margin (margins l)}))
+        [:span {:class (cond (= l not-started) "lg rtc"
+                             (and s margin?) (str "lg mg" (margin-level {:margin (margins l)}))
                              s (str "lg s" (lap-shade s))
                              ;; by margin, the darkest step is the critical red, so the stop is the text colour
                              (= l failed) (cond (not stop) "lg none" margin? "lg end" :else "lg dnf")
@@ -1231,7 +1236,8 @@
   [:ul.legend.lg-legend
    (for [[i t] (map-indexed vector ["margin 10:00 or more" "8–10" "6–8" "4–6" "2–4" "under 2:00"])]
      ^{:key i} [:li [:span {:class (str "lg mg" i)}] t])
-   [:li [:span.lg.end] "stopped"]
+   [:li [:span.lg.end] "stopped in the yard"]
+   [:li [:span.lg.rtc] "didn't start the yard (RTC)"]
    [:li [:span.lg.notime] "no time"]
    [:li [:span.lg.running] "running now"]
    [:li "Margin: rest per yard over the last 3 yards, after each yard"]])
@@ -1842,7 +1848,8 @@
   [:ul.legend.lg-legend
    (for [[i t] (map-indexed vector ["under 40:00" "40–46" "46–49" "49–53" "53–57" "57:00 or more"])]
      ^{:key i} [:li [:span {:class (str "lg s" i)}] t])
-   [:li [:span.lg.dnf] "stopped"]
+   [:li [:span.lg.dnf] "stopped in the yard"]
+   [:li [:span.lg.rtc] "didn't start the yard (RTC)"]
    [:li [:span.lg.notime] "no time"]
    [:li [:span.lg.running] "running now"]])
 
@@ -1874,7 +1881,7 @@
                     :let [{:keys [status seconds] :as lap} (by-lap l)]]
                 ^{:key l}
                 [:span {:class [(cond
-                                  (= "dnf" status) "lg dnf"
+                                  (= "dnf" status) (if (= "rtc" (:stop lap)) "lg rtc" "lg dnf")
                                   seconds (str "lg s" (lap-shade seconds))
                                   (= "finished" status) "lg notime"
                                   (and (= "running" (:status r)) (= l current-lap)) "lg running"
