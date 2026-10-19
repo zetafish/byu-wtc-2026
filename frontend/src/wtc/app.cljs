@@ -973,17 +973,19 @@
       [:div [:h2 "Standings"]
        [:p.sub "Ranked by team score. Star (☆) countries to keep them at hand in the pickers. Click a row for the team page."]]
       [:div.head-actions
-       [:div.segmented {:role "group" :aria-label "Show"}
-        (for [[v label] [[:teams "Teams"] [:runners "Runners"]]]
-          ^{:key v}
-          [:button {:aria-pressed (= v race-view)
-                    :on-click #(do (swap! db assoc :race-view v) (save-prefs!) (fetch-runner-times!))} label])]
-       (when (= :runners race-view)
-         [:div.segmented {:role "group" :aria-label "Runner cells show"}
-          (for [[v label] [[:yards "Yards"] [:margin "Margin"]]]
+       ;; one control for both choices: the team table, or the runner grid with yards or margins
+       (let [shown-as (if (= :teams race-view) :teams (or (:slot-metric @db) :yards))]
+         [:div.segmented {:role "group" :aria-label "Show"}
+          (for [[v label title] [[:teams "Teams" "The team table"]
+                                 [:yards "Runners" "Every runner's yards, per country"]
+                                 [:margin "Margin" "Every runner's margin, per country: where the pressure is"]]]
             ^{:key v}
-            [:button {:aria-pressed (= v (or (:slot-metric @db) :yards))
-                      :on-click #(do (swap! db assoc :slot-metric v) (save-prefs!) (fetch-runner-times!))} label])])
+            [:button {:aria-pressed (= v shown-as) :title title
+                      :on-click #(do (swap! db merge (if (= v :teams)
+                                                       {:race-view :teams}
+                                                       {:race-view :runners :slot-metric v}))
+                                     (save-prefs!) (fetch-runner-times!))}
+             label])])
        [:div.segmented {:role "group" :aria-label "Countries"}
         (for [[v label] [[:all "All"] [:running "Still running"]]]
           ^{:key v}
