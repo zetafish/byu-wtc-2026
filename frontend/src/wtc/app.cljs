@@ -92,12 +92,13 @@
           (.catch #(js/console.warn %))))))
 
 (defn- fetch-runner-times!
-  "Yard times for the Runners view's sparklines. Past yards never change, so
-  all of them load once, and later reloads only fetch from the last yard
+  "Yard times for the Runners view (sparklines, heatmap) and the Seats view.
+  Past yards never change, so all of them load once, and later reloads only
+  fetch from the last yard
   known on (that yard again, in case a time was corrected): a few KB instead
   of ~140 KB gzipped late in the race. Other views don't need them."
   []
-  (when (= :runners (:view @db))
+  (when (#{:runners :seats} (:view @db))
     (let [through (:lap-times-through @db)
           from (when through (max 1 through))]
       (-> (get-json "/api/query" (cond-> {:metric "lap_time_seconds"} from (assoc :lap from)))
@@ -1002,38 +1003,45 @@
 
 (declare lap-shade lap-text lap-grid-legend)
 
+(defn- yard-cells
+  "A runner's yards 1..n as heatmap cells, shaded by time, as the team page's
+  grid, built from the yard times and the runner's status. Hovering a cell
+  puts its story in `tip`."
+  [{:keys [name laps status stop] :as r} times n current-lap tip]
+  (let [by-lap (into {} times)
+        failed (when (= "out" status) (out-at r))]   ; the yard it stopped at
+    (if (= "dns" stop)
+      [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
+      (for [l (range 1 (inc n))
+            :let [s (by-lap l)
+                  lap (cond s {:seconds s}
+                            (= l failed) {:status "dnf" :stop stop}
+                            (<= l laps) {:status "finished"})]]
+        ^{:key l}
+        [:span {:class (cond s (str "lg s" (lap-shade s))
+                             (= l failed) (if stop "lg dnf" "lg none")
+                             (<= l laps) "lg notime"
+                             (and (= "running" status) (= l current-lap)) "lg running"
+                             :else "lg none")
+                :on-mouse-enter (fn [e]
+                                  (let [rect (.getBoundingClientRect (.-currentTarget e))]
+                                    (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
+                                                 :name name :lap l :text (lap-text lap r l current-lap)})))}]))))
+
 (defn- heat-row
   "One runner in the leaderboard's heatmap: position, name, country, then a
   cell per yard shaded by its time, as the team page's grid. Built from the
   yard times and the runner's status, so it needs no history. A component of
   its own, so unchanged rows aren't redrawn."
-  [{:keys [id name country pos laps status stop] :as r} times n current-lap tip cols]
-  (let [by-lap (into {} times)
-        failed (when (= "out" status) (out-at r))   ; the yard it stopped at
-        open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
+  [{:keys [id name country pos] :as r} times n current-lap tip cols]
+  (let [open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
     ;; one element per row (its own grid): sorting moves ~400 rows, not ~15,000
     ;; cells, and an off-screen row can skip layout (content-visibility)
     [:div.hm-row {:style {:grid-template-columns cols}}
      [:span.hm-pos pos]
      [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
      [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
-     (if (= "dns" stop)
-       [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
-       (for [l (range 1 (inc n))
-             :let [s (by-lap l)
-                   lap (cond s {:seconds s}
-                             (= l failed) {:status "dnf" :stop stop}
-                             (<= l laps) {:status "finished"})]]
-         ^{:key l}
-         [:span {:class (cond s (str "lg s" (lap-shade s))
-                              (= l failed) (if stop "lg dnf" "lg none")
-                              (<= l laps) "lg notime"
-                              (and (= "running" status) (= l current-lap)) "lg running"
-                              :else "lg none")
-                 :on-mouse-enter (fn [e]
-                                   (let [rect (.getBoundingClientRect (.-currentTarget e))]
-                                     (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
-                                                  :name name :lap l :text (lap-text lap r l current-lap)})))}]))]))
+     (yard-cells r times n current-lap tip)]))
 
 (defn- runner-heatmap
   "The leaderboard as a heatmap: the same runners in the same order, a row of
@@ -1191,21 +1199,84 @@
        [:td.num (some-> lead ranked-laps)]
        [:td [seat-state-pill sum]]])]])
 
-(defn- seat-table [runners n]
-  [:table
-   [:thead [:tr [:th.num "Pos"] [:th "Runner"] [:th "Country"] [:th.num "Yards"]
-            [:th.num {:title "Best backyard result (yards) in the 2026 qualifying period"} "Best"]
-            [:th "Status"]]]
-   [:tbody
-    (for [{:keys [id name country laps best-yards pos] :as r} (seat-ranking runners n)]
-      ^{:key id}
-      [:tr {:class (when-not (running? r) "out")}
-       [:td.num pos]
-       [:td.name name]
-       [:td [country-label country]]
-       [:td.num laps]
-       [:td.num (or best-yards "–")]
-       [:td [status-badge r]]])]])
+(defn- margin-trend
+  "A runner's rest per yard over their last 3 timed yards, and its trend
+  against their average: :down when they've slowed by over a minute (the
+  margin shrinks), :up when they've sped up, else :flat. nil without times."
+  [times]
+  (let [secs (map second times)]
+    (when (seq secs)
+      (let [l3 (take-last 3 secs)
+            recent (/ (reduce + l3) (count l3))
+            avg (/ (reduce + secs) (count secs))
+            d (- recent avg)]
+        {:margin (js/Math.round (- 3600 recent))
+         :trend (cond (> d 60) :down (< d -60) :up :else :flat)}))))
+
+(defn- seat-row
+  "One runner of the chosen seat: position, name, country, their team's
+  runners still in, margin and trend, yards, then their yard cells. A row of
+  its own grid, so unchanged rows aren't redrawn or laid out off screen."
+  [{:keys [id name country pos] :as r} times team-in n current-lap tip cols]
+  (let [in? (running? r)
+        {:keys [margin trend]} (when in? (margin-trend times))
+        open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
+    [:div.hm-row.seat-row {:style {:grid-template-columns cols} :class (when-not in? "out")}
+     [:span.hm-pos pos]
+     [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
+     [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
+     [:span.num {:class (when (and in? (= 2 team-in)) "danger")
+                 :title (when (and in? (= 2 team-in)) "If a teammate drops, this runner finishes the yard alone and their race ends")}
+      (cond (not in?) "–" (= 2 team-in) "⚠ 2" :else team-in)]
+     [:span.num {:class (when (= :down trend) "danger")
+                 :title (case trend
+                          :down "Slower over the last 3 yards than on average: the margin shrinks"
+                          :up "Faster over the last 3 yards than on average"
+                          :flat "Steady"
+                          nil)}
+      (if margin [:<> (mmss margin) " " (case trend :down "▼" :up "▲" "–")] "–")]
+     [:span.num.yards (ranked-laps r)]
+     (yard-cells r times n current-lap tip)]))
+
+(defn- seat-detail
+  "The chosen seat's runners, as yard-cell rows with their team's runners in
+  and their margin: still in first (tied ones most comfortable first), the
+  stopped ones folded under \"Show\"."
+  [_ _]
+  (let [tip (r/atom nil)]
+    (fn [runners n]
+      (let [{:keys [countries lap-times race seat-stopped?]} @db
+            current (:current-lap race 1)
+            active (into {} (map (juxt :code :active)) countries)
+            ranked (seat-ranking runners n)
+            margin #(or (:margin (margin-trend (get lap-times (:id %)))) -1)
+            [in out] ((juxt filter remove) running? ranked)
+            in (sort-by (juxt :pos (comp - margin)) in)
+            cols (str "44px minmax(140px, 220px) 76px 70px 96px 56px repeat(" (max 1 current) ", minmax(4px, 1fr))")
+            row (fn [r] ^{:key (:id r)} [seat-row r (get lap-times (:id r)) (active (:country r)) current current tip cols])]
+        [:<>
+         [:p.seat-sum (str (count in) " of " (count ranked) " still in"
+                           (when-let [y (some-> (first in) ranked-laps)]
+                             (if (every? #(= y (ranked-laps %)) in) (str " · tied on " y " yards") ""))
+                           ". Team in: when a team is down to 2, a teammate's drop ends this runner's race.")]
+         [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
+          [:div.hm.seat-grid
+           [:div.hm-row.seat-row.seat-head {:style {:grid-template-columns cols}}
+            [:span.num "Pos"] [:span "Runner"] [:span "Country"]
+            [:span.num {:title "The country's runners still in"} "Team in"]
+            [:span.num {:title "Rest per yard over the last 3 yards, and its trend"} "Margin"]
+            [:span.num.yards "Yards"]
+            [:span.yards-label {:style {:grid-column (str "span " (max 1 current))}} (str "1 … " current)]]
+           (map row in)
+           (when (seq out)
+             [:div.seat-fold
+              [:span (str (count out) " stopped")]
+              [:button.link {:aria-expanded (boolean seat-stopped?) :on-click #(swap! db update :seat-stopped? not)}
+               (if seat-stopped? "Hide ▴" "Show ▾")]])
+           (when seat-stopped? (map row out))]]
+         (when-let [{:keys [x y name lap text]} @tip]
+           [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
+         [lap-grid-legend]]))))
 
 (defn- seats-card []
   (let [{:keys [runners seat]} @db]
@@ -1221,7 +1292,7 @@
      (if (empty? runners)
        [:div.empty "No runners yet"]
        [:div.table-wrap.full
-        (if seat [seat-table runners seat] [seats-overview runners])])]))
+        (if seat [seat-detail runners seat] [seats-overview runners])])]))
 
 ;; --- team page ---
 ;; One country: how it's doing, who's near it (the chase), its runners. All

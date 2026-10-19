@@ -177,7 +177,8 @@ With two runners left (A and B):
 - All rows are shown, without an inner scroll. [decided]
 
 ### Seats view
-- An overview of all 15 seats: the leader (or "N tied"), their country, laps, and seat state. Click a seat, or pick it in the selector, for that seat's full ranking (position, runner, country, laps, best, status). [decided]
+- An overview of all 15 seats: the leader (or "N tied"), their country, the yards they're ranked on, and seat state. Click a seat, or pick it in the selector, for that seat's runners. [decided]
+- **One seat** [decided]: a seat race is part pace and part team strength, so each runner's row shows position, runner, country, **Team in** (their country's runners still in; "⚠ 2" in red when it's 2, because a teammate's drop then ends this runner's race: they finish the yard alone as the national winner), **Margin** (rest per yard over the last 3 timed yards, with ▼ in red when they're over a minute slower than their average, ▲ when faster, – when steady), yards, and their yard cells as in the Runners heatmap. Runners still in come first, tied ones most comfortable (largest margin) first; the stopped ones fold under "N stopped · Show". On a phone the yard cells and yards are left out. Click a name for the runner dialog.
 
 ### Redesign: pages [proposed]
 
