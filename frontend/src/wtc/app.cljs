@@ -976,6 +976,25 @@
         ;; out and country winners: everyone who has stopped
         (str "Show all (+" n-out " stopped)")])]))
 
+(declare margin-trend)
+
+(defn- margin-of
+  "A runner still in's margin and trend (see `margin-trend`), nil otherwise."
+  [r times]
+  (when (running? r) (margin-trend times)))
+
+(defn- margin-cell
+  "Margin as m:ss with its trend: ▼ (critical) when the runner is over a
+  minute slower than their average, ▲ when faster, – when steady."
+  [{:keys [margin trend]}]
+  [:span {:class (when (= :down trend) "danger")
+          :title (case trend
+                   :down "Rest per yard over the last 3 yards; slower than their average: the margin shrinks"
+                   :up "Rest per yard over the last 3 yards; faster than their average"
+                   :flat "Rest per yard over the last 3 yards; steady"
+                   nil)}
+   (if margin [:<> (mmss margin) " " (case trend :down "▼" :up "▲" "–")] "–")])
+
 (defn- runner-row
   "One leaderboard row. A component of its own, so a row whose runner, star
   and yard times are unchanged isn't redrawn: opening or closing the runner
@@ -998,6 +1017,7 @@
    [:span.num {:role "cell"} (mmss (:avg-seconds runner))]
    [:span.num {:role "cell"} (mmss (:fastest-seconds runner))]
    [:span.num {:role "cell"} (hmmss (:total-seconds runner))]
+   [:span.num {:role "cell"} [margin-cell (margin-of runner times)]]
    [:span.num {:role "cell"} (or (:best-yards runner) "–")]
    [:span {:role "cell"} (when times [chart/sparkline times])]])
 
@@ -1060,17 +1080,22 @@
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          [lap-grid-legend]]))))
 
-;; the leaderboard's sortable columns: key into the row, and its header
+;; the leaderboard's sorts: what each sorts on, from the row and its yard
+;; times. Ascending (▲) is quickest first, and for Margin and Trend the most
+;; at risk first: the smallest margin, the margin shrinking most
 (def ^:private runner-sorts
-  {:last [:last-seconds "Last yard"] :avg [:avg-seconds "Avg"]
-   :fastest [:fastest-seconds "Fastest"] :total [:total-seconds "Total"]})
+  {:last (fn [r _] (:last-seconds r)) :avg (fn [r _] (:avg-seconds r))
+   :fastest (fn [r _] (:fastest-seconds r)) :total (fn [r _] (:total-seconds r))
+   :margin (fn [r times] (:margin (margin-of r times)))
+   :trend (fn [r times] (:change (margin-of r times)))})
 
 (defn- sort-runners
-  "The leaderboard in the chosen order: position (default), or a time column
-  quickest first (`desc?` slowest first), untimed runners last either way."
-  [rs {:keys [by desc?]}]
-  (if-let [[k] (runner-sorts by)]
-    (let [{timed true untimed false} (group-by #(some? (k %)) rs)]
+  "The leaderboard in the chosen order: position (default), or a column
+  ascending (`desc?` descending), runners without a value last either way."
+  [rs {:keys [by desc?]} lap-times]
+  (if-let [f (runner-sorts by)]
+    (let [k #(f % (get lap-times (:id %)))
+          {timed true untimed false} (group-by #(some? (k %)) rs)]
       ;; a stable sort of rows in position order: ties stay in position order
       (concat (sort-by k (if desc? #(compare %2 %1) compare) timed) untimed))
     rs))
@@ -1091,14 +1116,16 @@
     (cond (not= by (or cur :pos)) "" (and desc? (not= by :pos)) " ▼" :else " ▲")))
 
 (defn- sort-buttons
-  "The leaderboard's sort, in both views: the active one with ▲ quickest first or ▼ slowest first; clicking
-  it again flips."
+  "The leaderboard's sort, in both views: the active one with ▲ (quickest,
+  or most at risk, first) or ▼; clicking it again flips."
   []
   (let [cur (or (:by (:runner-sort @db)) :pos)]
     [:div.segmented.sort-buttons {:role "group" :aria-label "Sort runners by"}
-     (for [[by label] [[:pos "Pos"] [:last "Last yard"] [:avg "Avg"] [:fastest "Fastest"] [:total "Total"]]]
+     (for [[by label title] [[:pos "Pos"] [:last "Last yard"] [:avg "Avg"] [:fastest "Fastest"] [:total "Total"]
+                             [:margin "Margin" "Rest per yard over the last 3 yards: smallest first"]
+                             [:trend "Trend" "How the margin changes against the runner's average: shrinking most first"]]]
        ^{:key by}
-       [:button {:aria-pressed (= by cur) :on-click #(pick-sort! by)}
+       [:button {:aria-pressed (= by cur) :title title :on-click #(pick-sort! by)}
         label [:span.arrow (sort-arrow by)]])]))
 
 (defn- runners-table []
@@ -1112,7 +1139,7 @@
         show-out? (or show-out-runners? (finished?))
         n-out (count (filter stopped? candidates))
         shown (-> (filter #(or show-out? (not (stopped? %))) candidates)
-                  (sort-runners (:runner-sort @db)))
+                  (sort-runners (:runner-sort @db) lap-times))
         open-runner (when open (some #(when (= open (:id %)) %) (ranked runners)))]
     [:section.card.wide
      (when open-runner ^{:key open} [runner-dialog open-runner (count runners)])
@@ -1141,6 +1168,7 @@
           (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seat"] [:num "Yards"]
                                    [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
                                    [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
+                                   [:num "Margin" "Rest per yard over the last 3 yards, and its trend"]
                                    [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
                                    [nil "Yard times"]]]
             ^{:key label} [:span {:role "columnheader" :class cls :title title} label])]
@@ -1212,6 +1240,7 @@
             avg (/ (reduce + secs) (count secs))
             d (- recent avg)]
         {:margin (js/Math.round (- 3600 recent))
+         :change (js/Math.round (- d))   ; the margin's change against the average
          :trend (cond (> d 60) :down (< d -60) :up :else :flat)}))))
 
 (defn- seat-row
@@ -1220,7 +1249,6 @@
   its own grid, so unchanged rows aren't redrawn or laid out off screen."
   [{:keys [id name country pos] :as r} times team-in n current-lap tip cols]
   (let [in? (running? r)
-        {:keys [margin trend]} (when in? (margin-trend times))
         open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
     [:div.hm-row.seat-row {:style {:grid-template-columns cols} :class (when-not in? "out")}
      [:span.hm-pos pos]
@@ -1229,13 +1257,7 @@
      [:span.num {:class (when (and in? (= 2 team-in)) "danger")
                  :title (when (and in? (= 2 team-in)) "If a teammate drops, this runner finishes the yard alone and their race ends")}
       (cond (not in?) "–" (= 2 team-in) "⚠ 2" :else team-in)]
-     [:span.num {:class (when (= :down trend) "danger")
-                 :title (case trend
-                          :down "Slower over the last 3 yards than on average: the margin shrinks"
-                          :up "Faster over the last 3 yards than on average"
-                          :flat "Steady"
-                          nil)}
-      (if margin [:<> (mmss margin) " " (case trend :down "▼" :up "▲" "–")] "–")]
+     [:span.num [margin-cell (margin-of r times)]]
      [:span.num.yards (ranked-laps r)]
      (yard-cells r times n current-lap tip)]))
 
@@ -1594,7 +1616,7 @@
                 [:th {:title "Place among all runners in this seat"} "Seat race"]
                 [:th "Yard times"]]]
        [:tbody
-        (for [{:keys [id name rank laps last-seconds avg-seconds margin-seconds seat-place seat-runners history] :as r} runners]
+        (for [{:keys [id name rank laps last-seconds avg-seconds seat-place seat-runners history] :as r} runners]
           ^{:key id}
           [:tr.clickable {:class (when (= "out" (:status r)) "out")
                           :on-click #(do (fetch-runner-detail! id) (swap! db assoc :open id))}
@@ -1604,7 +1626,8 @@
            [:td [status-badge r]]
            [:td.num (or (mmss last-seconds) "–")]
            [:td.num (or (mmss avg-seconds) "–")]
-           [:td.num (or (mmss margin-seconds) "–")]
+           ;; with its trend, as on the Runners and Seats views
+           [:td.num [margin-cell (margin-of r (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history)))]]
            [:td (when seat-place
                   [:a {:href "#seats" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seat rank))}
                    (str (ordinal seat-place) " of " seat-runners)])]

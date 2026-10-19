@@ -387,9 +387,9 @@ table.runners col.seat-race { width: 96px; }
 table.runners.team-runners { min-width: 820px; }
 /* the runner leaderboard: a grid with table roles, styled as the tables, so
    off-screen rows skip layout (content-visibility) and sorting stays quick */
-.lb { min-width: 1120px; font-variant-numeric: tabular-nums; }
+.lb { min-width: 1204px; font-variant-numeric: tabular-nums; }
 .lb-row { display: grid; align-items: center; border-bottom: 1px solid var(--line);
-  grid-template-columns: 56px minmax(0, 1fr) 190px 52px 52px 165px 72px 72px 72px 88px 52px 124px;
+  grid-template-columns: 56px minmax(0, 1fr) 190px 52px 52px 165px 72px 72px 72px 88px 84px 52px 124px;
   content-visibility: auto; contain-intrinsic-size: auto 39px; }
 .lb-row > span { padding: 7px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .lb-row > span.name { font-weight: 600; }
@@ -398,6 +398,7 @@ table.runners.team-runners { min-width: 820px; }
 .lb-row.clickable { cursor: pointer; }
 .lb-row.clickable:hover { background: var(--hover); }
 .lb-row.out > span { color: var(--text-muted); }
+.lb-row > span .danger, .seat-row .danger { color: var(--critical); font-weight: 600; }
 .lb-row.out .flag { filter: grayscale(1); opacity: 0.55; }
 table.runners td.name .star { margin-right: 6px; }
 select.seat {
