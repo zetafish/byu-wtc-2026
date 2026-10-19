@@ -73,6 +73,32 @@ The look is a race board, after `../upfront-live`, which the owner preferred to 
 - **Segmented control** (`.segmented`): the views of one chart, for example Gap to leader / Total, next to the Table toggle in the card head. The active view has `aria-pressed` and a tint.
 - **Star:** ☆/★ in gold `--star` (`#b98900` light, `#ffc61a` dark), not the accent, so it reads as a star. It doesn't open the row.
 
+## Why Margin
+
+How the Margin view came about (17–19 Oct, during the race). What it looks like is under Components (Race view, Runner tables).
+
+The official site has nothing like it: it shows yards and lap times, and leaves it to the reader to work out who is in trouble. The margin view is the one thing this site adds that the official one can't show at a glance: where the pressure is, per team and per runner, before the drop.
+
+- **From average yard time to margin.** It began as each seed's average yard time, colour-coded. That doesn't show pressure: a 50-minute yard is comfortable for a steady runner and a collapse for a fast one. What shows pressure is the **margin**, the rest before the next bell (60 minutes minus the yard time). 2 minutes leaves no slack; 12 leave plenty.
+- **What we settled on:**
+  - Averaged over the last 3 timed yards, so one bad yard doesn't dominate.
+  - Shaded by lightness of one hue, not by colour, so it reads without hue (the owner is colour-blind).
+  - Sorted smallest margin first, so a team's pressure is how far the dark cells reach from the left.
+  - Six fixed 2-minute steps. An adaptive scale around the median was considered and dropped: a fixed one means the same in every yard and every country.
+  - The level is by margin only. A first version also marked a shrinking margin (▼), but late in the race most runners have one (103 of 153 at yard 51), so everything turned red.
+- **Checked with time travel.** Time travel (`?at=N`) was built to test whether the margin predicts drops by replaying the race. It did for Leskinen (FIN) around yard 30, and for most NED drops; Oevermans kept everyone in suspense with a thin margin.
+- **The slowdown mark covers the drops margin misses.** Overes (NED) and Pál (HUN) stopped with margins that still looked fine. The pattern: a fast runner whose margin falls from 12+ to about 8 minutes feels it as the end of the world. So a runner whose last 2 yards were 3+ minutes slower than the 6 before is marked as slowing. It's measured against their own pace, not the clock.
+- **The backtest** (yards 10–51, 19 Oct; a warning, then a drop in the next yard):
+
+  | Signal | Drops it came before | Hit rate |
+  |---|---|---|
+  | Margin under 4:00 | 18% | 23% |
+  | Slowing | 47% | |
+  | Either | 55% | |
+
+  In NED, 9 of 12 drops had a warning in their last 3 yards. Steady runners near the bell, like Pereira (POR), sit in the red for many yards without dropping, which is why the hit rate is low.
+- **Then everywhere.** The same shading went to the Runners view's Every yard and the team page, with a hollow cell for an RTC so a stop without a time still shows. It turned out more revealing than yard time, so Margin is the default in the yard grids and one of the Race view's three buttons.
+
 ## Charts
 
 Charts follow the dataviz method: pick the form first, colour last, and validate the palette.
