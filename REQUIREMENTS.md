@@ -214,7 +214,7 @@ No selection needed. **Home replaces the Countries view.** [decided]
 Built: the switcher (a picker with favourites on top), the header (place, team score and gap, still in, current lap, class, site, local time, reporting status, team-rule pill), the chase panel with its gap chart, the runners table with seed race, the lap grid, and runners-in and place per lap. Not yet: a "vs rival" comparison, drifting-runner hints in the lap grid.
 Where most viewers will spend their time: people follow their own country and know its runners.
 - **Reached by clicking a country** anywhere (standings, danger list, chips, legends), and from a **menu item** that opens the viewer's team, or the picker if none is chosen yet. [decided] It's its own route, `#team/CODE`. [decided]
-- **Switching teams** must be effortless: a picker with favourites on top (the ← → neighbour arrows and the ☆ were dropped as not useful [decided]), and the site remembers the viewer's team (home card, menu).
+- **Switching teams** must be effortless: a picker with favourites on top, then a section per class (Super Six, AAA, AA, A) [decided] (the ← → neighbour arrows and the ☆ were dropped as not useful [decided]), and the site remembers the viewer's team (home card, menu).
 - **Header:** flag, name, place ("1 / 67", "tied with N"), team score, gap to the country ahead and behind, runners still in out of the starters, reporting status ("reporting lap 23…"), and local time and night at the team's site.
 - **Team-rule state in few words:** "9 in", "2 in" (green: two can go on for a long time), "1 left", "none left"; the rule is in the tooltip. [decided]
 - **Chase panel:** the race seen from this country's position (below).

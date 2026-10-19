@@ -246,6 +246,10 @@
 
 (defn- ranked-codes [pred] (map :code (filter pred (sort-by :position (:countries @db)))))
 
+;; the classes (divisions), best first, and their names where it isn't the code
+(def ^:private class-order ["SUPER" "AAA" "AA" "A"])
+(def ^:private class-names {"SUPER" "Super Six"})
+
 ;; the quick selectors on the Charts view: a class (division) or everyone
 (def ^:private chart-groups
   [["TOP" "Top 10"] ["SUPER" "Super Six"] ["AAA" "AAA"] ["AA" "AA"] ["A" "A"] ["ALL" "All"]])
@@ -340,8 +344,9 @@
 (defn- country-select
   "A dropdown of countries with their flags, which a native <select> can't
   show. The button shows `value` (or `placeholder`); the list has a search
-  box, favourites first, and leaves out `exclude`. Picking calls `on-pick`
-  with the code. Keys: ↑ ↓ move, Enter picks, Esc closes."
+  box, favourites first, then a section per class (Super Six, AAA, AA, A),
+  and leaves out `exclude`. Picking calls `on-pick` with the code. Keys: ↑ ↓
+  move, Enter picks, Esc closes."
   [_]
   (let [open? (r/atom false)
         query (r/atom "")
@@ -355,10 +360,14 @@
                           (str/includes? (str/lower-case (:code %)) q))
             pool (->> countries (remove #(contains? (or exclude #{}) (:code %))) (filter matches?) (sort-by :name))
             favs (filter #(contains? favourites (:code %)) pool)
-            ;; a favourite shows once, in its group, while not searching
-            items (vec (if (and (seq favs) (empty? q))
-                         (concat (map #(assoc % :group :fav) favs) (remove #(contains? favourites (:code %)) pool))
-                         pool))
+            ;; a favourite shows once: in Favourites, or in its class while searching
+            fav-first? (and (seq favs) (empty? q))
+            by-class (group-by :division (cond->> pool fav-first? (remove #(contains? favourites (:code %)))))
+            items (vec (concat (when fav-first? (map #(assoc % :group :fav) favs))
+                               (for [c (concat class-order (remove (set class-order) (keys by-class)))
+                                     country (get by-class c)]
+                                 (assoc country :group (or c :other)))))
+            group-name (fn [g] (case g :fav "★ Favourites" :other "Other" (get class-names g g)))
             pick! (fn [code] (close!) (on-pick code))
             option (fn [i {:keys [code group]}]
                      ^{:key (str (name (or group :all)) code)}
@@ -394,9 +403,9 @@
                (doall
                 (for [[i it] (map-indexed vector items)]
                   [:<> {:key (str i (:code it))}
-                   (when (and (= :fav (:group it)) (zero? i)) [:li.csel-group {:role "presentation"} "★ Favourites"])
-                   (when (and (nil? (:group it)) (pos? i) (= :fav (:group (get items (dec i)))))
-                     [:li.csel-group {:role "presentation"} "All countries"])
+                   ;; a heading where a section starts
+                   (when (or (zero? i) (not= (:group it) (:group (get items (dec i)))))
+                     [:li.csel-group {:role "presentation"} (group-name (:group it))])
                    (option i it)]))])])]))))
 
 (defn- to-series [panel result]
@@ -1539,7 +1548,6 @@
   (let [d (js/Date. (+ (.now js/Date) (* offset 3600000)))]
     (str (.padStart (str (.getUTCHours d)) 2 "0") ":" (.padStart (str (.getUTCMinutes d)) 2 "0"))))
 
-(def ^:private class-names {"SUPER" "Super Six"})
 
 (defn- go-team! [code] (set! (.. js/window -location -hash) (str "team/" code)))
 
