@@ -424,6 +424,8 @@ svg.spark { width: 100px; height: 24px; display: block; }
 svg.spark path { fill: none; stroke: var(--text-muted); stroke-width: 1.3; vector-effect: non-scaling-stroke; }
 
 footer { color: var(--text-muted); font-size: 13px; }
+.site-footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--line); line-height: 1.6; }
+.site-footer p { margin: 0; }
 
 /* team page */
 /* the team picker sits in the header card's top right, without repeating the team */

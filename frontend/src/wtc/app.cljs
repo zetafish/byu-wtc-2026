@@ -1186,7 +1186,9 @@
          [:<> [:td.muted (str (count leaders) " tied")] [:td]]
          [:<> [:td.name (:name lead "–")]
           [:td (when lead [country-label (:country lead)])]])
-       [:td.num (:laps lead)]
+       ;; the yards the leaders are ranked on (a runner who already finished the
+       ;; current yard counts up to the last bell, as the others)
+       [:td.num (some-> lead ranked-laps)]
        [:td [seat-state-pill sum]]])]])
 
 (defn- seat-table [runners n]
@@ -1754,6 +1756,18 @@
     ;; race: who went out at the last bell, the passes coming, then the standings
     [:div.grid [drops-card] [overtakes-card] [countries-table]]))
 
+(defn- site-footer
+  "Who made it, where the data and the code come from, and that it's
+  unofficial."
+  []
+  (let [ext (fn [href text] [:a {:href href :target "_blank" :rel "noopener"} text])]
+    [:footer.site-footer
+     [:p "Made by Endymion Kasanardjo · "
+      (ext "https://github.com/zetafish/byu-wtc-2026" "Source on GitHub")]
+     [:p "Data: the " (ext "https://wtc2026.bigsbackyardultra.com/" "official WTC 2026 results")
+      ", entered hourly by each country's race director. Ours may lag them by a few minutes."]
+     [:p "An unofficial fan site, not affiliated with Big's Backyard Ultra."]]))
+
 (defn- new-version-bar []
   (when (:new-version? @db)
     [:div.new-version {:role "status"}
@@ -1769,7 +1783,7 @@
     (if (or (:race @db) (:error @db))
       [:<> [header] [view-body (:view @db)]]
       [:div.loading "Loading live data…"])
-    [:footer "Unofficial. Data may lag the official results by a few minutes."]]])
+    [site-footer]]])
 
 (defonce root (delay (rdc/create-root (js/document.getElementById "app"))))
 
