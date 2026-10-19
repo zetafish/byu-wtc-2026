@@ -96,8 +96,8 @@ fly-deploy: ## Deploy the backend to Fly.io
 # wtc.source.official), copied into archive/ here. The volume goes when the
 # machines do, so pull before deleting them.
 archive-pull: ## Copy the feed archive from Fly.io into archive/
-	fly ssh console -a bigs-live -C "tar cf /tmp/archive.tar -C /data latest.json archive"
+	fly ssh console -a bigs-live -C "sh -c 'cd /data && mkdir -p archive && tar cf /tmp/archive.tar latest.json archive'"
 	mkdir -p archive && rm -f archive/archive.tar
 	fly ssh sftp get -a bigs-live /tmp/archive.tar archive/archive.tar
 	tar xf archive/archive.tar -C archive && rm archive/archive.tar
-	@ls archive/archive | wc -l | xargs echo "copies:"
+	@ls archive/archive | wc -l | xargs echo "archived copies:"
