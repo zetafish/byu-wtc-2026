@@ -1180,15 +1180,24 @@
                             [l (js/Math.round (- 3600 (/ (reduce + l3) (count l3))))])))
         times))
 
+(defn- slowdowns-by-lap
+  "{lap slowdown} for each timed yard from the 8th: `slowdown` as it stood
+  after that yard."
+  [times]
+  (into {} (for [i (range 7 (count times))]
+             [(first (times i)) (slowdown (subvec times 0 (inc i)))])))
+
 (defn- yard-cells
   "A runner's yards 1..n as heatmap cells, shaded by time, as the team page's
   grid, built from the yard times and the runner's status; with `margin?`,
-  shaded by the margin after each yard instead (see `margin-level`). A stop
+  shaded by the margin after each yard instead (see `margin-level`), with a
+  bar under the yards after which the runner was `slowing?`. A stop
   is a cell of its own: the yard an INC or OVER failed, solid; the yard an
   RTC didn't start, hollow. Hovering a cell puts its story in `tip`."
   [{:keys [name laps status stop] :as r} times n current-lap tip & [margin?]]
   (let [by-lap (into {} times)
         margins (when margin? (margins-by-lap (vec times)))
+        slowdowns (when margin? (slowdowns-by-lap (vec times)))
         failed (when (= "out" status) (out-at r))   ; the yard it stopped at
         ;; an RTC finished `failed` and didn't start the next one
         not-started (when (and failed (= "rtc" stop)) (inc laps))]
@@ -1202,7 +1211,8 @@
                             (<= l laps) {:status "finished"})]]
         ^{:key l}
         [:span {:class (cond (= l not-started) "lg rtc"
-                             (and s margin?) (str "lg mg" (margin-level {:margin (margins l)}))
+                             (and s margin?) (str "lg mg" (margin-level {:margin (margins l)})
+                                                  (when (slowing? (slowdowns l)) " slowing"))
                              s (str "lg s" (lap-shade s))
                              ;; by margin, the darkest step is the critical red, so the stop is the text colour
                              (= l failed) (cond (not stop) "lg none" margin? "lg end" :else "lg dnf")
@@ -1215,7 +1225,10 @@
                                                  :name name :lap l
                                                  :text (str (lap-text lap r l current-lap)
                                                             (when-let [m (and margin? (margins l))]
-                                                              (str " · margin " (mmss m))))})))}]))))
+                                                              (str " · margin " (mmss m)))
+                                                            (when (and margin? (slowing? (slowdowns l)))
+                                                              (str " · slowing: the last 2 yards " (mmss (slowdowns l))
+                                                                   " slower than the 6 before")))})))}]))))
 
 (defn- heat-row
   "One runner in the leaderboard's heatmap: position, name, country, then a
@@ -1236,6 +1249,7 @@
   [:ul.legend.lg-legend
    (for [[i t] (map-indexed vector ["margin 10:00 or more" "8–10" "6–8" "4–6" "2–4" "under 2:00"])]
      ^{:key i} [:li [:span {:class (str "lg mg" i)}] t])
+   [:li [:span.lg.mg2.slowing] "slowing: the last 2 yards 3+ min slower than the 6 before"]
    [:li [:span.lg.end] "stopped in the yard"]
    [:li [:span.lg.rtc] "didn't start the yard (RTC)"]
    [:li [:span.lg.notime] "no time"]
