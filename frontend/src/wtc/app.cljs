@@ -49,7 +49,7 @@
                                                              :runners-view (:runners-view @db)
                                                              :yard-shade (:yard-shade @db)
                                                              :team-yard-shade (:team-yard-shade @db)
-                                                             :race-view (:race-view @db)
+                                                             :standings-view (:race-view @db)
                                                              :slot-metric (:slot-metric @db)
                                                              :theme (:theme @db)
                                                              :standings-filter (:standings-filter @db)
@@ -98,6 +98,13 @@
           (.then #(when (latest?) (swap! db assoc-in [:results [id metric]] (get-in % [:data :result]))))
           (.catch #(js/console.warn %))))))
 
+(defn- race-view
+  "Teams or Runners on the Race view: the viewer's pick, else Runners, which
+  shows more, except on a phone, where its 15 cells don't fit."
+  []
+  (or (:race-view @db)
+      (if (.-matches (js/matchMedia "(max-width: 760px)")) :teams :runners)))
+
 (defn- fetch-runner-times!
   "Yard times for the Runners view (sparklines, heatmap), the Seeds view and
   the Race view's runner margins.
@@ -106,9 +113,9 @@
   known on (that yard again, in case a time was corrected): a few KB instead
   of ~140 KB gzipped late in the race. Other views don't need them."
   []
-  (when (let [{:keys [view race-view slot-metric]} @db]
+  (when (let [{:keys [view slot-metric]} @db]
           (or (#{:runners :seeds} view)
-              (and (= :race view) (= :runners race-view) (= :margin slot-metric))))
+              (and (= :race view) (= :runners (race-view)) (= :margin slot-metric))))
     (let [through (:lap-times-through @db)
           from (when through (max 1 through))]
       (-> (get-json "/api/query" (cond-> {:metric "lap_time_seconds"} from (assoc :lap from)))
@@ -861,20 +868,22 @@
   the margin of the runners still in, smallest first and coloured by
   `margin-level` (then those without times, then the ones who stopped,
   greyed out as in Yards). Hover for the full story."
-  [shown]
-  (let [{:keys [runners race slot-metric lap-times]} @db
+  [shown lead]
+  (let [{:keys [runners race slot-metric lap-times favourites]} @db
         margin? (= :margin slot-metric)
         current (:current-lap race 0)
         by-country (group-by :country runners)
         slots (reduce max 0 (map :runners shown))]
     [:div.table-wrap.full
      [:table.race-grid
-      [:colgroup [:col.rk] [:col.country] [:col.n] [:col.in] [:col.time] [:col]]
-      [:thead [:tr [:th.num "#"] [:th "Country"] [:th.num "Yards"] [:th.num "In"]
+      [:colgroup [:col.star] [:col.rk] [:col.country] [:col.n] [:col.n] [:col.in] [:col.time] [:col]]
+      [:thead [:tr [:th [:span.sr-only "Favourite"]] [:th.num "#"] [:th "Country"] [:th.num "Yards"]
+               [:th.num {:title "Yards behind the leading country's team score"} "Gap"]
+               [:th.num {:title "Runners still in; once a country is done, its winner (★) or the yard it went out after (✕)"} "In"]
                [:th.num {:title "Average yard time of all the team's timed yards"} "Avg yard"]
                [:th (if margin? "Runners by margin, smallest first" "Runners by seed")]]]
       [:tbody
-       (for [{:keys [code rank active runners total-laps eliminated-after]} shown
+       (for [{:keys [code name rank tied active runners total-laps eliminated-after winner]} shown
              :let [rs (cond->> (sort-by :rank (by-country code))
                         ;; still in by margin, then still in without times, then stopped, each by seed
                         margin? (sort-by (fn [r]
@@ -887,17 +896,28 @@
                    n-timed (reduce + 0 (map second timed))
                    avg (when (pos? n-timed) (js/Math.round (/ (reduce + 0 (map first timed)) n-timed)))
                    ;; down to 2: a teammate's drop ends the other's race too
-                   last-two? (and margin? (= 2 active) (not eliminated-after))]]
+                   last-two? (and margin? (= 2 active) (not eliminated-after))
+                   fav? (contains? favourites code)]]
          ^{:key code}
          [:tr.clickable {:class (when eliminated-after "out")
                          :on-click #(set! (.-hash js/location) (str "team/" code))}
-          [:td.num rank]
+          [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
+                              :aria-pressed fav?
+                              :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
+                (if fav? "★" "☆")]]
+          [:td.num {:title (when tied "shared place")} rank]
           [:td.name [country-label code]]
           [:td.num total-laps]
-          [:td.num {:class (when last-two? "danger")
-                    :title (str active " of " runners " still in"
-                                (when last-two? "; a teammate's drop ends the other's race"))}
-           (if last-two? "⚠ 2" active)]
+          [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
+          (cond
+            winner [:td.num.done {:title (str "country winner: " (:name winner) ", after yard " eliminated-after)}
+                    (str "★ " (surname (:name winner)))]
+            eliminated-after [:td.num.done {:title (str "out after yard " eliminated-after ", no winner")}
+                              (str "✕ " eliminated-after)]
+            :else [:td.num {:class (when last-two? "danger")
+                            :title (str active " of " runners " still in"
+                                        (when last-two? "; a teammate's drop ends the other's race"))}
+                   (if last-two? "⚠ 2" active)])
           [:td.num (or (mmss avg) "–")]
           [:td [:div.slots {:style {:grid-template-columns (str "repeat(" (max slots 1) ", minmax(0, 1fr))")}}
                 (for [{:keys [id name laps] :as r} rs
@@ -941,7 +961,8 @@
           ^{:key st} [:li [:span.slot {:class (cljs.core/name st)}] label])])]))
 
 (defn- countries-table []
-  (let [{:keys [countries selected favourites race-view standings-filter]} @db
+  (let [{:keys [countries selected favourites standings-filter]} @db
+        race-view (race-view)
         lead (reduce max 0 (map :total-laps countries))
         slots (reduce max 0 (map :runners countries))
         running-only? (= :running standings-filter)
@@ -955,7 +976,7 @@
        [:div.segmented {:role "group" :aria-label "Show"}
         (for [[v label] [[:teams "Teams"] [:runners "Runners"]]]
           ^{:key v}
-          [:button {:aria-pressed (= v (or race-view :teams))
+          [:button {:aria-pressed (= v race-view)
                     :on-click #(do (swap! db assoc :race-view v) (save-prefs!) (fetch-runner-times!))} label])]
        (when (= :runners race-view)
          [:div.segmented {:role "group" :aria-label "Runner cells show"}
@@ -971,7 +992,7 @@
      (cond
        (empty? shown)
        [:div.empty (if running-only? "No country is still running." "No countries to show")]
-       (= :runners race-view) [race-runners-grid shown]
+       (= :runners race-view) [race-runners-grid shown lead]
        :else
        [:div.table-wrap.full
         [:table
@@ -2094,7 +2115,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade race-view slot-metric theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade standings-view slot-metric theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -2105,7 +2126,7 @@
            :team-yard-shade (if (= "time" team-yard-shade) :time :margin)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
-           :race-view (if (= "runners" race-view) :runners :teams)
+           :race-view (case standings-view "runners" :runners "teams" :teams nil)
            :slot-metric (if (= "margin" slot-metric) :margin :yards)
            :theme (case theme "light" :light "dark" :dark :system)
            :standings-filter (if (= "running" standings-filter) :running :all)
