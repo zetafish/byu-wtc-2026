@@ -66,7 +66,8 @@ With two runners left (A and B):
 - With equal team scores, the country whose race went farther (its farthest single runner) ranks higher. That's the official tie-break. With both equal, the countries share the place, shown as the same number without "=" (1, 1, 1, then 4; the tooltip says "shared place"), and are listed by runners still in, then by code. [decided]
 
 ### Seats
-- Every team runner has a **seat**, 1–15. All runners in the same seat compete across countries, and each seat's winner is invited to the Individual Big's Backyard Ultra. [decided]
+- Every team runner has a **seat**, 1–15. The Seats view compares the runners in the same seat across countries. It's our own comparison, not an official competition: **no invite comes with a seat** (removed 19 Oct; the claim had no source). [decided]
+- **Invites to the 2027 World Individual Championship** go to the national champions: each country's race winner is "named the National Champion for 2026", and "the top 50 national Champions from these races will earn a slot in the 2027 World Individual Championships" (official satellite pages on bigsbackyardultra.com). [decided]
 - The seat is the runner's **rank in the official roster**. [assumed]
 - **Seat order:**
   - More laps ranks higher.
@@ -191,7 +192,7 @@ Three zoom levels plus one side quest, each with its own route, so it can be lin
 | `#` | Home (replaces the Countries view) [decided] | What's happening in the race right now? |
 | `#team/NED` | Team | How is my country doing, and who's near us? |
 | `#runner/NED-01`, `#compare/NED-01,BEL-03` | Runner, compare | How is this runner doing, against others? |
-| `#seats`, `#seats/3` | Seats | Who's winning each seat's invite? |
+| `#seats`, `#seats/3` | Seats | Who leads each seat, across countries? |
 
 #### Home: the race at a glance [proposed]
 No selection needed. **Home replaces the Countries view.** [decided]
@@ -285,7 +286,7 @@ From the official feed, which the adapter doesn't carry yet:
   - set up the Fly.io app `bigs-live` and `PROD_BACKEND_HOST` in `.env` (see `ARCH.md`, Deployment); the demo site is no longer needed and was removed on 18 Oct [decided];
   - make a test run before 17 Oct 12:00Z.
 - [ ] **Seat = roster rank** [assumed]: confirm.
-- [ ] **Tie-breaks:** how ties for a seat invite are broken (they share a position for now). Equal team scores follow the official tie-break (see Countries). [decided]
+- [ ] **Tie-breaks:** how ties in a seat are broken (they share a position for now). Equal team scores follow the official tie-break (see Countries). [decided]
 - [ ] **Fewer than 2 runners of a country start lap 1.** The general team rule applies for now.
 - [ ] What the roster's `wa` field means. It's unused.
 - [ ] **Runner dialog position** [assumed]: the leaderboard position for now. Should it be the position within the current lap (by lap time), as Upfront shows?

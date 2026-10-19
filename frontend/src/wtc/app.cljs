@@ -1148,9 +1148,10 @@
            ^{:key id} [runner-row runner (get lap-times id)])]]))]))
 
 ;; --- seat ranking ---
-;; Every runner has a seat (1-15, their roster rank in the team). All runners
-;; with the same seat compete across countries; each seat's winner is invited
-;; to the Individual Big's Backyard Ultra.
+;; Every runner has a seat (1-15, their roster rank in the team). The view
+;; compares the runners in the same seat across countries. It's our own
+;; comparison, not an official competition: no invite comes with it (the
+;; invites to the individual championship go to the national champions).
 
 (def seats (range 1 16))
 
@@ -1283,7 +1284,7 @@
     [:section.card.wide
      [:div.card-head
       [:div [:h2 "Seat ranking"]
-       [:p.sub "Every runner has a seat (1–15) in their team. Runners in the same seat compete across all countries; each seat's winner is invited to the Individual Big's Backyard Ultra. Click a seat for its full ranking."]]
+       [:p.sub "Every runner has a seat (1–15), their place in their team's roster. Runners in the same seat, compared across all countries. Click a seat for its runners."]]
       [:label.toggle "Seat "
        [:select.seat {:value (or seat "")
                       :on-change #(swap! db assoc :seat (some-> (.. % -target -value) not-empty parse-long))}
@@ -1576,7 +1577,7 @@
      (when open-runner ^{:key open} [runner-dialog open-runner (count (:runners @db))])
      [:div.card-head
       [:div [:h2 "Runners"]
-       [:p.sub "Their seat, and their place among all runners in that seat (the race for the individual invites). Click a runner for their yard times."]]
+       [:p.sub "Their seat (roster place), and their place among all runners in that seat across countries. Click a runner for their yard times."]]
       [:div.segmented {:role "group" :aria-label "Sort runners by"}
        (for [[v label] [[:seat "Seat"] [:yards "Yards"] [:avg "Avg"]]]
          ^{:key v}
