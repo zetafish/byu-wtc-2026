@@ -987,7 +987,7 @@
   "Margin as m:ss with its trend: ▼ (critical) when the runner is over a
   minute slower than their average, ▲ when faster, – when steady."
   [{:keys [margin trend]}]
-  [:span {:class (when (= :down trend) "danger")
+  [:span.margin {:class (when (= :down trend) "danger")
           :title (case trend
                    :down "Rest per yard over the last 3 yards; slower than their average: the margin shrinks"
                    :up "Rest per yard over the last 3 yards; faster than their average"

@@ -398,7 +398,7 @@ table.runners.team-runners { min-width: 820px; }
 .lb-row.clickable { cursor: pointer; }
 .lb-row.clickable:hover { background: var(--hover); }
 .lb-row.out > span { color: var(--text-muted); }
-.lb-row > span .danger, .seat-row .danger { color: var(--critical); font-weight: 600; }
+.margin.danger, .seat-row > .danger { color: var(--critical); font-weight: 600; }
 .lb-row.out .flag { filter: grayscale(1); opacity: 0.55; }
 table.runners td.name .star { margin-right: 6px; }
 select.seat {
