@@ -180,6 +180,7 @@ With two runners left (A and B):
   - Position is the leaderboard position, not the position within the lap. [assumed]
 - **Runners who have stopped** (out, or a country winner) are hidden by default, behind the "Show all (+n stopped)" toggle: the list is who is still running. After the finish, everything is shown. [decided]
 - All rows are shown, without an inner scroll. [decided]
+- **Every yard by margin** [decided]: in the Every yard view, a "Yard time | Margin" switch shades each yard by the runner's margin after it instead of its time (colour only), to see how a runner's margin closed in before they stopped.
 
 ### Seeds view
 - An overview of all 15 seeds: the leader (or "N tied"), their country, the yards they're ranked on, and seed state. Click a seed, or pick it in the selector, for that seed's runners. [decided]

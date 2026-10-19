@@ -47,6 +47,7 @@
                                                              :team-sort (:team-sort @db)
                                                              :runner-sort (:runner-sort @db)
                                                              :runners-view (:runners-view @db)
+                                                             :yard-shade (:yard-shade @db)
                                                              :race-view (:race-view @db)
                                                              :slot-metric (:slot-metric @db)
                                                              :theme (:theme @db)
@@ -1170,12 +1171,23 @@
 
 (declare lap-shade lap-text lap-grid-legend)
 
+(defn- margins-by-lap
+  "{lap margin} for each timed yard: the rest per yard over the last 3 timed
+  yards up to it, as `margin-trend` has it for the latest."
+  [times]
+  (into {} (map-indexed (fn [i [l _]]
+                          (let [l3 (map second (subvec times (max 0 (- i 2)) (inc i)))]
+                            [l (js/Math.round (- 3600 (/ (reduce + l3) (count l3))))])))
+        times))
+
 (defn- yard-cells
   "A runner's yards 1..n as heatmap cells, shaded by time, as the team page's
-  grid, built from the yard times and the runner's status. Hovering a cell
-  puts its story in `tip`."
-  [{:keys [name laps status stop] :as r} times n current-lap tip]
+  grid, built from the yard times and the runner's status; with `margin?`,
+  shaded by the margin after each yard instead (see `margin-level`).
+  Hovering a cell puts its story in `tip`."
+  [{:keys [name laps status stop] :as r} times n current-lap tip & [margin?]]
   (let [by-lap (into {} times)
+        margins (when margin? (margins-by-lap (vec times)))
         failed (when (= "out" status) (out-at r))]   ; the yard it stopped at
     (if (= "dns" stop)
       [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
@@ -1185,22 +1197,27 @@
                             (= l failed) {:status "dnf" :stop stop}
                             (<= l laps) {:status "finished"})]]
         ^{:key l}
-        [:span {:class (cond s (str "lg s" (lap-shade s))
-                             (= l failed) (if stop "lg dnf" "lg none")
+        [:span {:class (cond (and s margin?) (str "lg mg" (margin-level {:margin (margins l)}))
+                             s (str "lg s" (lap-shade s))
+                             ;; by margin, the darkest step is the critical red, so the stop is the text colour
+                             (= l failed) (cond (not stop) "lg none" margin? "lg end" :else "lg dnf")
                              (<= l laps) "lg notime"
                              (and (= "running" status) (= l current-lap)) "lg running"
                              :else "lg none")
                 :on-mouse-enter (fn [e]
                                   (let [rect (.getBoundingClientRect (.-currentTarget e))]
                                     (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
-                                                 :name name :lap l :text (lap-text lap r l current-lap)})))}]))))
+                                                 :name name :lap l
+                                                 :text (str (lap-text lap r l current-lap)
+                                                            (when-let [m (and margin? (margins l))]
+                                                              (str " · margin " (mmss m))))})))}]))))
 
 (defn- heat-row
   "One runner in the leaderboard's heatmap: position, name, country, then a
   cell per yard shaded by its time, as the team page's grid. Built from the
   yard times and the runner's status, so it needs no history. A component of
   its own, so unchanged rows aren't redrawn."
-  [{:keys [id name country pos] :as r} times n current-lap tip cols]
+  [{:keys [id name country pos] :as r} times n current-lap tip cols margin?]
   (let [open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
     ;; one element per row (its own grid): sorting moves ~400 rows, not ~15,000
     ;; cells, and an off-screen row can skip layout (content-visibility)
@@ -1208,7 +1225,16 @@
      [:span.hm-pos pos]
      [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
      [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
-     (yard-cells r times n current-lap tip)]))
+     (yard-cells r times n current-lap tip margin?)]))
+
+(defn- margin-grid-legend []
+  [:ul.legend.lg-legend
+   (for [[i t] (map-indexed vector ["margin 10:00 or more" "8–10" "6–8" "4–6" "2–4" "under 2:00"])]
+     ^{:key i} [:li [:span {:class (str "lg mg" i)}] t])
+   [:li [:span.lg.end] "stopped"]
+   [:li [:span.lg.notime] "no time"]
+   [:li [:span.lg.running] "running now"]
+   [:li "Margin: rest per yard over the last 3 yards, after each yard"]])
 
 (defn- runner-heatmap
   "The leaderboard as a heatmap: the same runners in the same order, a row of
@@ -1216,16 +1242,17 @@
   [_ _ _]
   (let [tip (r/atom nil)]
     (fn [shown lap-times current-lap]
-      (let [n (max 1 current-lap)]
+      (let [n (max 1 current-lap)
+            margin? (= :margin (:yard-shade @db))]
         [:<>
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           (let [cols (str "44px minmax(140px, 220px) 76px repeat(" n ", minmax(5px, 1fr))")]
             [:div.hm
              (for [{:keys [id] :as r} shown]
-               ^{:key id} [heat-row r (get lap-times id) n current-lap tip cols])])]
+               ^{:key id} [heat-row r (get lap-times id) n current-lap tip cols margin?])])]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
-         [lap-grid-legend]]))))
+         (if margin? [margin-grid-legend] [lap-grid-legend])]))))
 
 ;; the leaderboard's sorts: what each sorts on, from the row and its yard
 ;; times. Ascending (▲) is quickest first, and for Margin and Trend the most
@@ -1297,7 +1324,13 @@
        (for [[v label] [[:table "Table"] [:heatmap "Every yard"]]]
          ^{:key v}
          [:button {:aria-pressed (= v (:runners-view @db :table))
-                   :on-click #(do (swap! db assoc :runners-view v) (save-prefs!))} label])]]
+                   :on-click #(do (swap! db assoc :runners-view v) (save-prefs!))} label])]
+      (when (= :heatmap (:runners-view @db))
+        [:div.segmented {:role "group" :aria-label "Shade the yards by"}
+         (for [[v label] [[:time "Yard time"] [:margin "Margin"]]]
+           ^{:key v}
+           [:button {:aria-pressed (= v (:yard-shade @db :time))
+                     :on-click #(do (swap! db assoc :yard-shade v) (save-prefs!))} label])])]
      [:div.filters-bar [runner-filters n-out show-out?] [sort-buttons]]
      (if (empty? shown)
        [:div.empty (cond
@@ -2036,13 +2069,14 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view race-view slot-metric theme standings-filter standings-pinned chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade race-view slot-metric theme standings-filter standings-pinned chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
            :chase-range (if (= "last-12" chase-range) :last-12 :all)
            :team-sort (case team-sort "yards" :yards "avg" :avg :seed)
            :runners-view (if (= "heatmap" runners-view) :heatmap :table)
+           :yard-shade (if (= "margin" yard-shade) :margin :time)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (if (= "runners" race-view) :runners :teams)
