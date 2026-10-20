@@ -772,13 +772,13 @@
          (if drops-open? "Hide ▴" "Show ▾")])]
      (when (and drops-open? (seq out))
        [:ul.drops-list
-         (for [[code rs] by-country]
-           ^{:key code}
-           [:li [country-label code]
-            [:span.drop-names
-             (for [{:keys [id name stop] :as r} (sort-by :rank rs)]
-               ^{:key id}
-               [:span.drop {:title (out-text r)} name " " [:span.code (or (stop-short stop) "no result")]])]])])]))
+        (for [[code rs] by-country]
+          ^{:key code}
+          [:li [country-label code]
+           [:span.drop-names
+            (for [{:keys [id name stop] :as r} (sort-by :rank rs)]
+              ^{:key id}
+              [:span.drop {:title (out-text r)} name " " [:span.code (or (stop-short stop) "no result")]])]])])]))
 
 (defn- short-country
   "[flag] CODE linking to the team page, the full name on hover: for lists
@@ -1003,23 +1003,23 @@
             ;; the whole row opens the team page (the name is a link for keyboard and new tabs)
             [:tr.clickable {:class [(when eliminated-after "out")]
                             :on-click #(set! (.-hash js/location) (str "team/" code))}
-              [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
-                                  :aria-pressed fav?
-                                  :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
-                    (if fav? "★" "☆")]]
-              [:td.num {:title (when tied "shared place")} rank]
-              [:td.name [country-label code]]
-              [:td [pips active runners slots]]
-              [:td.num total-laps]
-              [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
-              [:td (cond
-                     winner [:span.pill.win (str "★ " (:name winner) " · yard " eliminated-after)]
-                     eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after yard " eliminated-after)]
+             [:td [:button.star {:aria-label (str (if fav? "Unfavourite " "Favourite ") name)
+                                 :aria-pressed fav?
+                                 :on-click (fn [e] (.stopPropagation e) (toggle-favourite! code))}
+                   (if fav? "★" "☆")]]
+             [:td.num {:title (when tied "shared place")} rank]
+             [:td.name [country-label code]]
+             [:td [pips active runners slots]]
+             [:td.num total-laps]
+             [:td.num.muted (let [gap (- total-laps lead)] (if (zero? gap) "–" (str "−" (- gap))))]
+             [:td (cond
+                    winner [:span.pill.win (str "★ " (:name winner) " · yard " eliminated-after)]
+                    eliminated-after [:span.pill.out [:span.icon "✕"] (str "out after yard " eliminated-after)]
                      ;; down to 1 or 0 while the lap isn't settled: this lap decides the country's race
-                     (<= active 1) [:span.pill.danger {:title "the team rule: a country goes on while 2 runners finish each yard"}
-                                    (if (zero? active) "none left" "1 left")]
-                     :else
-                     [:span.pill.in [:span.dot.in] "in race"])]])]]])]))
+                    (<= active 1) [:span.pill.danger {:title "the team rule: a country goes on while 2 runners finish each yard"}
+                                   (if (zero? active) "none left" "1 left")]
+                    :else
+                    [:span.pill.in [:span.dot.in] "in race"])]])]]])]))
 
 ;; --- runner leaderboard ---
 
@@ -1144,11 +1144,11 @@
   minute slower than their average, ▲ when faster, – when steady."
   [{:keys [margin trend]}]
   [:span.margin {:class (when (= :down trend) "danger")
-          :title (case trend
-                   :down "Rest per yard over the last 3 yards; slower than their average: the margin shrinks"
-                   :up "Rest per yard over the last 3 yards; faster than their average"
-                   :flat "Rest per yard over the last 3 yards; steady"
-                   nil)}
+                 :title (case trend
+                          :down "Rest per yard over the last 3 yards; slower than their average: the margin shrinks"
+                          :up "Rest per yard over the last 3 yards; faster than their average"
+                          :flat "Rest per yard over the last 3 yards; steady"
+                          nil)}
    (if margin [:<> (mmss margin) " " (case trend :down "▼" :up "▲" "–")] "–")])
 
 (defn- runner-row
@@ -1365,23 +1365,23 @@
                      (seq candidates) "Everyone here has stopped. Tick \"Show all\" to see them."
                      :else "No runners match")]
        (if (= :heatmap (:runners-view @db))
-        [runner-heatmap shown lap-times (get-in @db [:race :current-lap] 1)]
-       [:div.table-wrap.full
+         [runner-heatmap shown lap-times (get-in @db [:race :current-lap] 1)]
+         [:div.table-wrap.full
         ;; fixed columns, so filtering never moves them
         ;; a grid with table roles: ~400 rows lay out much faster than a
         ;; <table>, whose rows the browser must all lay out on every sort.
         ;; The columns it shares with the team page have the same widths
-        [:div.lb {:role "table" :aria-label "Runner leaderboard"}
-         [:div.lb-row.lb-head {:role "row"}
-          (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seed"] [:num "Yards"]
-                                   [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
-                                   [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
-                                   [:num "Margin" "Rest per yard over the last 3 yards, and its trend"]
-                                   [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
-                                   [nil "Yard times"]]]
-            ^{:key label} [:span {:role "columnheader" :class cls :title title} label])]
-         (for [{:keys [id] :as runner} shown]
-           ^{:key id} [runner-row runner (get lap-times id)])]]))]))
+          [:div.lb {:role "table" :aria-label "Runner leaderboard"}
+           [:div.lb-row.lb-head {:role "row"}
+            (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seed"] [:num "Yards"]
+                                     [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
+                                     [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
+                                     [:num "Margin" "Rest per yard over the last 3 yards, and its trend"]
+                                     [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
+                                     [nil "Yard times"]]]
+              ^{:key label} [:span {:role "columnheader" :class cls :title title} label])]
+           (for [{:keys [id] :as runner} shown]
+             ^{:key id} [runner-row runner (get lap-times id)])]]))]))
 
 ;; --- seed ranking ---
 ;; Every runner has a seed (1-15, their roster rank in the team, as on the
@@ -1411,31 +1411,26 @@
               (= 1 (count leaders)) :winner
               :else :tie)}))
 
-(defn- seed-state-pill [{:keys [state running leaders]}]
-  (case state
-    :open [:span.pill.in [:span.dot.in] (str "open · " running " still in")]
-    :last-in [:span.pill.in [:span.dot.in] "last one in"]
-    :winner [:span.pill.win "★ winner"]
-    :tie [:span.pill.out (str "tie · " (count leaders))]))
-
 (defn- seeds-overview [runners]
   [:table
-   [:thead [:tr [:th.num "Seed"] [:th "Leader"] [:th "Country"] [:th.num "Yards"] [:th "State"]]]
+   [:thead [:tr [:th.num "Seed"] [:th "Winner"] [:th "Country"] [:th.num "Yards"]]]
    [:tbody
     (for [n seeds
-          :let [{:keys [leaders] :as sum} (seed-summary runners n)
+          :let [{:keys [leaders state running]} (seed-summary runners n)
                 lead (first leaders)]]
       ^{:key n}
       [:tr.clickable {:on-click #(swap! db assoc :seed n)}
        [:td.num [:b n]]
-       (if (> (count leaders) 1)
-         [:<> [:td.muted (str (count leaders) " tied")] [:td]]
-         [:<> [:td.name (:name lead "–")]
-          [:td (when lead [country-label (:country lead)])]])
+       ;; no winner while 2 or more are still in, not even the one ahead on
+       ;; yards: a country's results can lag, so they may only be ahead on data
+       (case state
+         :open [:<> [:td.muted (str running " tied · still in")] [:td]]
+         :tie [:<> [:td.muted (str (count leaders) " tied")] [:td]]
+         [:<> [:td.name (:name lead)]
+          [:td [country-label (:country lead)]]])
        ;; the yards the leaders are ranked on (a runner who already finished the
        ;; current yard counts up to the last bell, as the others)
-       [:td.num (some-> lead ranked-laps)]
-       [:td [seed-state-pill sum]]])]])
+       [:td.num (some-> lead ranked-laps)]])]])
 
 (defn- margin-trend
   "A runner's rest per yard over their last 3 timed yards, and its trend
@@ -1545,7 +1540,6 @@
   [offset]
   (let [d (js/Date. (+ (.now js/Date) (* offset 3600000)))]
     (str (.padStart (str (.getUTCHours d)) 2 "0") ":" (.padStart (str (.getUTCMinutes d)) 2 "0"))))
-
 
 (defn- go-team! [code] (set! (.. js/window -location -hash) (str "team/" code)))
 
@@ -1684,9 +1678,9 @@
         by-bucket (group-by #(chase-bucket % country) rivals)
         ;; 8 series colours: overtakes first (soonest first), then the nearest
         charted (set (map :code (take 8 (sort-by (juxt #(if (:laps-to-pass %) 0 1)
-                                                        #(or (:laps-to-pass %) 0)
-                                                        #(abs (:gap %)))
-                                                  (concat ahead behind)))))
+                                                       #(or (:laps-to-pass %) 0)
+                                                       #(abs (:gap %)))
+                                                 (concat ahead behind)))))
         view (:chase-view @db :numbers)
         series (map-indexed (fn [i {:keys [code name series finishers]}]
                               {:key code :label (str name " " code) :color (color (inc i))
@@ -1789,9 +1783,9 @@
            " changes by the difference between its line and the dashed one. A line ends at the last yard the country has reported."
            rivals-note]
           [:p.chart-note
-         "Each line is a country's team score minus " (:name country) "'s. Above the dashed line it's ahead, below behind; "
-         "crossing it is an overtake. Lines end at the last yard both countries reported."
-         rivals-note])])]))
+           "Each line is a country's team score minus " (:name country) "'s. Above the dashed line it's ahead, below behind; "
+           "crossing it is an overtake. Lines end at the last yard both countries reported."
+           rivals-note])])]))
 
 (defn- team-runners [{:keys [runners]}]
   (let [sort-by-key (:team-sort @db :seed)
@@ -1908,24 +1902,24 @@
              [:<>
               [:span.lg-name name]
               (if (= "dns" stop)
-               [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
-               (for [l (range 1 (inc n))
-                    :let [{:keys [status seconds] :as lap} (by-lap l)
-                          slowing (when (slowing? (get slowdowns l)) (slowdowns l))
-                          extra (str (when-let [m (get margins l)] (str " · margin " (mmss m)))
-                                     (when slowing (str " · slowing: the last 2 yards " (mmss slowing) " slower than the 6 before")))]]
-                ^{:key l}
-                [:span {:class [(cond
-                                  (= "dnf" status) (cond (= "rtc" (:stop lap)) "lg rtc" margin? "lg end" :else "lg dnf")
-                                  (and seconds margin?) (str "lg mg" (margin-level {:margin (margins l)}) (when slowing " slowing"))
-                                  seconds (str "lg s" (lap-shade seconds))
-                                  (= "finished" status) "lg notime"
-                                  (and (= "running" (:status r)) (= l current-lap)) "lg running"
-                                  :else "lg none")
-                                (when (and (= name (:name @tip)) (= l (:lap @tip))) "hover")]
-                        :aria-label (str name ", yard " l ": " (lap-text lap r l current-lap) extra)
-                        :on-mouse-enter #(show! % r l lap extra)
-                        :on-click #(show! % r l lap extra)}]))])]]
+                [:span.lg-dns {:style {:grid-column (str "span " n)}} "did not start"]
+                (for [l (range 1 (inc n))
+                      :let [{:keys [status seconds] :as lap} (by-lap l)
+                            slowing (when (slowing? (get slowdowns l)) (slowdowns l))
+                            extra (str (when-let [m (get margins l)] (str " · margin " (mmss m)))
+                                       (when slowing (str " · slowing: the last 2 yards " (mmss slowing) " slower than the 6 before")))]]
+                  ^{:key l}
+                  [:span {:class [(cond
+                                    (= "dnf" status) (cond (= "rtc" (:stop lap)) "lg rtc" margin? "lg end" :else "lg dnf")
+                                    (and seconds margin?) (str "lg mg" (margin-level {:margin (margins l)}) (when slowing " slowing"))
+                                    seconds (str "lg s" (lap-shade seconds))
+                                    (= "finished" status) "lg notime"
+                                    (and (= "running" (:status r)) (= l current-lap)) "lg running"
+                                    :else "lg none")
+                                  (when (and (= name (:name @tip)) (= l (:lap @tip))) "hover")]
+                          :aria-label (str name ", yard " l ": " (lap-text lap r l current-lap) extra)
+                          :on-mouse-enter #(show! % r l lap extra)
+                          :on-click #(show! % r l lap extra)}]))])]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          (if margin? [margin-grid-legend] [lap-grid-legend])]))))

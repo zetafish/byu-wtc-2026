@@ -74,7 +74,7 @@ With two runners left (A and B):
   - With equal laps, a runner still in ranks ahead of a runner who is out.
   - Otherwise, equal runners share a position. [decided]
 - **Seed states:**
-  - **open**: 2 or more are still in.
+  - **open**: 2 or more are still in. The overview names no winner then, even a runner ahead on yards, but "N tied · still in": a country's results can lag, so one runner ahead on yards may only be ahead on data (seed 14 on 20 Oct: NZL had no yards past 68 for a runner still in). [decided 20 Oct]
   - **last one in**: exactly 1 is still in.
   - **winner**: the race in this seed is over and one runner is first.
   - **tie**: over, and several runners are joint first.
@@ -184,7 +184,7 @@ With two runners left (A and B):
 - **The team page's yard grid by margin** [decided]: the same "Margin | Yard time" switch (Margin by default) on the team page's "Every yard, every runner", with the slowing bars, to follow one team's runners yard by yard.
 
 ### Seeds view
-- An overview of all 15 seeds: the leader (or "N tied"), their country, the yards they're ranked on, and seed state. Click a seed, or pick it in the selector, for that seed's runners. [decided]
+- An overview of all 15 seeds: the **winner** (the last one in; "N tied · still in" while 2 or more are still in; "N tied" when it ended with several joint first), their country, and the most yards in the seed. No state column: the winner cell says it. [decided 20 Oct] Click a seed, or pick it in the selector, for that seed's runners. [decided]
 - **One seed** [decided]: a seed race is part pace and part team strength, so each runner's row shows position, runner, country, **Team in** (their country's runners still in; "⚠ 2" in red when it's 2, because a teammate's drop then ends this runner's race: they finish the yard alone as the national winner), **Margin** (rest per yard over the last 3 timed yards, with ▼ in red when they're over a minute slower than their average, ▲ when faster, – when steady), yards, and their yard cells as in the Runners heatmap. Runners still in come first, tied ones most comfortable (largest margin) first; the stopped ones fold under "N stopped · Show". On a phone the yard cells and yards are left out. Click a name for the runner dialog.
 
 ### Redesign: pages [proposed]
