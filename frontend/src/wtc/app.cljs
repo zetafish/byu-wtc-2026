@@ -1488,12 +1488,12 @@
 
 (defn- seed-detail
   "The chosen seed's runners, as yard-cell rows with their team's runners in
-  and their margin: still in first (tied ones most comfortable first), the
-  stopped ones folded under \"Show\"."
+  and their margin: still in first (tied ones most comfortable first), then
+  the stopped ones."
   [_ _]
   (let [tip (r/atom nil)]
     (fn [runners n]
-      (let [{:keys [countries lap-times race seed-stopped?]} @db
+      (let [{:keys [countries lap-times race]} @db
             current (:current-lap race 1)
             active (into {} (map (juxt :code :active)) countries)
             ranked (seed-ranking runners n)
@@ -1516,13 +1516,10 @@
             [:span.num.yards "Yards"]
             [:span.yards-label {:style {:grid-column (str "span " (max 1 current))}} (str "1 … " current)]]
            (map row in)
-           ;; folded only behind runners still in: a seed that's over shows them
+           ;; the stopped ones under a divider, while some are still in
            (when (and (seq out) (seq in))
-             [:div.seed-fold
-              [:span (str (count out) " stopped")]
-              [:button.link {:aria-expanded (boolean seed-stopped?) :on-click #(swap! db update :seed-stopped? not)}
-               (if seed-stopped? "Hide ▴" "Show ▾")]])
-           (when (or seed-stopped? (empty? in)) (map row out))]]
+             [:div.seed-fold (str (count out) " stopped")])
+           (map row out)]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          [lap-grid-legend]]))))
