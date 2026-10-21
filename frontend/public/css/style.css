@@ -398,23 +398,15 @@ a.clabel:hover .cname { text-decoration: underline; }
 .flag { width: 20px; height: 15px; flex: none; border-radius: 2px; box-shadow: 0 0 0 1px var(--line); object-fit: cover; }
 .flag.none { display: inline-block; background: var(--line); }
 /* runner leaderboard: fixed column widths, the name takes the rest */
-table.runners { table-layout: fixed; min-width: 1120px; }
-table.runners td { overflow: hidden; text-overflow: ellipsis; }
-table.runners col.pos { width: 56px; }
-table.runners col.country { width: 190px; }
-table.runners col.n { width: 52px; }
-table.runners col.status { width: 165px; }
-table.runners col.time { width: 72px; }
-table.runners col.total { width: 88px; }
-table.runners col.spark { width: 124px; }
-table.runners col.seed-race { width: 96px; }
-table.runners.team-runners { min-width: 820px; }
 /* the runner leaderboard: a grid with table roles, styled as the tables, so
    off-screen rows skip layout (content-visibility) and sorting stays quick */
 .lb { min-width: 1204px; font-variant-numeric: tabular-nums; }
 .lb-row { display: grid; align-items: center; border-bottom: 1px solid var(--line);
   grid-template-columns: 56px minmax(0, 1fr) 190px 52px 52px 52px 165px 72px 72px 72px 88px 84px 124px;
   content-visibility: auto; contain-intrinsic-size: auto 39px; }
+/* the team page: the seed race where the leaderboard has the country */
+.lb-team { min-width: 1110px; }
+.lb-team .lb-row { grid-template-columns: 56px minmax(0, 1fr) 96px 52px 52px 52px 165px 72px 72px 72px 88px 84px 124px; }
 .lb-row > span { padding: 7px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .lb-row > span.name { font-weight: 600; }
 .lb-head { position: sticky; top: 0; z-index: 1; background: var(--surface-1); content-visibility: visible; }
@@ -424,7 +416,6 @@ table.runners.team-runners { min-width: 820px; }
 .lb-row.out > span { color: var(--text-muted); }
 .margin.danger, .seed-row > .danger { color: var(--critical); font-weight: 600; }
 .lb-row.out .flag { filter: grayscale(1); opacity: 0.55; }
-table.runners td.name .star { margin-right: 6px; }
 select.seed {
   font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
   border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer;

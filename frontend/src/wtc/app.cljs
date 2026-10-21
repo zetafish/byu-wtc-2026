@@ -49,6 +49,7 @@
                                                              :runners-view (:runners-view @db)
                                                              :yard-shade (:yard-shade @db)
                                                              :team-yard-shade (:team-yard-shade @db)
+                                                             :team-runners-view (:team-runners-view @db)
                                                              :standings-view (:race-view @db)
                                                              :slot-metric (:slot-metric @db)
                                                              :theme (:theme @db)
@@ -1155,8 +1156,9 @@
   "One leaderboard row. A component of its own, so a row whose runner, star
   and yard times are unchanged isn't redrawn: opening or closing the runner
   dialog (or any other change of state) would otherwise redraw ~1000 rows
-  with their sparklines."
-  [{:keys [id name country laps pos] :as runner} times]
+  with their sparklines. With `team?` (the team page), the runner's seed
+  race instead of the country."
+  [{:keys [id name country laps pos rank seed-place seed-runners] :as runner} times & [team?]]
   ;; a grid row, not a <tr>: the browser can skip laying out rows off screen
   ;; (content-visibility), which it can't for table rows
   [:div.lb-row.clickable {:role "row" :class (when (= "out" (:status runner)) "out")
@@ -1165,8 +1167,13 @@
                                       (swap! db assoc :open id))}
    [:span.num {:role "cell"} pos]
    [:span.name {:role "cell"} name]
-   [:span {:role "cell"} [country-label country]]
-   [:span.num {:role "cell"} (:rank runner)]
+   (if team?
+     [:span {:role "cell"}
+      (when seed-place
+        [:a {:href "#seeds" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seed rank))}
+         (str (ordinal seed-place) " of " seed-runners)])]
+     [:span {:role "cell"} [country-label country]])
+   [:span.num {:role "cell"} rank]
    [:span.num {:role "cell"} (or (:best-yards runner) "–")]
    [:span.num {:role "cell"} laps]
    [:span {:role "cell"} [status-badge runner]]
@@ -1330,6 +1337,25 @@
        [:button {:aria-pressed (= by cur) :title title :on-click #(pick-sort! by)}
         label [:span.arrow (sort-arrow by)]])]))
 
+(defn- view-switch
+  "Table | Margin | Yard times: the table, or every yard shaded by the margin
+  after it or by its time. `view-key` and `shade-key` hold the choice in db."
+  [view-key shade-key]
+  ;; read db here, not in the lazy `for`: Reagent only tracks derefs made
+  ;; while rendering
+  (let [cur-view (view-key @db :table)
+        cur-shade (shade-key @db :margin)]
+    [:div.segmented {:role "group" :aria-label "Show runners as"}
+     (for [[view shade label title] [[:table nil "Table"]
+                                     [:heatmap :margin "Margin" "Every yard, shaded by the margin after it"]
+                                     [:heatmap :time "Yard times" "Every yard, shaded by its time"]]]
+       ^{:key label}
+       [:button {:aria-pressed (and (= view cur-view) (or (nil? shade) (= shade cur-shade)))
+                 :title title
+                 :on-click #(do (swap! db (fn [d] (cond-> (assoc d view-key view)
+                                                        shade (assoc shade-key shade))))
+                                (save-prefs!))} label])]))
+
 (defn- runners-table []
   (let [{:keys [runners open lap-times show-out-runners? runner-filter query]} @db
         q (str/lower-case (str/trim query))
@@ -1348,18 +1374,7 @@
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
        [:p.sub "All runners of all countries. Click a row for the runner's figures and yard times."]]
-      ;; one switch: the table, or every yard shaded by margin or by time
-      [:div.segmented {:role "group" :aria-label "Show runners as"}
-       (for [[view shade label title] [[:table nil "Table"]
-                                       [:heatmap :margin "Margin" "Every yard, shaded by the margin after it"]
-                                       [:heatmap :time "Yard times" "Every yard, shaded by its time"]]]
-         ^{:key label}
-         [:button {:aria-pressed (and (= view (:runners-view @db :table))
-                                      (or (nil? shade) (= shade (:yard-shade @db :margin))))
-                   :title title
-                   :on-click #(do (swap! db (fn [d] (cond-> (assoc d :runners-view view)
-                                                          shade (assoc :yard-shade shade))))
-                                  (save-prefs!))} label])]]
+      [view-switch :runners-view :yard-shade]]
      [:div.filters-bar [runner-filters n-out show-out?] [sort-buttons]]
      (if (empty? shown)
        [:div.empty (cond
@@ -1789,7 +1804,17 @@
            "crossing it is an overtake. Lines end at the last yard both countries reported."
            rivals-note])])]))
 
-(defn- team-runners [{:keys [runners]}]
+(declare lap-grid)
+
+(defn- yard-times
+  "[[lap seconds]] of the timed yards in a team runner's history."
+  [history]
+  (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history)))
+
+(defn- team-runners
+  "The team's runners as the leaderboard has them, without the country (the
+  seed race in its place), or every yard: \"Table | Margin | Yard times\"."
+  [{:keys [runners settled-lap current-lap]}]
   (let [sort-by-key (:team-sort @db :seed)
         ;; seed order; most yards first; fastest average first (untimed last)
         runners (case sort-by-key
@@ -1797,45 +1822,40 @@
                   :avg (sort-by (juxt #(or (:avg-seconds %) js/Infinity) :rank) runners)
                   (sort-by :rank runners))
         ranked-all (ranked (:runners @db))
+        ;; the leaderboard's row (pos, best, fastest, total) under the team's
+        by-id (into {} (map (juxt :id identity)) ranked-all)
         open (:open @db)
-        open-runner (when open (some #(when (= open (:id %)) %) ranked-all))]
+        open-runner (when open (by-id open))]
     [:section.card.wide
      (when open-runner ^{:key open} [runner-dialog open-runner (count (:runners @db))])
      [:div.card-head
       [:div [:h2 "Runners"]
        [:p.sub "Their seed (place in the team by best qualifying yards), and their place among all runners in that seed across countries. Click a runner for their yard times."]]
+      [view-switch :team-runners-view :team-yard-shade]]
+     [:div.filters-bar
+      [:span]
       [:div.segmented {:role "group" :aria-label "Sort runners by"}
        (for [[v label] [[:seed "Seed"] [:yards "Yards"] [:avg "Avg"]]]
          ^{:key v}
          [:button {:aria-pressed (= v sort-by-key)
                    :on-click #(do (swap! db assoc :team-sort v) (save-prefs!))} label])]]
-     [:div.table-wrap.full
-      ;; same order and widths as the runner leaderboard for the columns they share
-      [:table.runners.team-runners
-       [:colgroup [:col] [:col.n] [:col.n] [:col.status] [:col.time] [:col.time] [:col.time] [:col.seed-race] [:col.spark]]
-       [:thead [:tr [:th "Runner"] [:th.num "Seed"] [:th.num "Yards"] [:th "Status"]
-                [:th.num "Last yard"]
-                [:th.num {:title "Average of the timed yards"} "Avg"]
-                [:th.num {:title "Rest per yard, average of the last 3 timed yards"} "Margin"]
-                [:th {:title "Place among all runners in this seed"} "Seed race"]
-                [:th "Yard times"]]]
-       [:tbody
-        (for [{:keys [id name rank laps last-seconds avg-seconds seed-place seed-runners history] :as r} runners]
-          ^{:key id}
-          [:tr.clickable {:class (when (= "out" (:status r)) "out")
-                          :on-click #(do (fetch-runner-detail! id) (swap! db assoc :open id))}
-           [:td.name name]
-           [:td.num rank]
-           [:td.num laps]
-           [:td [status-badge r]]
-           [:td.num (or (mmss last-seconds) "–")]
-           [:td.num (or (mmss avg-seconds) "–")]
-           ;; with its trend, as on the Runners and Seeds views
-           [:td.num [margin-cell (margin-of r (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history)))]]
-           [:td (when seed-place
-                  [:a {:href "#seeds" :on-click (fn [e] (.stopPropagation e) (swap! db assoc :seed rank))}
-                   (str (ordinal seed-place) " of " seed-runners)])]
-           [:td [chart/sparkline (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history))]]])]]]]))
+     (if (= :heatmap (:team-runners-view @db))
+       [lap-grid runners settled-lap current-lap]
+       [:div.table-wrap.full
+        ;; the leaderboard's grid and widths, the seed race in the country's place
+        [:div.lb.lb-team {:role "table" :aria-label "Team runners"}
+         [:div.lb-row.lb-head {:role "row"}
+          (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Seed race" "Place among all runners in this seed"]
+                                   [:num "Seed"]
+                                   [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
+                                   [:num "Yards"]
+                                   [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
+                                   [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
+                                   [:num "Margin" "Rest per yard over the last 3 yards, and its trend"]
+                                   [nil "Yard times"]]]
+            ^{:key label} [:span {:role "columnheader" :class cls :title title} label])]
+         (for [{:keys [id history] :as r} runners]
+           ^{:key id} [runner-row (merge (by-id id) r) (yard-times history) true])]])]))
 
 (defn- lap-shade
   "0-5 by lap time: under 40 min, 40-46, 46-49, 49-53, 53-57, 57 or more.
@@ -1871,33 +1891,25 @@
    [:li [:span.lg.running] "running now"]])
 
 (defn- lap-grid
-  "Runners × laps. Hovering (or tapping) a cell shows its lap at once, in a
-  tooltip fixed to the viewport, so the grid's scrolling box can't clip it.
-  \"Yard time | Margin\" shades the yards by time, or as the Runners view's
-  Every yard does by margin, with its slowing bars."
-  [_]
+  "Runners × laps, in the team page's Runners card. Hovering (or tapping) a
+  cell shows its lap at once, in a tooltip fixed to the viewport, so the
+  grid's scrolling box can't clip it. Shaded by time, or as the Runners
+  view's heatmap does by margin, with its slowing bars."
+  [_ _ _]
   (let [tip (r/atom nil)]  ; {:x :y :name :lap :text} of the cell under the pointer
-    (fn [{:keys [runners settled-lap current-lap]}]
+    (fn [runners settled-lap current-lap]
       (let [n (max 1 (if (pos? settled-lap) current-lap 1))
             margin? (not= :time (:team-yard-shade @db))   ; by margin unless Yard time was picked
             show! (fn [e r l lap extra]
                     (let [rect (.getBoundingClientRect (.-currentTarget e))]
                       (reset! tip {:x (+ (.-left rect) (/ (.-width rect) 2)) :y (.-top rect)
                                    :name (:name r) :lap l :text (str (lap-text lap r l current-lap) extra)})))]
-        [:section.card.wide
-         [:div.card-head
-          [:div [:h2 "Every yard, every runner"]
-           [:p.sub "One cell per yard. Hover or tap a cell for its yard time, or why the runner stopped."]]
-          [:div.segmented {:role "group" :aria-label "Shade the yards by"}
-           (for [[v label] [[:margin "Margin"] [:time "Yard time"]]]
-             ^{:key v}
-             [:button {:aria-pressed (= v (:team-yard-shade @db :margin))
-                       :on-click #(do (swap! db assoc :team-yard-shade v) (save-prefs!))} label])]]
+        [:<>
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           [:div.lap-grid {:style {:grid-template-columns (str "minmax(110px, 160px) repeat(" n ", minmax(5px, 1fr))")}}
            (for [{:keys [id name history stop] :as r} runners
                  :let [by-lap (into {} (map (juxt :lap identity)) history)
-                       times (when margin? (vec (keep (fn [{:keys [lap seconds]}] (when seconds [lap seconds])) history)))
+                       times (when margin? (yard-times history))
                        margins (when margin? (margins-by-lap times))
                        slowdowns (when margin? (slowdowns-by-lap times))]]
              ^{:key id}
@@ -1951,7 +1963,6 @@
               [team-header team-data]
               [chase-card team-data]
               [team-runners team-data]
-              [lap-grid team-data]
               [team-over-time team-data]
               [team-place team-data]])]))
 
@@ -2108,7 +2119,7 @@
   (rdc/render @root [app]))
 
 (defn init []
-  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade standings-view slot-metric theme standings-filter chart-range chart-group]} (load-prefs)]
+  (when-let [{:keys [favourites show-out-runners runner-filter variant sim-poll-ms team chase-view chase-range team-sort runner-sort runners-view yard-shade team-yard-shade team-runners-view standings-view slot-metric theme standings-filter chart-range chart-group]} (load-prefs)]
     (swap! db assoc
            :team team
            :chase-view (case chase-view "history" :history "runners" :runners :numbers)
@@ -2117,6 +2128,7 @@
            :runners-view (if (= "heatmap" runners-view) :heatmap :table)
            :yard-shade (if (= "time" yard-shade) :time :margin)
            :team-yard-shade (if (= "time" team-yard-shade) :time :margin)
+           :team-runners-view (if (= "heatmap" team-runners-view) :heatmap :table)
            :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (case standings-view "runners" :runners "teams" :teams nil)
