@@ -1295,6 +1295,8 @@
 (def ^:private runner-sorts
   {:last (fn [r _] (:last-seconds r)) :avg (fn [r _] (:avg-seconds r))
    :fastest (fn [r _] (:fastest-seconds r)) :total (fn [r _] (:total-seconds r))
+   ;; by name A–Z, so a country's runners cluster, in position order
+   :country (fn [r _] (country-name (:country r)))
    :margin (fn [r times] (:margin (margin-of r times)))
    :trend (fn [r times] (:change (margin-of r times)))})
 
@@ -1330,7 +1332,7 @@
   []
   (let [cur (or (:by (:runner-sort @db)) :pos)]
     [:div.segmented.sort-buttons {:role "group" :aria-label "Sort runners by"}
-     (for [[by label title] [[:pos "Pos"] [:last "Last yard"] [:avg "Avg"] [:fastest "Fastest"] [:total "Total"]
+     (for [[by label title] [[:pos "Pos"] [:country "Country" "A–Z by name, each country's runners in position order"] [:last "Last yard"] [:avg "Avg"] [:fastest "Fastest"] [:total "Total"]
                              [:margin "Margin" "Rest per yard over the last 3 yards: smallest first"]
                              [:trend "Trend" "How the margin changes against the runner's average: shrinking most first"]]]
        ^{:key by}
@@ -2148,7 +2150,7 @@
            :yard-shade (if (= "time" yard-shade) :time :margin)
            :team-yard-shade (if (= "time" team-yard-shade) :time :margin)
            :team-runners-view (if (= "heatmap" team-runners-view) :heatmap :table)
-           :runner-sort (when-let [by (#{:last :avg :fastest :total} (keyword (:by runner-sort)))]
+           :runner-sort (when-let [by (#{:country :last :avg :fastest :total :margin :trend} (keyword (:by runner-sort)))]
                           {:by by :desc? (true? (:desc? runner-sort))})
            :race-view (case standings-view "runners" :runners "teams" :teams nil)
            :slot-metric (if (= "margin" slot-metric) :margin :yards)
