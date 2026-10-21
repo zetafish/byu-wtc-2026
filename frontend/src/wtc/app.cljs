@@ -1430,7 +1430,7 @@
 
 (defn- seeds-overview [runners]
   [:table
-   [:thead [:tr [:th.num "Seed"] [:th "Winner"] [:th "Country"] [:th.num "Yards"]]]
+   [:thead [:tr [:th.num "Seed"] [:th "Status"] [:th "Winner"] [:th "Country"] [:th.num "Yards"]]]
    [:tbody
     (for [n seeds
           :let [{:keys [leaders state running]} (seed-summary runners n)
@@ -1438,10 +1438,14 @@
       ^{:key n}
       [:tr.clickable {:on-click #(swap! db assoc :seed n)}
        [:td.num [:b n]]
+       [:td (case state
+              :open [:span.pill.in [:span.dot.in] (str "open · " running " in")]
+              :last-in [:span.pill.in [:span.dot.in] "last one in"]
+              [:span.pill.out "ended"])]
        ;; no winner while 2 or more are still in, not even the one ahead on
        ;; yards: a country's results can lag, so they may only be ahead on data
        (case state
-         :open [:<> [:td.muted (str running " tied · still in")] [:td]]
+         :open [:<> [:td.muted "not yet"] [:td]]
          ;; over, several joint first: name them all
          :tie [:<> [:td.name (str/join " · " (map :name leaders))
                     [:span.muted " · tied"]]
