@@ -1471,13 +1471,15 @@
 (defn- seed-row
   "One runner of the chosen seed: position, name, country, their team's
   runners still in, margin and trend, yards, then their yard cells. A row of
-  its own grid, so unchanged rows aren't redrawn or laid out off screen."
-  [{:keys [id name country pos] :as r} times team-in n current-lap tip cols]
+  its own grid, so unchanged rows aren't redrawn or laid out off screen.
+  `winner?`: the seed is over and this runner is (joint) first."
+  [{:keys [id name country pos] :as r} times team-in n current-lap tip cols winner?]
   (let [in? (running? r)
         open! #(do (fetch-runner-detail! id) (swap! db assoc :open id))]
-    [:div.hm-row.seed-row {:style {:grid-template-columns cols} :class (when-not in? "out")}
+    [:div.hm-row.seed-row {:style {:grid-template-columns cols} :class (cond winner? "winner" (not in?) "out")}
      [:span.hm-pos pos]
-     [:button.hm-name {:on-click open! :title "Figures and yard times"} name]
+     [:button.hm-name {:on-click open! :title "Figures and yard times"}
+      (when winner? [:span.star-mark "★ "]) name]
      [:span.hm-country [:a.cshort {:href (str "#team/" country) :title (country-name country)} [flag country] country]]
      [:span.num {:class (when (and in? (= 2 team-in)) "danger")
                  :title (when (and in? (= 2 team-in)) "If a teammate drops, this runner finishes the yard alone and their race ends")}
@@ -1501,12 +1503,23 @@
             [in out] ((juxt filter remove) running? ranked)
             in (sort-by (juxt :pos (comp - margin)) in)
             cols (str "44px minmax(140px, 220px) 76px 70px 96px 56px repeat(" (max 1 current) ", minmax(4px, 1fr))")
-            row (fn [r] ^{:key (:id r)} [seed-row r (get lap-times (:id r)) (active (:country r)) current current tip cols])]
+            ;; over once nobody is in: the joint first are its winners
+            winners (when (empty? in) (filter #(= 1 (:pos %)) ranked))
+            winner-ids (set (map :id winners))
+            row (fn [r] ^{:key (:id r)} [seed-row r (get lap-times (:id r)) (active (:country r)) current current tip cols
+                                         (contains? winner-ids (:id r))])]
         [:<>
-         [:p.seed-sum (str (count in) " of " (count ranked) " still in"
-                           (when-let [y (some-> (first in) ranked-laps)]
-                             (if (every? #(= y (ranked-laps %)) in) (str " · tied on " y " yards") ""))
-                           ". Team in: when a team is down to 2, a teammate's drop ends this runner's race.")]
+         (if (seq winners)
+           (let [names (map #(str (:name %) " (" (:country %) ")") winners)
+                 y (ranked-laps (first winners))]
+             [:p.seed-sum [:span.star-mark "★ "]
+              (if (next names)
+                (str (str/join ", " (butlast names)) " and " (last names) " tied for first with " y " yards.")
+                (str (first names) " won the seed with " y " yards."))])
+           [:p.seed-sum (str (count in) " of " (count ranked) " still in"
+                             (when-let [y (some-> (first in) ranked-laps)]
+                               (if (every? #(= y (ranked-laps %)) in) (str " · tied on " y " yards") ""))
+                             ". Team in: when a team is down to 2, a teammate's drop ends this runner's race.")])
          [:div.lap-grid-wrap {:on-mouse-leave #(reset! tip nil) :on-scroll #(reset! tip nil)}
           [:div.hm.seed-grid
            [:div.hm-row.seed-row.seed-head {:style {:grid-template-columns cols}}
