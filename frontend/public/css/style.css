@@ -413,7 +413,7 @@ table.runners.team-runners { min-width: 820px; }
    off-screen rows skip layout (content-visibility) and sorting stays quick */
 .lb { min-width: 1204px; font-variant-numeric: tabular-nums; }
 .lb-row { display: grid; align-items: center; border-bottom: 1px solid var(--line);
-  grid-template-columns: 56px minmax(0, 1fr) 190px 52px 52px 165px 72px 72px 72px 88px 84px 52px 124px;
+  grid-template-columns: 56px minmax(0, 1fr) 190px 52px 52px 52px 165px 72px 72px 72px 88px 84px 124px;
   content-visibility: auto; contain-intrinsic-size: auto 39px; }
 .lb-row > span { padding: 7px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .lb-row > span.name { font-weight: 600; }

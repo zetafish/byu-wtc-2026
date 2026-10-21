@@ -1167,6 +1167,7 @@
    [:span.name {:role "cell"} name]
    [:span {:role "cell"} [country-label country]]
    [:span.num {:role "cell"} (:rank runner)]
+   [:span.num {:role "cell"} (or (:best-yards runner) "–")]
    [:span.num {:role "cell"} laps]
    [:span {:role "cell"} [status-badge runner]]
    [:span.num {:role "cell"} (mmss (:last-seconds runner))]
@@ -1174,7 +1175,6 @@
    [:span.num {:role "cell"} (mmss (:fastest-seconds runner))]
    [:span.num {:role "cell"} (hmmss (:total-seconds runner))]
    [:span.num {:role "cell"} [margin-cell (margin-of runner times)]]
-   [:span.num {:role "cell"} (or (:best-yards runner) "–")]
    [:span {:role "cell"} (when times [chart/sparkline times])]])
 
 (declare lap-shade lap-text lap-grid-legend)
@@ -1348,17 +1348,18 @@
      [:div.card-head
       [:div [:h2 "Runner leaderboard"]
        [:p.sub "All runners of all countries. Click a row for the runner's figures and yard times."]]
+      ;; one switch: the table, or every yard shaded by margin or by time
       [:div.segmented {:role "group" :aria-label "Show runners as"}
-       (for [[v label] [[:table "Table"] [:heatmap "Every yard"]]]
-         ^{:key v}
-         [:button {:aria-pressed (= v (:runners-view @db :table))
-                   :on-click #(do (swap! db assoc :runners-view v) (save-prefs!))} label])]
-      (when (= :heatmap (:runners-view @db))
-        [:div.segmented {:role "group" :aria-label "Shade the yards by"}
-         (for [[v label] [[:margin "Margin"] [:time "Yard time"]]]
-           ^{:key v}
-           [:button {:aria-pressed (= v (:yard-shade @db :margin))
-                     :on-click #(do (swap! db assoc :yard-shade v) (save-prefs!))} label])])]
+       (for [[view shade label title] [[:table nil "Table"]
+                                       [:heatmap :margin "Margin" "Every yard, shaded by the margin after it"]
+                                       [:heatmap :time "Yard times" "Every yard, shaded by its time"]]]
+         ^{:key label}
+         [:button {:aria-pressed (and (= view (:runners-view @db :table))
+                                      (or (nil? shade) (= shade (:yard-shade @db :margin))))
+                   :title title
+                   :on-click #(do (swap! db (fn [d] (cond-> (assoc d :runners-view view)
+                                                          shade (assoc :yard-shade shade))))
+                                  (save-prefs!))} label])]]
      [:div.filters-bar [runner-filters n-out show-out?] [sort-buttons]]
      (if (empty? shown)
        [:div.empty (cond
@@ -1373,11 +1374,12 @@
         ;; The columns it shares with the team page have the same widths
           [:div.lb {:role "table" :aria-label "Runner leaderboard"}
            [:div.lb-row.lb-head {:role "row"}
-            (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seed"] [:num "Yards"]
+            (for [[cls label title] [[:num "Pos"] [nil "Runner"] [nil "Country"] [:num "Seed"]
+                                     [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
+                                     [:num "Yards"]
                                      [nil "Status"] [:num "Last yard"] [:num "Avg" "Average of the timed yards"]
                                      [:num "Fastest"] [:num "Total" "Sum of the timed yards"]
                                      [:num "Margin" "Rest per yard over the last 3 yards, and its trend"]
-                                     [:num "Best" "Best backyard result (yards) in the 2026 qualifying period"]
                                      [nil "Yard times"]]]
               ^{:key label} [:span {:role "columnheader" :class cls :title title} label])]
            (for [{:keys [id] :as runner} shown]
