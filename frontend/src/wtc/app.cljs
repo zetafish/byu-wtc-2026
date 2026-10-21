@@ -1442,7 +1442,11 @@
        ;; yards: a country's results can lag, so they may only be ahead on data
        (case state
          :open [:<> [:td.muted (str running " tied · still in")] [:td]]
-         :tie [:<> [:td.muted (str (count leaders) " tied")] [:td]]
+         ;; over, several joint first: name them all
+         :tie [:<> [:td.name (str/join " · " (map :name leaders))
+                    [:span.muted " · tied"]]
+               [:td (for [c (distinct (map :country leaders))]
+                      ^{:key c} [:span.tied-country [country-label c]])]]
          [:<> [:td.name (:name lead)]
           [:td [country-label (:country lead)]]])
        ;; the yards the leaders are ranked on (a runner who already finished the
@@ -1512,12 +1516,13 @@
             [:span.num.yards "Yards"]
             [:span.yards-label {:style {:grid-column (str "span " (max 1 current))}} (str "1 … " current)]]
            (map row in)
-           (when (seq out)
+           ;; folded only behind runners still in: a seed that's over shows them
+           (when (and (seq out) (seq in))
              [:div.seed-fold
               [:span (str (count out) " stopped")]
               [:button.link {:aria-expanded (boolean seed-stopped?) :on-click #(swap! db update :seed-stopped? not)}
                (if seed-stopped? "Hide ▴" "Show ▾")]])
-           (when seed-stopped? (map row out))]]
+           (when (or seed-stopped? (empty? in)) (map row out))]]
          (when-let [{:keys [x y name lap text]} @tip]
            [:div.lg-tip {:style {:left x :top y}} [:b name] (str " · yard " lap " · " text)])
          [lap-grid-legend]]))))

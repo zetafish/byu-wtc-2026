@@ -415,6 +415,7 @@ a.clabel:hover .cname { text-decoration: underline; }
 .lb-row.clickable:hover { background: var(--hover); }
 .lb-row.out > span { color: var(--text-muted); }
 .margin.danger, .seed-row > .danger { color: var(--critical); font-weight: 600; }
+.tied-country + .tied-country { margin-left: 14px; }
 .lb-row.out .flag { filter: grayscale(1); opacity: 0.55; }
 select.seed {
   font: 600 14px var(--body); color: var(--text-primary); background: var(--page);
